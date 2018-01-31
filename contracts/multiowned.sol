@@ -3,7 +3,7 @@ pragma solidity ^0.4.19;
 
 contract multiowned {
 
-	// TYPES
+    // TYPES
 
     // struct for the status of a pending operation.
     struct PendingState {
@@ -12,7 +12,7 @@ contract multiowned {
         uint index;
     }
 
-	// EVENTS
+    // EVENTS
 
     // this contract only has six types of events: it can accept a confirmation, in which case
     // we record owner and operation (hash) alongside it.
@@ -25,7 +25,7 @@ contract multiowned {
     // the last one is emitted if the required signatures change
     event RequirementChanged(uint newRequirement);
 
-	// MODIFIERS
+    // MODIFIERS
 
     // simple single-sig function modifier.
     modifier onlyowner {
@@ -46,7 +46,7 @@ contract multiowned {
         _;
     }
 
-	// METHODS
+    // METHODS
 
     // constructor is given number of sigs required to do protected "onlymanyowners" transactions
     // as well as the selection of addresses capable of confirming them.
@@ -61,13 +61,13 @@ contract multiowned {
         }
         m_required = _required;
     }
-    
+
     // Revokes a prior confirmation of the given operation
     function revoke(bytes32 _operation) external {
         uint ownerIndex = m_ownerIndex[uint(msg.sender)];
         // make sure they're an owner
         if (ownerIndex == 0) return;
-        uint ownerIndexBit = 2**ownerIndex;
+        uint ownerIndexBit = 2 ** ownerIndex;
         var pending = m_pending[_operation];
         if (pending.ownersDone & ownerIndexBit > 0) {
             pending.yetNeeded++;
@@ -75,7 +75,7 @@ contract multiowned {
             Revoke(msg.sender, _operation);
         }
     }
-    
+
     // Replaces an owner `_from` with another `_to`.
     function changeOwner(address _from, address _to) onlymanyowners(sha3(msg.data)) external {
         if (isOwner(_to)) return;
@@ -88,7 +88,7 @@ contract multiowned {
         m_ownerIndex[uint(_to)] = ownerIndex;
         OwnerChanged(_from, _to);
     }
-    
+
     function addOwner(address _owner) onlymanyowners(sha3(msg.data)) external {
         if (isOwner(_owner)) return;
 
@@ -102,7 +102,7 @@ contract multiowned {
         m_ownerIndex[uint(_owner)] = m_numOwners;
         OwnerAdded(_owner);
     }
-    
+
     function removeOwner(address _owner) onlymanyowners(sha3(msg.data)) external {
         uint ownerIndex = m_ownerIndex[uint(_owner)];
         if (ownerIndex == 0) return;
@@ -111,10 +111,11 @@ contract multiowned {
         m_owners[ownerIndex] = 0;
         m_ownerIndex[uint(_owner)] = 0;
         clearPending();
-        reorganizeOwners(); //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot
+        reorganizeOwners();
+        //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot
         OwnerRemoved(_owner);
     }
-    
+
     function changeRequirement(uint _newRequired) onlymanyowners(sha3(msg.data)) external {
         if (_newRequired > m_numOwners) return;
         m_required = _newRequired;
@@ -130,7 +131,7 @@ contract multiowned {
     function isOwner(address _addr) returns (bool) {
         return m_ownerIndex[uint(_addr)] > 0;
     }
-    
+
     function hasConfirmed(bytes32 _operation, address _owner) constant returns (bool) {
         var pending = m_pending[_operation];
         uint ownerIndex = m_ownerIndex[uint(_owner)];
@@ -139,10 +140,10 @@ contract multiowned {
         if (ownerIndex == 0) return false;
 
         // determine the bit to set for this owner.
-        uint ownerIndexBit = 2**ownerIndex;
+        uint ownerIndexBit = 2 ** ownerIndex;
         return !(pending.ownersDone & ownerIndexBit == 0);
     }
-    
+
     // INTERNAL METHODS
 
     function confirmAndCheck(bytes32 _operation) internal returns (bool) {
@@ -162,7 +163,7 @@ contract multiowned {
             m_pendingIndex[pending.index] = _operation;
         }
         // determine the bit to set for this owner.
-        uint ownerIndexBit = 2**ownerIndex;
+        uint ownerIndexBit = 2 ** ownerIndex;
         // make sure we (the message sender) haven't confirmed this operation previously.
         if (pending.ownersDone & ownerIndexBit == 0) {
             Confirmation(msg.sender, _operation);
@@ -196,7 +197,7 @@ contract multiowned {
             }
         }
     }
-    
+
     function clearPending() internal {
         uint length = m_pendingIndex.length;
         for (uint i = 0; i < length; ++i)
@@ -204,14 +205,14 @@ contract multiowned {
                 delete m_pending[m_pendingIndex[i]];
         delete m_pendingIndex;
     }
-        
-   	// FIELDS
+
+    // FIELDS
 
     // the number of owners that must confirm the same operation before it is run.
     uint public m_required;
     // pointer used to find a free slot in m_owners
     uint public m_numOwners;
-    
+
     // list of owners
     uint[256] m_owners;
     uint constant c_maxOwners = 250;
