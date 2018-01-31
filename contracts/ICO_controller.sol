@@ -13,7 +13,7 @@ contract ICO_controller is Ownable {
     MFC_Token public token = new MFC_Token();
 
     // add address for multisig!!
-    Holder holder = new Holder([0x123, 0x123, 0x123], 3);
+    Holder holder = new Holder([0x123, 0x123, 0x123], 3, 0x123456);
 
     // list of buyer are able to participate in ICOs
     mapping(address => bool) public buyersWhitelist;
@@ -30,17 +30,36 @@ contract ICO_controller is Ownable {
     WhitelistedCrowdsale public preSale;
     WhitelistedCrowdsale public crowdsale;
 
-    uint256 public PRIVATE_OFFER_SUPPLY = 7000000 * 1 ether;
-    uint256 public PRE_SALE_SUPPLY = 36000000 * 1 ether;
-    uint256 public CROWDSALE_SUPPLY = 237000000 * 1 ether;
-    uint256 public SOFTCUP = 4720 * 1 ether;
-    uint256 public MAX_DEV_REWARD = 40000000 * 1 ether;
-    uint256 public INCENTIVE_PROGRAM_SUPPORT = 80000000 * 1 ether;
+    uint256 constant public PRIVATE_OFFER_SUPPLY = 7000000 * 1 ether;
+    uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
+    uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
+    uint256 constant public SOFTCUP = 4720 * 1 ether;
+    uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
+    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 80000000 * 1 ether;
+    uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
 
+    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01 
+    uint constant public Q1_2019_START_DATE = 1546300800; // 2019 01 01 
+    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
+    uint constant public Q3_2019_START_DATE = 1561939200; // 2019 07 01 
+    uint constant public Q4_2019_START_DATE = 1569888000; // 2019 10 01 
+    uint public devRewardReleaseTime;
+    uint[4] public unlockMarketingTokensTime;
+    uint public unlockIndex;
+    uint public releaseMarketingTokenAmount = MARKETING_SUPPORT_SUPPLY.div(4);
 
     uint256 public totalDevReward;
 
     bool public crowdsaleFinished;
+
+    function ICO_controller() {
+        devRewardReleaseTime = Q3_2018_START_DATE + uint(block.blockhash(block.number - 1)) % 7948800;
+
+        unlockMarketingTokensTime[0] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 2)) % 7948800;
+        unlockMarketingTokensTime[1] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 3)) % 7948800;
+        unlockMarketingTokensTime[2] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 4)) % 7948800;
+        unlockMarketingTokensTime[3] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 5)) % 7948800;
+    }
 
     modifier onlyIco() {
         require(msg.sender == address(privateOffer) || msg.sender == address(preSale) || msg.sender == address(crowdsale));
@@ -125,11 +144,10 @@ contract ICO_controller is Ownable {
         crowdsale.burnRemainingTokens();
         uint256 totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
-            token.transfer(incentiveProgramAddress, INCENTIVE_PROGRAM_SUPPORT);
-            token.burn(MAX_DEV_REWARD.sub(totalDevReward));
-            owner.transfer(this.balance.div(2));
-            address(holder).transfer(this.balance);
-            holder.activateEscrow();
+            token.transfer(incentiveProgramAddress, INCENTIVE_PROGRAM_SUPPORT); // sends token for support program
+            token.burn(MAX_DEV_REWARD.sub(totalDevReward)); // burn some unspent reward tokens
+            owner.transfer(this.balance.div(2)); // send 50% of ico eth to contract onwer
+            address(holder).transfer(this.balance); // send other 50% to multisig holder address
         }
         crowdsaleFinished = true;
 
@@ -154,8 +172,19 @@ contract ICO_controller is Ownable {
 
     //TODO add Randow date check
     function getDevReward() external {
+        require(devRewardReleaseTime < now);
         uint256 amount = devRewards[msg.sender];
         devRewards[msg.sender] = 0;
         token.transfer(msg.sender, amount);
+    }
+
+    function getLockedMarketingTokens() onlyOwner external {
+        require(unlockIndex < 4);
+        require(unlockMarketingTokensTime[unlockIndex] < now);
+        uint256 amount = releaseMarketingTokenAmount; // It is needed to prevent DAO vulnerability that allows owner get all tokens for once.
+        releaseMarketingTokenAmount = 0;
+        token.transfer(owner, amount);
+        releaseMarketingTokenAmount = amount;
+        unlockIndex++;
     }
 }

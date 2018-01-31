@@ -188,7 +188,7 @@ contract MFC_Token is BurnableToken {
 
     uint256 public INITIAL_SUPPLY = 500000000 * 1 ether;
 
-    function SimpleCoinToken() {
+    function MFC_Token() {
         totalSupply = INITIAL_SUPPLY;
         balances[msg.sender] = INITIAL_SUPPLY;
     }

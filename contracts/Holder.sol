@@ -18,11 +18,6 @@ contract Holder is multiowned {
         escrowAddress = _escrowAddress;
     }
 
-    // ICO controller activates this function after all ICOs finished
-    function activateEscrow() external onlycreator {
-        activateEscrow = true;
-    }
-
     function escrowFirstStage() external onlymanyowners(sha3(msg.data)) returns (bool success){
         escrowAddress.transfer(this.balance.mul(6).div(10));
         //escrow 60% of got 50%
