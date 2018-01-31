@@ -90,7 +90,7 @@ contract ICO_controller is Ownable{
     	for(uint i=0; i < _amounts.length; i++){
     		addDevReward(_devAddresses[i], _amounts[i]);
     	}
-    	returns true;
+    	return true;
     }
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!

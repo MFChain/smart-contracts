@@ -2,9 +2,9 @@ pragma solidity ^0.4.18;
 
 
 import "./MFC_coin.sol";
-import "./ICO_controller.sol"
+import "./ICO_controller.sol";
 import "./SafeMath.sol";
-import "./Ownable.sol"
+import "./Ownable.sol";
 
 
 
@@ -74,7 +74,7 @@ contract WhitelistedCrowdsale is Ownable{
     require(beneficiary != address(0));
     require(validPurchase());
 
-    
+
 
     uint256 weiAmount = msg.value;
 
@@ -105,7 +105,7 @@ contract WhitelistedCrowdsale is Ownable{
   	uint256 basicAmount = weiAmount.mul(rate);
   	uint256 bonusAmount = 0;
   	if(weiAmount < 5 ether){
-  		
+
   	} else if(weiAmount < 10 ether){
   		bonusAmount =  basicAmount.div(10); // 10%
   	} else if (weiAmount < 25 ether){
@@ -116,7 +116,7 @@ contract WhitelistedCrowdsale is Ownable{
   		bonusAmount =  basicAmount.div(5); // 20%
   	}
   	return basicAmount.add(bonusAmount);
-    
+
   }
 
   // send ether to the fund collection wallet
