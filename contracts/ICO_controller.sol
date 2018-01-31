@@ -49,6 +49,7 @@ contract ICO_controller is Ownable {
     uint public releaseMarketingTokenAmount = MARKETING_SUPPORT_SUPPLY.div(4);
 
     uint256 public totalDevReward;
+    uint256 public totalSold;
 
     bool public crowdsaleFinished;
 
@@ -161,7 +162,9 @@ contract ICO_controller is Ownable {
     function refund() external returns (bool success) {
         require(address(crowdsale) != address(0));
         require(crowdsale.hasEnded());
-        uint256 totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
+        if (totalSold == 0){
+            totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
+        }
         require(totalSold < SOFTCUP);
         uint256 amount = buyerSpent[msg.sender];
         buyerSpent[msg.sender] = 0;
