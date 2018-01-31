@@ -5,6 +5,7 @@ import "./MFC_coin.sol";
 import "./ICO_controller.sol";
 import "./SafeMath.sol";
 import "./Ownable.sol";
+import "./Receiver_Interface.sol";
 
 
 
@@ -18,7 +19,7 @@ import "./Ownable.sol";
  * minted as contributions arrive, note that the crowdsale contract
  * must be owner of the token in order to be able to mint it.
  */
-contract WhitelistedCrowdsale is Ownable {
+contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     using SafeMath for uint256;
 
     // The token being sold

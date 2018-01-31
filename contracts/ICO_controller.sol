@@ -5,8 +5,9 @@ import "./Ownable.sol";
 import "./MFC_coin.sol";
 import "./ICO_crowdsale.sol";
 import "./Holder.sol";
+import "./Receiver_Interface.sol";
 
-contract ICO_controller is Ownable {
+contract ICO_controller is Ownable, ERC223Receiver {
 
     using SafeMath for uint256;
     // The token being sold
@@ -145,10 +146,14 @@ contract ICO_controller is Ownable {
         crowdsale.burnRemainingTokens();
         uint256 totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
-            token.transfer(incentiveProgramAddress, INCENTIVE_PROGRAM_SUPPORT); // sends token for support program
-            token.burn(MAX_DEV_REWARD.sub(totalDevReward)); // burn some unspent reward tokens
-            owner.transfer(this.balance.div(2)); // send 50% of ico eth to contract onwer
-            address(holder).transfer(this.balance); // send other 50% to multisig holder address
+            token.transfer(incentiveProgramAddress, INCENTIVE_PROGRAM_SUPPORT);
+            // sends token for support program
+            token.burn(MAX_DEV_REWARD.sub(totalDevReward));
+            // burn some unspent reward tokens
+            owner.transfer(this.balance.div(2));
+            // send 50% of ico eth to contract onwer
+            address(holder).transfer(this.balance);
+            // send other 50% to multisig holder address
         }
         crowdsaleFinished = true;
 
@@ -162,7 +167,7 @@ contract ICO_controller is Ownable {
     function refund() external returns (bool success) {
         require(address(crowdsale) != address(0));
         require(crowdsale.hasEnded());
-        if (totalSold == 0){
+        if (totalSold == 0) {
             totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         }
         require(totalSold < SOFTCUP);
@@ -173,7 +178,6 @@ contract ICO_controller is Ownable {
 
     }
 
-    //TODO add Randow date check
     function getDevReward() external {
         require(devRewardReleaseTime < now);
         uint256 amount = devRewards[msg.sender];
@@ -184,7 +188,8 @@ contract ICO_controller is Ownable {
     function getLockedMarketingTokens() onlyOwner external {
         require(unlockIndex < 4);
         require(unlockMarketingTokensTime[unlockIndex] < now);
-        uint256 amount = releaseMarketingTokenAmount; // It is needed to prevent DAO vulnerability that allows owner get all tokens for once.
+        uint256 amount = releaseMarketingTokenAmount;
+        // It is needed to prevent DAO vulnerability that allows owner get all tokens for once.
         releaseMarketingTokenAmount = 0;
         token.transfer(owner, amount);
         releaseMarketingTokenAmount = amount;

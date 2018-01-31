@@ -148,11 +148,74 @@ contract StandardToken is ERC20, BasicToken {
 }
 
 
+contract ERC223 {
+    uint public totalSupply;
+
+    function balanceOf(address who) public view returns (uint);
+
+    function name() public view returns (string _name);
+
+    function symbol() public view returns (string _symbol);
+
+    function decimals() public view returns (uint8 _decimals);
+
+    function totalSupply() public view returns (uint256 _supply);
+
+    function transfer(address to, uint value) public returns (bool ok);
+
+    function transfer(address to, uint value, bytes data) public returns (bool ok);
+
+    function transfer(address to, uint value, bytes data, string custom_fallback) public returns (bool ok);
+}
+
+
+contract Standard223Token is ERC223, StandardToken {
+    //function that is called when a user or another contract wants to transfer funds
+    function transfer(address _to, uint _value, bytes _data) returns (bool success) {
+        //filtering if the target is a contract with bytecode inside it
+        if (!super.transfer(_to, _value)) throw;
+        // do a normal token transfer
+        if (isContract(_to)) return contractFallback(msg.sender, _to, _value, _data);
+        return true;
+    }
+
+    function transferFrom(address _from, address _to, uint _value, bytes _data) returns (bool success) {
+        if (!super.transferFrom(_from, _to, _value)) throw;
+        // do a normal token transfer
+        if (isContract(_to)) return contractFallback(_from, _to, _value, _data);
+        return true;
+    }
+
+    function transfer(address _to, uint _value) returns (bool success) {
+        return transfer(_to, _value, new bytes(0));
+    }
+
+    function transferFrom(address _from, address _to, uint _value) returns (bool success) {
+        return transferFrom(_from, _to, _value, new bytes(0));
+    }
+
+    //function that is called when transaction target is a contract
+    function contractFallback(address _origin, address _to, uint _value, bytes _data) private returns (bool success) {
+        ERC223Receiver reciever = ERC223Receiver(_to);
+        return reciever.tokenFallback(msg.sender, _origin, _value, _data);
+    }
+
+    //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
+    function isContract(address _addr) private returns (bool is_contract) {
+        // retrieve the size of the code on target address, this needs assembly
+        uint length;
+        assembly {length := extcodesize(_addr)}
+        return length > 0;
+    }
+
+}
+
+
 /**
  * @title Burnable Token
  * @dev Token that can be irreversibly burned (destroyed).
  */
-contract BurnableToken is StandardToken {
+contract BurnableToken is Standard223Token {
 
     /**
      * @dev Burns a specific amount of tokens.
@@ -160,6 +223,7 @@ contract BurnableToken is StandardToken {
      */
     function burn(uint _value) public {
         require(_value > 0);
+        require(_value <= balances[msg.sender]);
         address burner = msg.sender;
         balances[burner] = balances[burner].sub(_value);
         totalSupply = totalSupply.sub(_value);
