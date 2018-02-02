@@ -50,7 +50,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-    function Crowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, MFC_Token _token) public {
+    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, MFC_Token _token) public {
         require(_startTime >= now);
         require(_endTime >= _startTime);
         require(_rate > 0);
@@ -62,7 +62,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         rate = _rate;
         wallet = _wallet;
         token = _token;
-        controller = msg.sender;
+        controller = ICO_controller(msg.sender);
     }
 
     // fallback function can be used to buy tokens
@@ -83,7 +83,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
 
         // get avaible for crowdsale token balance
         uint256 avaibleTokenToSell = token.balanceOf(address(this));
-        require(token <= avaibleTokenToSell);
+        require(tokens <= avaibleTokenToSell);
 
 
         // update state

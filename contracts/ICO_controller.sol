@@ -14,7 +14,10 @@ contract ICO_controller is Ownable, ERC223Receiver {
     MFC_Token public token = new MFC_Token();
 
     // add address for multisig!!
-    Holder holder = new Holder([0x123, 0x123, 0x123], 3, 0x123456);
+    Holder holder;
+
+    // list of holders
+    address[] holders;
 
     // list of buyer are able to participate in ICOs
     mapping(address => bool) public buyersWhitelist;
@@ -31,6 +34,8 @@ contract ICO_controller is Ownable, ERC223Receiver {
     WhitelistedCrowdsale public preSale;
     WhitelistedCrowdsale public crowdsale;
 
+    address constant private FIRST_HOLDER = 0x8029D7C9d552748ec394c395F301B6f6900776E8;
+    address constant private ESCROW_ADDRESS = 0x8029D7C9d552748ec394c395F301B6f6900776E8;
     uint256 constant public PRIVATE_OFFER_SUPPLY = 7000000 * 1 ether;
     uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
     uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
@@ -61,6 +66,8 @@ contract ICO_controller is Ownable, ERC223Receiver {
         unlockMarketingTokensTime[1] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 3)) % 7948800;
         unlockMarketingTokensTime[2] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 4)) % 7948800;
         unlockMarketingTokensTime[3] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 5)) % 7948800;
+        holders[1] = FIRST_HOLDER;
+        holder = new Holder(holders, 1, ESCROW_ADDRESS);
     }
 
     modifier onlyIco() {
@@ -87,7 +94,7 @@ contract ICO_controller is Ownable, ERC223Receiver {
         return true;
     }
 
-    function removeBuyers(address[] _buyers) external onlyOwner {
+    function removeBuyers(address[] _buyers) external onlyOwner returns (bool success) {
         for (uint i = 0; i < _buyers.length; i++) {
             removeBuyerFromWhitelist(_buyers[i]);
         }
