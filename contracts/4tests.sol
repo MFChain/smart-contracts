@@ -308,11 +308,10 @@ contract MFC_Token is BurnableToken {
 
     uint32 public constant decimals = 18;
 
-    uint256 public INITIAL_SUPPLY = 500000000 * 1 ether;
+    uint256 public totalSupply = 500000000000000000000000000;
 
     function MFC_Token() {
-        totalSupply = INITIAL_SUPPLY;
-        balances[msg.sender] = INITIAL_SUPPLY;
+        balances[msg.sender] = totalSupply;
     }
 
 }
@@ -756,8 +755,8 @@ contract ICO_controller is Ownable, ERC223Receiver {
     MFC_Token public token = new MFC_Token();
 
     // add address for multisig!!
-    Holder holder;
-
+    Holder public holder;
+    
     // list of holders
     address[] holders;
 
@@ -808,7 +807,7 @@ contract ICO_controller is Ownable, ERC223Receiver {
         unlockMarketingTokensTime[1] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 3)) % 7948800;
         unlockMarketingTokensTime[2] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 4)) % 7948800;
         unlockMarketingTokensTime[3] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 5)) % 7948800;
-        holders[1] = FIRST_HOLDER;
+        holders.push(FIRST_HOLDER);
         holder = new Holder(holders, 1, ESCROW_ADDRESS);
     }
 
