@@ -148,24 +148,38 @@ contract StandardToken is ERC20, BasicToken {
 }
 
 
-contract ERC223 {
-    uint public totalSupply;
+ /*
+  ERC223 additions to ERC20
 
-    function balanceOf(address who) public view returns (uint);
+  Interface wise is ERC20 + data paramenter to transfer and transferFrom.
+ */
 
-    function name() public view returns (string _name);
+contract ERC223 is ERC20 {
+  function transfer(address to, uint value, bytes data) returns (bool ok);
+  function transferFrom(address from, address to, uint value, bytes data) returns (bool ok);
+}
 
-    function symbol() public view returns (string _symbol);
 
-    function decimals() public view returns (uint8 _decimals);
+/*
+Base class contracts willing to accept ERC223 token transfers must conform to.
 
-    function totalSupply() public view returns (uint256 _supply);
+Sender: msg.sender to the token contract, the address originating the token transfer.
+          - For user originated transfers sender will be equal to tx.origin
+          - For contract originated transfers, tx.origin will be the user that made the tx that produced the transfer.
+Origin: the origin address from whose balance the tokens are sent
+          - For transfer(), origin = msg.sender
+          - For transferFrom() origin = _from to token contract
+Value is the amount of tokens sent
+Data is arbitrary data sent with the token transfer. Simulates ether tx.data
 
-    function transfer(address to, uint value) public returns (bool ok);
+From, origin and value shouldn't be trusted unless the token contract is trusted.
+If sender == tx.origin, it is safe to trust it regardless of the token.
+*/
 
-    function transfer(address to, uint value, bytes data) public returns (bool ok);
-
-    function transfer(address to, uint value, bytes data, string custom_fallback) public returns (bool ok);
+contract ERC223Receiver {
+  function tokenFallback(address _sender, address _origin, uint _value, bytes _data) returns (bool ok){
+      return true;
+  }
 }
 
 
