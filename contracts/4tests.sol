@@ -499,7 +499,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
 }
 
 
-contract ICO_controller is Ownable, ERC223Receiver {
+contract ICO_controller is Ownable {
 
     using SafeMath for uint256;
 

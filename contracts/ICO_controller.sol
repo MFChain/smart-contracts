@@ -4,12 +4,11 @@ import "./SafeMath.sol";
 import "./Ownable.sol";
 import "./MFC_coin.sol";
 import "./ICO_crowdsale.sol";
-import "./Receiver_Interface.sol";
+import "./Holder.sol";
 
-contract ICO_controller is Ownable, ERC223Receiver {
+contract ICO_controller is Ownable {
 
     using SafeMath for uint256;
-
     // The token being sold
     MFC_Token public token = new MFC_Token();
 

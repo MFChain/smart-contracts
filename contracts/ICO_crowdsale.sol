@@ -83,7 +83,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
 
         // get avaible for crowdsale token balance
         uint256 avaibleTokenToSell = token.balanceOf(address(this));
-        require(tokens <= avaibleTokenToSell);
+        require(weiAmount <= avaibleTokenToSell);
 
 
         // update state
