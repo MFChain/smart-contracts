@@ -3,6 +3,6 @@ version: '3'
 services:
   ganache_server:
     image: trufflesuite/ganache-cli:latest
-    command: -a 1000
+    command: -a 1000 -e 100000
     ports:
       - "8545:8545"

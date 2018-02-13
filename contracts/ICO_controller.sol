@@ -64,6 +64,8 @@ contract ICO_controller is Ownable {
         incentiveProgram = _incentive_program;
     }
 
+    function () payable {}
+
     modifier onlyIco() {
         require(msg.sender == address(privateOffer) || msg.sender == address(preSale) || msg.sender == address(crowdsale));
         _;
@@ -118,6 +120,7 @@ contract ICO_controller is Ownable {
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
     function startPrivateOffer(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
+        require(address(privateOffer) == address(0));
         privateOffer = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
@@ -125,6 +128,7 @@ contract ICO_controller is Ownable {
     // Create PreSale ICO
     function startPreSaleIco(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
         require(address(privateOffer) != address(0));
+        require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
         preSale = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
@@ -134,6 +138,7 @@ contract ICO_controller is Ownable {
     // Create Crowdsale
     function startCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
         require(address(preSale) != address(0));
+        require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
         crowdsale = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
