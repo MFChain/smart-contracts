@@ -502,7 +502,6 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
 contract ICO_controller is Ownable {
 
     using SafeMath for uint256;
-
     // The token being sold
     MFC_Token public token = new MFC_Token();
 
@@ -532,11 +531,11 @@ contract ICO_controller is Ownable {
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 80000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
 
-    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01 
-    uint constant public Q1_2019_START_DATE = 1546300800; // 2019 01 01 
-    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
-    uint constant public Q3_2019_START_DATE = 1561939200; // 2019 07 01 
-    uint constant public Q4_2019_START_DATE = 1569888000; // 2019 10 01 
+    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01
+    uint constant public Q1_2019_START_DATE = 1546300800; // 2019 01 01
+    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01
+    uint constant public Q3_2019_START_DATE = 1561939200; // 2019 07 01
+    uint constant public Q4_2019_START_DATE = 1569888000; // 2019 10 01
     uint public devRewardReleaseTime;
     uint[4] public unlockMarketingTokensTime;
     uint public unlockIndex;
@@ -557,6 +556,8 @@ contract ICO_controller is Ownable {
         holder = _holder;
         incentiveProgram = _incentive_program;
     }
+
+    function () payable {}
 
     modifier onlyIco() {
         require(msg.sender == address(privateOffer) || msg.sender == address(preSale) || msg.sender == address(crowdsale));
@@ -612,6 +613,7 @@ contract ICO_controller is Ownable {
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
     function startPrivateOffer(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
+        require(address(privateOffer) == address(0));
         privateOffer = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
@@ -619,6 +621,7 @@ contract ICO_controller is Ownable {
     // Create PreSale ICO
     function startPreSaleIco(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
         require(address(privateOffer) != address(0));
+        require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
         preSale = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
@@ -628,6 +631,7 @@ contract ICO_controller is Ownable {
     // Create Crowdsale
     function startCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
         require(address(preSale) != address(0));
+        require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
         crowdsale = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
