@@ -152,7 +152,7 @@ contract ICO_controller is Ownable {
         require(crowdsale.hasEnded() == true);
         require(crowdsaleFinished == false);
         crowdsale.burnRemainingTokens();
-        uint256 totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
+        totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
             token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             // sends token for support program
