@@ -5,16 +5,15 @@ import "./Ownable.sol";
 import "./MFC_coin.sol";
 import "./ICO_crowdsale.sol";
 import "./Holder.sol";
-import "./Receiver_Interface.sol";
 
-contract ICO_controller is Ownable, ERC223Receiver {
+contract ICO_controller is Ownable {
 
     using SafeMath for uint256;
     // The token being sold
     MFC_Token public token = new MFC_Token();
 
     // add address for multisig!!
-    Holder holder = new Holder([0x123, 0x123, 0x123], 3, 0x123456);
+    address public holder;
 
     // list of buyer are able to participate in ICOs
     mapping(address => bool) public buyersWhitelist;
@@ -25,7 +24,7 @@ contract ICO_controller is Ownable, ERC223Receiver {
     // devs&advisors reward
     mapping(address => uint256) public devRewards;
 
-    address incentiveProgramAddress = address(0); // TODO
+    address incentiveProgram;
 
     WhitelistedCrowdsale public privateOffer;
     WhitelistedCrowdsale public preSale;
@@ -54,13 +53,15 @@ contract ICO_controller is Ownable, ERC223Receiver {
 
     bool public crowdsaleFinished;
 
-    function ICO_controller() {
+    function ICO_controller(address _holder, address _incentive_program) {
         devRewardReleaseTime = Q3_2018_START_DATE + uint(block.blockhash(block.number - 1)) % 7948800;
 
         unlockMarketingTokensTime[0] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 2)) % 7948800;
-        unlockMarketingTokensTime[1] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 3)) % 7948800;
-        unlockMarketingTokensTime[2] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 4)) % 7948800;
-        unlockMarketingTokensTime[3] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 5)) % 7948800;
+        unlockMarketingTokensTime[1] = Q2_2019_START_DATE + uint(block.blockhash(block.number - 3)) % 7948800;
+        unlockMarketingTokensTime[2] = Q3_2019_START_DATE + uint(block.blockhash(block.number - 4)) % 7948800;
+        unlockMarketingTokensTime[3] = Q4_2019_START_DATE + uint(block.blockhash(block.number - 5)) % 7948800;
+        holder = _holder;
+        incentiveProgram = _incentive_program;
     }
 
     modifier onlyIco() {
@@ -75,9 +76,11 @@ contract ICO_controller is Ownable, ERC223Receiver {
     }
 
     function removeBuyerFromWhitelist(address _buyer) public onlyOwner returns (bool success) {
-        require(_buyer != address(0));
+        if (buyersWhitelist[_buyer] == true) {
         buyersWhitelist[_buyer] = false;
         return true;
+        }
+        return false;
     }
 
     function addBuyers(address[] _buyers) external onlyOwner returns (bool success) {
@@ -87,7 +90,7 @@ contract ICO_controller is Ownable, ERC223Receiver {
         return true;
     }
 
-    function removeBuyers(address[] _buyers) external onlyOwner {
+    function removeBuyers(address[] _buyers) external onlyOwner returns (bool success) {
         for (uint i = 0; i < _buyers.length; i++) {
             removeBuyerFromWhitelist(_buyers[i]);
         }
@@ -146,7 +149,7 @@ contract ICO_controller is Ownable, ERC223Receiver {
         crowdsale.burnRemainingTokens();
         uint256 totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
-            token.transfer(incentiveProgramAddress, INCENTIVE_PROGRAM_SUPPORT);
+            token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             // sends token for support program
             token.burn(MAX_DEV_REWARD.sub(totalDevReward));
             // burn some unspent reward tokens
