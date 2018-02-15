@@ -78,9 +78,11 @@ contract ICO_controller is Ownable {
     }
 
     function removeBuyerFromWhitelist(address _buyer) public onlyOwner returns (bool success) {
-        require(_buyer != address(0));
+        if (buyersWhitelist[_buyer] == true) {
         buyersWhitelist[_buyer] = false;
         return true;
+        }
+        return false;
     }
 
     function addBuyers(address[] _buyers) external onlyOwner returns (bool success) {
