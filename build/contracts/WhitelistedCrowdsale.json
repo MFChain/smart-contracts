@@ -1,0 +1,280 @@
+{
+  "contractName": "WhitelistedCrowdsale",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "rate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "endTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "weiRaised",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "getWeiRaised",
+      "outputs": [
+        {
+          "name": "weiRaised",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "wallet",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "startTime",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "burnRemainingTokens",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "tokenFallback",
+      "outputs": [
+        {
+          "name": "ok",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "beneficiary",
+          "type": "address"
+        }
+      ],
+      "name": "buyTokens",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "hasEnded",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "token",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_startTime",
+          "type": "uint256"
+        },
+        {
+          "name": "_endTime",
+          "type": "uint256"
+        },
+        {
+          "name": "_rate",
+          "type": "uint256"
+        },
+        {
+          "name": "_wallet",
+          "type": "address"
+        },
+        {
+          "name": "_token",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "purchaser",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "beneficiary",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "TokenPurchase",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b60405160a080610925833981016040528080519190602001805191906020018051919060200180519190602001805160008054600160a060020a03191633600160a060020a03161790559150504285101561006957600080fd5b8484101561007657600080fd5b6000831161008357600080fd5b600160a060020a038216151561009857600080fd5b600160a060020a03811615156100ad57600080fd5b60029490945560039290925560055560048054600160a060020a0319908116600160a060020a039384161790915560018054821693831693909317909255600780549092163390911617905561081d806101086000396000f3006060604052600436106100ab5763ffffffff60e060020a6000350416632c4e722e81146100b65780633197cbb6146100db5780634042b66f146100ee57806340582f1314610101578063521eb2731461011457806378e979251461014357806383408d73146101565780638da5cb5b14610169578063c0ee0b8a1461017c578063ec8ac4d8146101f5578063ecb70fb714610209578063f2fde38b1461021c578063fc0c546a1461023b575b6100b43361024e565b005b34156100c157600080fd5b6100c9610463565b60405190815260200160405180910390f35b34156100e657600080fd5b6100c9610469565b34156100f957600080fd5b6100c961046f565b341561010c57600080fd5b6100c9610475565b341561011f57600080fd5b61012761047a565b604051600160a060020a03909116815260200160405180910390f35b341561014e57600080fd5b6100c9610489565b341561016157600080fd5b6100b461048f565b341561017457600080fd5b6101276104ff565b341561018757600080fd5b6101e160048035600160a060020a03169060248035919060649060443590810190830135806020601f8201819004810201604051908101604052818152929190602084018383808284375094965061050e95505050505050565b604051901515815260200160405180910390f35b6100b4600160a060020a036004351661024e565b341561021457600080fd5b6101e1610517565b341561022757600080fd5b6100b4600160a060020a036004351661051f565b341561024657600080fd5b6101276105ba565b60008080600160a060020a038416151561026757600080fd5b61026f6105c9565b151561027a57600080fd5b3492506102868361067c565b600154909250600160a060020a03166370a082313060006040516020015260405160e060020a63ffffffff8416028152600160a060020a039091166004820152602401602060405180830381600087803b15156102e257600080fd5b6102c65a03f115156102f357600080fd5b50505060405180519150508082111561030b57600080fd5b60065461031e908463ffffffff61075f16565b600655600154600160a060020a031663a9059cbb858460006040516020015260405160e060020a63ffffffff8516028152600160a060020a0390921660048301526024820152604401602060405180830381600087803b151561038057600080fd5b6102c65a03f1151561039157600080fd5b505050604051805190505083600160a060020a031633600160a060020a03167f623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18858560405191825260208201526040908101905180910390a36103f383610779565b600754600160a060020a03166350c1bdf2338560405160e060020a63ffffffff8516028152600160a060020a0390921660048301526024820152604401600060405180830381600087803b151561044957600080fd5b6102c65a03f1151561045a57600080fd5b50505050505050565b60055481565b60035481565b60065481565b600090565b600454600160a060020a031681565b60025481565b60005433600160a060020a039081169116146104aa57600080fd5b600154600160a060020a0316639975038c6040518163ffffffff1660e060020a028152600401600060405180830381600087803b15156104e957600080fd5b6102c65a03f115156104fa57600080fd5b505050565b600054600160a060020a031681565b60019392505050565b600354421190565b60005433600160a060020a0390811691161461053a57600080fd5b600160a060020a038116151561054f57600080fd5b600054600160a060020a0380831691167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a36000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b600154600160a060020a031681565b60008060008060025442101580156105e357506003544211155b6007549093503415159250600160a060020a03166313f44d103360006040516020015260405160e060020a63ffffffff8416028152600160a060020a039091166004820152602401602060405180830381600087803b151561064457600080fd5b6102c65a03f1151561065557600080fd5b50505060405180519050905082801561066b5750815b80156106745750805b935050505090565b6000806000610696600554856107af90919063ffffffff16565b915060009050674563918244f400008410156106b157610747565b678ac7230489e800008410156106d9576106d282600a63ffffffff6107da16565b9050610747565b68015af1d78b58c4000084101561070c576106d2606461070084600f63ffffffff6107af16565b9063ffffffff6107da16565b68056bc75e2d63100000841015610733576106d2606461070084601163ffffffff6107af16565b61074482600563ffffffff6107da16565b90505b610757828263ffffffff61075f16565b949350505050565b60008282018381101561076e57fe5b8091505b5092915050565b600454600160a060020a031681156108fc0282604051600060405180830381858888f1935050505015156107ac57600080fd5b50565b6000808315156107c25760009150610772565b508282028284828115156107d257fe5b041461076e57fe5b60008082848115156107e857fe5b049493505050505600a165627a7a7230582060f5df61fd2bc523c2a21e1fbed710914cb11793790b37b469d276f34f1a51710029",
+  "deployedBytecode": "0x6060604052600436106100ab5763ffffffff60e060020a6000350416632c4e722e81146100b65780633197cbb6146100db5780634042b66f146100ee57806340582f1314610101578063521eb2731461011457806378e979251461014357806383408d73146101565780638da5cb5b14610169578063c0ee0b8a1461017c578063ec8ac4d8146101f5578063ecb70fb714610209578063f2fde38b1461021c578063fc0c546a1461023b575b6100b43361024e565b005b34156100c157600080fd5b6100c9610463565b60405190815260200160405180910390f35b34156100e657600080fd5b6100c9610469565b34156100f957600080fd5b6100c961046f565b341561010c57600080fd5b6100c9610475565b341561011f57600080fd5b61012761047a565b604051600160a060020a03909116815260200160405180910390f35b341561014e57600080fd5b6100c9610489565b341561016157600080fd5b6100b461048f565b341561017457600080fd5b6101276104ff565b341561018757600080fd5b6101e160048035600160a060020a03169060248035919060649060443590810190830135806020601f8201819004810201604051908101604052818152929190602084018383808284375094965061050e95505050505050565b604051901515815260200160405180910390f35b6100b4600160a060020a036004351661024e565b341561021457600080fd5b6101e1610517565b341561022757600080fd5b6100b4600160a060020a036004351661051f565b341561024657600080fd5b6101276105ba565b60008080600160a060020a038416151561026757600080fd5b61026f6105c9565b151561027a57600080fd5b3492506102868361067c565b600154909250600160a060020a03166370a082313060006040516020015260405160e060020a63ffffffff8416028152600160a060020a039091166004820152602401602060405180830381600087803b15156102e257600080fd5b6102c65a03f115156102f357600080fd5b50505060405180519150508082111561030b57600080fd5b60065461031e908463ffffffff61075f16565b600655600154600160a060020a031663a9059cbb858460006040516020015260405160e060020a63ffffffff8516028152600160a060020a0390921660048301526024820152604401602060405180830381600087803b151561038057600080fd5b6102c65a03f1151561039157600080fd5b505050604051805190505083600160a060020a031633600160a060020a03167f623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18858560405191825260208201526040908101905180910390a36103f383610779565b600754600160a060020a03166350c1bdf2338560405160e060020a63ffffffff8516028152600160a060020a0390921660048301526024820152604401600060405180830381600087803b151561044957600080fd5b6102c65a03f1151561045a57600080fd5b50505050505050565b60055481565b60035481565b60065481565b600090565b600454600160a060020a031681565b60025481565b60005433600160a060020a039081169116146104aa57600080fd5b600154600160a060020a0316639975038c6040518163ffffffff1660e060020a028152600401600060405180830381600087803b15156104e957600080fd5b6102c65a03f115156104fa57600080fd5b505050565b600054600160a060020a031681565b60019392505050565b600354421190565b60005433600160a060020a0390811691161461053a57600080fd5b600160a060020a038116151561054f57600080fd5b600054600160a060020a0380831691167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a36000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b600154600160a060020a031681565b60008060008060025442101580156105e357506003544211155b6007549093503415159250600160a060020a03166313f44d103360006040516020015260405160e060020a63ffffffff8416028152600160a060020a039091166004820152602401602060405180830381600087803b151561064457600080fd5b6102c65a03f1151561065557600080fd5b50505060405180519050905082801561066b5750815b80156106745750805b935050505090565b6000806000610696600554856107af90919063ffffffff16565b915060009050674563918244f400008410156106b157610747565b678ac7230489e800008410156106d9576106d282600a63ffffffff6107da16565b9050610747565b68015af1d78b58c4000084101561070c576106d2606461070084600f63ffffffff6107af16565b9063ffffffff6107da16565b68056bc75e2d63100000841015610733576106d2606461070084601163ffffffff6107af16565b61074482600563ffffffff6107da16565b90505b610757828263ffffffff61075f16565b949350505050565b60008282018381101561076e57fe5b8091505b5092915050565b600454600160a060020a031681156108fc0282604051600060405180830381858888f1935050505015156107ac57600080fd5b50565b6000808315156107c25760009150610772565b508282028284828115156107d257fe5b041461076e57fe5b60008082848115156107e857fe5b049493505050505600a165627a7a7230582060f5df61fd2bc523c2a21e1fbed710914cb11793790b37b469d276f34f1a51710029",
+  "sourceMap": "676:3985:2:-;;;1573:498;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;519:5:5;:18;;-1:-1:-1;;;;;;519:18:5;527:10;-1:-1:-1;;;;;519:18:5;;;;1573:498:2;-1:-1:-1;;1730:3:2;1716:17;;;1708:26;;;;;;1752:22;;;;1744:31;;;;;;1801:1;1793:9;;1785:18;;;;;;-1:-1:-1;;;;;1821:21:2;;;;1813:30;;;;;;-1:-1:-1;;;;;1861:20:2;;;;1853:29;;;;;;1893:9;:22;;;;1925:7;:18;;;;1953:4;:12;1975:6;:16;;-1:-1:-1;;;;;;1975:16:2;;;-1:-1:-1;;;;;1975:16:2;;;;;;;-1:-1:-1;2001:14:2;;;;;;;;;;;;;;2025:10;:39;;;;;2053:10;2025:39;;;;;;676:3985;;;-1:-1:-1;676:3985:2;;",
+  "deployedSourceMap": "676:3985:2:-;;;;;;;;-1:-1:-1;;;676:3985:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2166:21;2176:10;2166:9;:21::i;:::-;676:3985;1085:19;;;;;;;;;;;;;;;;;;;;;;;;;;;938:22;;;;;;;;;;;;1148:24;;;;;;;;;;;;4565:93;;;;;;;;;;;;1008:21;;;;;;;;;;;;;;;-1:-1:-1;;;;;1008:21:2;;;;;;;;;;;;;;;908:24;;;;;;;;;;;;4477:82;;;;;;;;;;;;240:20:5;;;;;;;;;;;;277:846:6;;;;;;;;;;;;;-1:-1:-1;;;;;277:846:6;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;277:846:6;;-1:-1:-1;277:846:6;;-1:-1:-1;;;;;;277:846:6;;;;;;;;;;;;;;;;;;2241:725:2;;;;-1:-1:-1;;;;;2241:725:2;;;3021:86;;;;;;;;;;;;880:183:5;;;;;;;;;;;;-1:-1:-1;;;;;880:183:5;;;800:22:2;;;;;;;;;;;;2241:725;2386:17;;;-1:-1:-1;;;;;2314:25:2;;;;2306:34;;;;;;2358:15;:13;:15::i;:::-;2350:24;;;;;;;;2406:9;2386:29;;2491:25;2506:9;2491:14;:25::i;:::-;2607:5;;2474:42;;-1:-1:-1;;;;;;2607:5:2;:15;2631:4;2607:5;:30;;;;;;;;;;-1:-1:-1;;;2607:30:2;;;-1:-1:-1;;;;;2607:30:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;2655:28:2;;;;2647:37;;;;;;2732:9;;:24;;2746:9;2732:24;:13;:24;:::i;:::-;2720:9;:36;2767:5;;-1:-1:-1;;;;;2767:5:2;:14;2782:11;2795:6;2767:5;:35;;;;;;;;;;-1:-1:-1;;;2767:35:2;;;-1:-1:-1;;;;;2767:35:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;;;2812:57:2;;;;2826:10;2812:57;;2851:9;2862:6;2812:57;;;;;;;;;;;;;;;;;;;;2879:23;2892:9;2879:12;:23::i;:::-;2912:10;;-1:-1:-1;;;;;2912:10:2;:24;2937:10;2949:9;2912:47;;;;;-1:-1:-1;;;2912:47:2;;;-1:-1:-1;;;;;2912:47:2;;;;;;;;;;;;;;-1:-1:-1;2912:47:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2241:725;;;;:::o;1085:19::-;;;;:::o;938:22::-;;;;:::o;1148:24::-;;;;:::o;4565:93::-;4607:17;4565:93;:::o;1008:21::-;;;-1:-1:-1;;;;;1008:21:2;;:::o;908:24::-;;;;:::o;4477:82::-;685:5:5;;671:10;-1:-1:-1;;;;;671:19:5;;;685:5;;671:19;663:28;;;;;;4537:5:2;;-1:-1:-1;;;;;4537:5:2;:13;:15;;-1:-1:-1;;;4537:15:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;4477:82::o;240:20:5:-;;;-1:-1:-1;;;;;240:20:5;;:::o;277:846:6:-;1112:4;277:846;;;;;:::o;3021:86:2:-;3093:7;;3087:3;:13;3021:86;:::o;880:183:5:-;685:5;;671:10;-1:-1:-1;;;;;671:19:5;;;685:5;;671:19;663:28;;;;;;-1:-1:-1;;;;;960:22:5;;;;952:31;;;;;;1014:5;;-1:-1:-1;;;;;993:37:5;;;;1014:5;993:37;;;;;;;;;;1040:5;:16;;-1:-1:-1;;1040:16:5;-1:-1:-1;;;;;1040:16:5;;;;;;;;;;880:183::o;800:22:2:-;;;-1:-1:-1;;;;;800:22:2;;:::o;4160:311::-;4208:4;4224:17;4288:20;4335:18;4251:9;;4244:3;:16;;:34;;;;;4271:7;;4264:3;:14;;4244:34;4356:10;;4224:54;;-1:-1:-1;4311:9:2;:14;;;-1:-1:-1;;;;;;4356:10:2;:31;4388:10;4324:1;4356:43;;;;;;;;;;-1:-1:-1;;;4356:43:2;;;-1:-1:-1;;;;;4356:43:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;4335:64;;4416:12;:31;;;;;4432:15;4416:31;:48;;;;;4451:13;4416:48;4409:55;;4160:311;;;;:::o;3207:686::-;3273:7;3292:19;3343;3314;3328:4;;3314:9;:13;;:19;;;;:::i;:::-;3292:41;;3365:1;3343:23;;3392:7;3380:9;:19;3376:465;;;;;;3435:8;3423:9;:20;3419:422;;;3473:19;:11;3489:2;3473:19;:15;:19;:::i;:::-;3459:33;;3419:422;;;3544:8;3532:9;:20;3528:313;;;3582:28;3606:3;3582:19;:11;3598:2;3582:19;:15;:19;:::i;:::-;:23;:28;:23;:28;:::i;3528:313::-;3662:9;3650;:21;3646:195;;;3701:28;3725:3;3701:19;:11;3717:2;3701:19;:15;:19;:::i;3646:195::-;3793:18;:11;3809:1;3793:18;:15;:18;:::i;:::-;3779:32;;3646:195;3857:28;:11;3873;3857:28;:15;:28;:::i;:::-;3850:35;3207:686;-1:-1:-1;;;;3207:686:2:o;1096:143:7:-;1154:7;1185:5;;;1207:6;;;;1200:14;;;;1231:1;1224:8;;1096:143;;;;;;:::o;4007:93:2:-;4067:6;;-1:-1:-1;;;;;4067:6:2;:26;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;4007:93;:::o;211:201:7:-;269:7;;292:6;;288:45;;;321:1;314:8;;;;288:45;-1:-1:-1;354:5:7;;;358:1;354;:5;376;;;;;;;;:10;369:18;;;502:283;560:7;657:9;673:1;669;:5;;;;;;;;;502:283;-1:-1:-1;;;;502:283:7:o",
+  "source": "pragma solidity ^0.4.19;\n\n\nimport \"./MFC_coin.sol\";\nimport \"./ICO_controller.sol\";\nimport \"./SafeMath.sol\";\nimport \"./Ownable.sol\";\nimport \"./Receiver_Interface.sol\";\n\n\n\n/**\n * @title Crowdsale\n * @dev Crowdsale is a base contract for managing a token crowdsale.\n * Crowdsales have a start and end timestamps, where investors can make\n * token purchases and the crowdsale will assign them tokens based\n * on a token per ETH rate. Funds collected are forwarded to a wallet\n * as they arrive. The contract requires a MintableToken that will be\n * minted as contributions arrive, note that the crowdsale contract\n * must be owner of the token in order to be able to mint it.\n */\ncontract WhitelistedCrowdsale is Ownable, ERC223Receiver {\n    using SafeMath for uint256;\n\n    // The token being sold\n    MFC_Token public token;\n\n    // start and end timestamps where investments are allowed (both inclusive)\n    uint256 public startTime;\n    uint256 public endTime;\n\n    // address where funds are collected\n    address public wallet;\n\n    // how many token units a buyer gets per wei\n    uint256 public rate;\n\n    // amount of raised money in wei\n    uint256 public weiRaised;\n\n    ICO_controller private controller;\n\n    /**\n     * event for token purchase logging\n     * @param purchaser who paid for the tokens\n     * @param beneficiary who got the tokens\n     * @param value weis paid for purchase\n     * @param amount amount of tokens purchased\n     */\n    event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);\n\n\n    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, MFC_Token _token) public {\n        require(_startTime >= now);\n        require(_endTime >= _startTime);\n        require(_rate > 0);\n        require(_wallet != address(0));\n        require(_token != address(0));\n\n        startTime = _startTime;\n        endTime = _endTime;\n        rate = _rate;\n        wallet = _wallet;\n        token = _token;\n        controller = ICO_controller(msg.sender);\n    }\n\n    // fallback function can be used to buy tokens\n    function() external payable {\n        buyTokens(msg.sender);\n    }\n\n    // low level token purchase function\n    function buyTokens(address beneficiary) public payable {\n        require(beneficiary != address(0));\n        require(validPurchase());\n\n\n        uint256 weiAmount = msg.value;\n\n        // calculate token amount to be created\n        uint256 tokens = getTokenAmount(weiAmount);\n\n        // get avaible for crowdsale token balance\n        uint256 avaibleTokenToSell = token.balanceOf(address(this));\n        require(tokens <= avaibleTokenToSell);\n\n\n        // update state\n        weiRaised = weiRaised.add(weiAmount);\n\n        token.transfer(beneficiary, tokens);\n        TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);\n        forwardFunds(weiAmount);\n        controller.addBuyerSpent(msg.sender, weiAmount);\n    }\n\n    // @return true if crowdsale event has ended\n    function hasEnded() external view returns (bool) {\n        return now > endTime;\n    }\n\n    // Override this method to have a way to add business logic to your crowdsale when buying\n    function getTokenAmount(uint256 weiAmount) internal view returns (uint256) {\n        uint256 basicAmount = weiAmount.mul(rate);\n        uint256 bonusAmount = 0;\n        if (weiAmount < 5 ether) {\n\n        } else if (weiAmount < 10 ether) {\n            bonusAmount = basicAmount.div(10);\n            // 10%\n        } else if (weiAmount < 25 ether) {\n            bonusAmount = basicAmount.mul(15).div(100);\n            // 15%\n        } else if (weiAmount < 100 ether) {\n            bonusAmount = basicAmount.mul(17).div(100);\n            // 17%\n        } else {\n            bonusAmount = basicAmount.div(5);\n            // 20%\n        }\n        return basicAmount.add(bonusAmount);\n\n    }\n\n    // send ether to the fund collection wallet\n    // override to create custom fund forwarding mechanisms\n    function forwardFunds(uint256 weiAmount) internal {\n        wallet.transfer(weiAmount);\n    }\n\n    // @return true if the transaction can buy tokens\n    function validPurchase() internal view returns (bool) {\n        bool withinPeriod = now >= startTime && now <= endTime;\n        bool nonZeroPurchase = msg.value != 0;\n        bool isWhitelisted = controller.isAddressWhitelisted(msg.sender);\n        return withinPeriod && nonZeroPurchase && isWhitelisted;\n    }\n\n    function burnRemainingTokens() external onlyOwner {\n        token.burnAll();\n    }\n\n    function getWeiRaised() external returns (uint256 weiRaised){\n        return weiRaised;\n    }\n\n}",
+  "sourcePath": "/home/savao/hg/smart-contracts/contracts/ICO_crowdsale.sol",
+  "networks": {},
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2018-02-16T13:47:57.385Z"
+}

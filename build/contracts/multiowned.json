@@ -1,0 +1,279 @@
+{
+  "contractName": "multiowned",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "removeOwner",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_addr",
+          "type": "address"
+        }
+      ],
+      "name": "isOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "m_numOwners",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "addOwner",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "m_required",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_operation",
+          "type": "bytes32"
+        }
+      ],
+      "name": "revoke",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newRequired",
+          "type": "uint256"
+        }
+      ],
+      "name": "changeRequirement",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_operation",
+          "type": "bytes32"
+        },
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "hasConfirmed",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "ownerIndex",
+          "type": "uint256"
+        }
+      ],
+      "name": "getOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "name": "_to",
+          "type": "address"
+        }
+      ],
+      "name": "changeOwner",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_owners",
+          "type": "address[]"
+        },
+        {
+          "name": "_required",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "operation",
+          "type": "bytes32"
+        }
+      ],
+      "name": "Confirmation",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "operation",
+          "type": "bytes32"
+        }
+      ],
+      "name": "Revoke",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldOwner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "oldOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerRemoved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "newRequirement",
+          "type": "uint256"
+        }
+      ],
+      "name": "RequirementChanged",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b604051610b23380380610b238339810160405280805182019190602001805191506000905082516001908101815533600160a060020a031660038190556000908152610102602052604081209190915590505b82518110156100dd5782818151811061007757fe5b90602001906020020151600160a060020a03166002828101610100811061009a57fe5b01556002810161010260008584815181106100b157fe5b90602001906020020151600160a060020a03168152602081019190915260400160002055600101610062565b5060005550610a32806100f16000396000f3006060604052600436106100a35763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663173825d981146100a85780632f54bf6e146100c95780634123cb6b146100fc5780637065cb4814610121578063746c917114610140578063b75c7dc614610153578063ba51a6df14610169578063c2cf73261461017f578063c41a360a146101a1578063f00d4b5d146101d3575b600080fd5b34156100b357600080fd5b6100c7600160a060020a03600435166101f8565b005b34156100d457600080fd5b6100e8600160a060020a03600435166102e5565b604051901515815260200160405180910390f35b341561010757600080fd5b61010f610302565b60405190815260200160405180910390f35b341561012c57600080fd5b6100c7600160a060020a0360043516610308565b341561014b57600080fd5b61010f610401565b341561015e57600080fd5b6100c7600435610407565b341561017457600080fd5b6100c76004356104b1565b341561018a57600080fd5b6100e8600435600160a060020a0360243516610536565b34156101ac57600080fd5b6101b760043561058b565b604051600160a060020a03909116815260200160405180910390f35b34156101de57600080fd5b6100c7600160a060020a03600435811690602435166105a6565b60008036604051808383808284378201915050925050506040518091039020610220816106ac565b151561022b57600080fd5b600160a060020a038316600090815261010260205260409020549150811515610253576102e0565b60018054036000541115610266576102e0565b6000600283610100811061027657fe5b0155600160a060020a0383166000908152610102602052604081205561029a61080b565b6102a261088e565b7f58619076adf5bb0943d100ef88d52d7c3fd691b19d3a9071b555b651fbf418da83604051600160a060020a03909116815260200160405180910390a15b505050565b600160a060020a0316600090815261010260205260408120541190565b60015481565b60003660405180838380828437820191505092505050604051809103902061032f816106ac565b151561033a57600080fd5b610343826102e5565b1561034d576103fd565b61035561080b565b60015460fa90106103685761036861088e565b60015460fa9010610378576103fd565b60018054810190819055600160a060020a03831690600290610100811061039b57fe5b0155600154600160a060020a0383166000908152610102602052604090819020919091557f994a936646fe87ffe4f1e469d3d6aa417d6b855598397f323de5b449f765f0c390839051600160a060020a03909116815260200160405180910390a15b5050565b60005481565b600160a060020a03331660009081526101026020526040812054908082151561042f576104ab565b50506000828152610103602052604081206001810154600284900a9290831611156104ab578054600190810182558101805483900390557fc7fb647e59b18047309aa15aad418e5d7ca96d173ad704f1031a2c3d7591734b3385604051600160a060020a03909216825260208201526040908101905180910390a15b50505050565b6000366040518083838082843782019150509250505060405180910390206104d8816106ac565b15156104e357600080fd5b6001548211156104f2576103fd565b60008290556104ff61080b565b7facbdb084c721332ac59f9b8e392196c9eb0e4932862da8eb9beaf0dad4f550da8260405190815260200160405180910390a15050565b600082815261010360209081526040808320600160a060020a03851684526101029092528220548281151561056e5760009350610582565b8160020a9050808360010154166000141593505b50505092915050565b6000600260018301610100811061059e57fe5b015492915050565b600080366040518083838082843782019150509250505060405180910390206105ce816106ac565b15156105d957600080fd5b6105e2836102e5565b156105ec576104ab565b600160a060020a038416600090815261010260205260409020549150811515610614576104ab565b61061c61080b565b600160a060020a038316600283610100811061063457fe5b0155600160a060020a038085166000908152610102602052604080822082905591851681528190208390557fb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c908590859051600160a060020a039283168152911660208201526040908101905180910390a150505050565b600160a060020a0333166000908152610102602052604081205481808215156106d457610803565b600085815261010360205260409020805490925015156107335760008054835560018084019190915561010480549161070f919083016109a7565b600283018190556101048054879290811061072657fe5b6000918252602090912001555b8260020a90508082600101541660001415610803577fe1c52dc63b719ade82e8bea94cc41a0d5d28e4aaf536adb5e9cccc9ff8c1aeda3386604051600160a060020a03909216825260208201526040908101905180910390a18154600190116107f05760008581526101036020526040902060020154610104805490919081106107b957fe5b6000918252602080832090910182905586825261010390526040812081815560018082018390556002909101919091559350610803565b8154600019018255600182018054821790555b505050919050565b6101045460005b818110156108815761010480548290811061082957fe5b600091825260209091200154156108795761010360006101048381548110151561084f57fe5b60009182526020808320909101548352820192909252604001812081815560018101829055600201555b600101610812565b6103fd61010460006109cb565b60015b6001548110156109a4575b600154811080156108bb575060028161010081106108b657fe5b015415155b156108c85760010161089c565b600180541180156108e9575060015460029061010081106108e557fe5b0154155b156108fd57600180546000190190556108c8565b6001548110801561091f5750600154600290610100811061091a57fe5b015415155b80156109385750600281610100811061093457fe5b0154155b1561099f57600154600290610100811061094e57fe5b0154600282610100811061095e57fe5b0155806101026000600283610100811061097457fe5b0154815260200190815260200160002081905550600060026001546101008110151561099c57fe5b01555b610891565b50565b8154818355818115116102e0576000838152602090206102e09181019083016109e5565b50805460008255906000526020600020908101906109a491905b610a0391905b808211156109ff57600081556001016109eb565b5090565b905600a165627a7a723058203bc2de53011f8d773b4d14e5cbb6ee74b93402a9ee086ec8155a03dad33a56300029",
+  "deployedBytecode": "0x6060604052600436106100a35763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663173825d981146100a85780632f54bf6e146100c95780634123cb6b146100fc5780637065cb4814610121578063746c917114610140578063b75c7dc614610153578063ba51a6df14610169578063c2cf73261461017f578063c41a360a146101a1578063f00d4b5d146101d3575b600080fd5b34156100b357600080fd5b6100c7600160a060020a03600435166101f8565b005b34156100d457600080fd5b6100e8600160a060020a03600435166102e5565b604051901515815260200160405180910390f35b341561010757600080fd5b61010f610302565b60405190815260200160405180910390f35b341561012c57600080fd5b6100c7600160a060020a0360043516610308565b341561014b57600080fd5b61010f610401565b341561015e57600080fd5b6100c7600435610407565b341561017457600080fd5b6100c76004356104b1565b341561018a57600080fd5b6100e8600435600160a060020a0360243516610536565b34156101ac57600080fd5b6101b760043561058b565b604051600160a060020a03909116815260200160405180910390f35b34156101de57600080fd5b6100c7600160a060020a03600435811690602435166105a6565b60008036604051808383808284378201915050925050506040518091039020610220816106ac565b151561022b57600080fd5b600160a060020a038316600090815261010260205260409020549150811515610253576102e0565b60018054036000541115610266576102e0565b6000600283610100811061027657fe5b0155600160a060020a0383166000908152610102602052604081205561029a61080b565b6102a261088e565b7f58619076adf5bb0943d100ef88d52d7c3fd691b19d3a9071b555b651fbf418da83604051600160a060020a03909116815260200160405180910390a15b505050565b600160a060020a0316600090815261010260205260408120541190565b60015481565b60003660405180838380828437820191505092505050604051809103902061032f816106ac565b151561033a57600080fd5b610343826102e5565b1561034d576103fd565b61035561080b565b60015460fa90106103685761036861088e565b60015460fa9010610378576103fd565b60018054810190819055600160a060020a03831690600290610100811061039b57fe5b0155600154600160a060020a0383166000908152610102602052604090819020919091557f994a936646fe87ffe4f1e469d3d6aa417d6b855598397f323de5b449f765f0c390839051600160a060020a03909116815260200160405180910390a15b5050565b60005481565b600160a060020a03331660009081526101026020526040812054908082151561042f576104ab565b50506000828152610103602052604081206001810154600284900a9290831611156104ab578054600190810182558101805483900390557fc7fb647e59b18047309aa15aad418e5d7ca96d173ad704f1031a2c3d7591734b3385604051600160a060020a03909216825260208201526040908101905180910390a15b50505050565b6000366040518083838082843782019150509250505060405180910390206104d8816106ac565b15156104e357600080fd5b6001548211156104f2576103fd565b60008290556104ff61080b565b7facbdb084c721332ac59f9b8e392196c9eb0e4932862da8eb9beaf0dad4f550da8260405190815260200160405180910390a15050565b600082815261010360209081526040808320600160a060020a03851684526101029092528220548281151561056e5760009350610582565b8160020a9050808360010154166000141593505b50505092915050565b6000600260018301610100811061059e57fe5b015492915050565b600080366040518083838082843782019150509250505060405180910390206105ce816106ac565b15156105d957600080fd5b6105e2836102e5565b156105ec576104ab565b600160a060020a038416600090815261010260205260409020549150811515610614576104ab565b61061c61080b565b600160a060020a038316600283610100811061063457fe5b0155600160a060020a038085166000908152610102602052604080822082905591851681528190208390557fb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c908590859051600160a060020a039283168152911660208201526040908101905180910390a150505050565b600160a060020a0333166000908152610102602052604081205481808215156106d457610803565b600085815261010360205260409020805490925015156107335760008054835560018084019190915561010480549161070f919083016109a7565b600283018190556101048054879290811061072657fe5b6000918252602090912001555b8260020a90508082600101541660001415610803577fe1c52dc63b719ade82e8bea94cc41a0d5d28e4aaf536adb5e9cccc9ff8c1aeda3386604051600160a060020a03909216825260208201526040908101905180910390a18154600190116107f05760008581526101036020526040902060020154610104805490919081106107b957fe5b6000918252602080832090910182905586825261010390526040812081815560018082018390556002909101919091559350610803565b8154600019018255600182018054821790555b505050919050565b6101045460005b818110156108815761010480548290811061082957fe5b600091825260209091200154156108795761010360006101048381548110151561084f57fe5b60009182526020808320909101548352820192909252604001812081815560018101829055600201555b600101610812565b6103fd61010460006109cb565b60015b6001548110156109a4575b600154811080156108bb575060028161010081106108b657fe5b015415155b156108c85760010161089c565b600180541180156108e9575060015460029061010081106108e557fe5b0154155b156108fd57600180546000190190556108c8565b6001548110801561091f5750600154600290610100811061091a57fe5b015415155b80156109385750600281610100811061093457fe5b0154155b1561099f57600154600290610100811061094e57fe5b0154600282610100811061095e57fe5b0155806101026000600283610100811061097457fe5b0154815260200190815260200160002081905550600060026001546101008110151561099c57fe5b01555b610891565b50565b8154818355818115116102e0576000838152602090206102e09181019083016109e5565b50805460008255906000526020600020908101906109a491905b610a0391905b808211156109ff57600081556001016109eb565b5090565b905600a165627a7a723058203bc2de53011f8d773b4d14e5cbb6ee74b93402a9ee086ec8155a03dad33a56300029",
+  "sourceMap": "27:7836:8:-;;;1602:390;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;1798:6:8;;-1:-1:-1;1681:7:8;:14;1698:1;1681:18;;;1667:32;;1728:10;-1:-1:-1;;;;;1723:16:8;1709:11;:30;;;-1:-1:-1;1749:30:8;;;:12;:30;;;;;:34;;;;-1:-1:-1;;1793:161:8;1814:7;:14;1810:1;:18;1793:161;;;1880:7;1888:1;1880:10;;;;;;;;;;;;;;;;-1:-1:-1;;;;;1875:16:8;1857:8;1866:5;;;1857:15;;;;;;;;:34;1938:1;:5;;1905:12;:30;1923:7;1942:1;1923:7;:10;;;;;;;;;;;;;;;-1:-1:-1;;;;;1918:16:8;1905:30;;;;;;;;;;;-1:-1:-1;1905:30:8;:38;1830:3;;1793:161;;;-1:-1:-1;1963:10:8;:22;-1:-1:-1;27:7836:8;;;;;;",
+  "deployedSourceMap": "27:7836:8:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3422:489;;;;;;;;;;-1:-1:-1;;;;;3422:489:8;;;;;;;4373:100;;;;;;;;;;-1:-1:-1;;;;;4373:100:8;;;;;;;;;;;;;;;;;;;;;;7545:23;;;;;;;;;;;;;;;;;;;;;;;;;;;2994:422;;;;;;;;;;-1:-1:-1;;;;;2994:422:8;;;;;7465:22;;;;;;;;;;;;2057:466;;;;;;;;;;;;;;3917:242;;;;;;;;;;;;;;4479:428;;;;;;;;;;;;-1:-1:-1;;;;;4479:428:8;;;;;4239:128;;;;;;;;;;;;;;;;;-1:-1:-1;;;;;4239:128:8;;;;;;;;;;;;;;2582:406;;;;;;;;;;-1:-1:-1;;;;;2582:406:8;;;;;;;;;;3422:489;3509:15;3479:8;;3474:14;;;;;;;;;;;;;;;;;;;;;;;;;1363:27;1379:10;1363:15;:27::i;:::-;1355:36;;;;;;;;-1:-1:-1;;;;;3540:12:8;;3527:26;;;;:12;:26;;;;;;;-1:-1:-1;3567:15:8;;3563:28;;;3584:7;;3563:28;3631:1;3617:11;;:15;3604:10;;:28;3600:41;;;3634:7;;3600:41;3674:1;3651:8;3660:10;3651:20;;;;;;;;:24;-1:-1:-1;;;;;3698:12:8;;3714:1;3685:26;;;:12;:26;;;;;:30;3725:14;:12;:14::i;:::-;3749:18;:16;:18::i;:::-;3884:20;3897:6;3884:20;;-1:-1:-1;;;;;3884:20:8;;;;;;;;;;;;;;1401:1;3422:489;;;:::o;4373:100::-;-1:-1:-1;;;;;4450:11:8;4414:4;4437:25;;;:12;:25;;;;;;:29;;4373:100::o;7545:23::-;;;;:::o;2994:422::-;3048:8;;3043:14;;;;;;;;;;;;;;;;;;;;;;;;;1363:27;1379:10;1363:15;:27::i;:::-;1355:36;;;;;;;;3082:15;3090:6;3082:7;:15::i;:::-;3078:28;;;3099:7;;3078:28;3116:14;:12;:14::i;:::-;3144:11;;7649:3;3144:26;;3140:62;;3184:18;:16;:18::i;:::-;3216:11;;7649:3;3216:26;;3212:51;;3256:7;;3212:51;3272:11;:13;;;;;;;;-1:-1:-1;;;;;3319:12:8;;;3295:8;;:21;;;;;;;;:36;3370:11;;-1:-1:-1;;;;;3354:12:8;;3341:26;;;;:12;:26;;;;;;;:40;;;;3391:18;;3359:6;;3391:18;-1:-1:-1;;;;;3391:18:8;;;;;;;;;;;;;;1401:1;2994:422;;:::o;7465:22::-;;;;:::o;2057:466::-;-1:-1:-1;;;;;2148:10:8;2143:16;2112:15;2130:30;;;:12;:30;;;;;;;2112:15;2212;;2208:28;;;2229:7;;2208:28;-1:-1:-1;;2305:21:8;;;;:9;:21;;;;;2340:18;;;;2266:1;:15;;;;2340:34;;;:38;2336:181;;;2394:19;;;;;;;;2427:18;;:35;;;;;;;2476:30;2483:10;2495;2476:30;;-1:-1:-1;;;;;2476:30:8;;;;;;;;;;;;;;;;;;;;2336:181;2057:466;;;;:::o;3917:242::-;3983:8;;3978:14;;;;;;;;;;;;;;;;;;;;;;;;;1363:27;1379:10;1363:15;:27::i;:::-;1355:36;;;;;;;;4032:11;;4017:12;:26;4013:39;;;4045:7;;4013:39;4061:10;:25;;;4096:14;:12;:14::i;:::-;4120:32;4139:12;4120:32;;;;;;;;;;;;;;3917:242;;:::o;4479:428::-;4555:4;4585:21;;;:9;:21;;;;;;;;-1:-1:-1;;;;;4647:12:8;;4634:26;;:12;:26;;;;;;4555:4;4713:15;;4709:33;;;4737:5;4730:12;;;;4709:33;4831:10;4826:1;:15;4805:36;;4881:13;4860:7;:18;;;:34;4898:1;4860:39;4858:42;4851:49;;4479:428;;;;;;;;:::o;4239:128::-;4301:7;4335:8;4357:1;4344:14;;4335:24;;;;;;;;;;4239:128;-1:-1:-1;;4239:128:8:o;2582:406::-;2715:15;2651:8;;2646:14;;;;;;;;;;;;;;;;;;;;;;;;;1363:27;1379:10;1363:15;:27::i;:::-;1355:36;;;;;;;;2685:12;2693:3;2685:7;:12::i;:::-;2681:25;;;2699:7;;2681:25;-1:-1:-1;;;;;2746:11:8;;2733:25;;;;:12;:25;;;;;;;-1:-1:-1;2772:15:8;;2768:28;;;2789:7;;2768:28;2806:14;:12;:14::i;:::-;-1:-1:-1;;;;;2853:9:8;;2830:8;2839:10;2830:20;;;;;;;;:32;-1:-1:-1;;;;;2885:11:8;;;2900:1;2872:25;;;:12;:25;;;;;;:29;;;2924:9;;;2911:23;;;;;:36;;;2957:24;;2890:5;;2929:3;;2957:24;-1:-1:-1;;;;;2957:24:8;;;;;;;;;;;;;;;;;;;;;;2582:406;;;;:::o;4938:1619::-;-1:-1:-1;;;;;5108:10:8;5103:16;5001:4;5090:30;;;:12;:30;;;;;;5001:4;;5172:15;;5168:28;;;5189:7;;5168:28;5220:21;;;;:9;:21;;;;;5357:17;;5220:21;;-1:-1:-1;5357:22:8;5353:359;;;5467:10;;;5447:30;;5570:18;;;;:22;;;;5622:14;:23;;;;;:14;:23;;;:::i;:::-;5606:13;;;:39;;;5659:14;:29;;5691:10;;5606:39;5659:29;;;;;;;;;;;;;;;:42;5353:359;5799:10;5794:1;:15;5773:36;;5934:13;5913:7;:18;;;:34;5951:1;5913:39;5909:642;;;5968:36;5981:10;5993;5968:36;;-1:-1:-1;;;;;5968:36:8;;;;;;;;;;;;;;;;;;;;6080:17;;6101:1;6080:22;;6076:465;;6209:21;;;;:9;:21;;;;;:27;;;6194:14;:43;;:14;;6209:27;6194:43;;;;;;;;;;;;;;;;;6187:50;;;6262:21;;;:9;:21;;;;;6255:28;;;;;;;;;;;;;;;;;;;-1:-1:-1;6301:11:8;;6076:465;6454:19;;-1:-1:-1;;6454:19:8;;;;6491:18;;:35;;;;;;6076:465;4938:1619;;;;;;:::o;7110:251::-;7167:14;:21;7153:11;7198:125;7219:6;7215:1;:10;7198:125;;;7248:14;:17;;7263:1;;7248:17;;;;;;;;;;;;;;;;:22;7244:79;;7295:9;:28;7305:14;7320:1;7305:17;;;;;;;;;;;;;;;;;;;;;;7295:28;;;;;;;;;;;;7288:35;;;;;;;;;;;;7244:79;7227:3;;7198:125;;;7333:21;7340:14;;7333:21;:::i;6563:541::-;6621:1;6632:466;6646:11;;6639:4;:18;6632:466;;;6681:56;6695:11;;6688:4;:18;:41;;;;-1:-1:-1;6710:8:8;6719:4;6710:14;;;;;;;;;:19;;6688:41;6681:56;;;6731:6;;6681:56;;;6772:1;6758:11;;:15;:45;;;;-1:-1:-1;6786:11:8;;6777:8;;:21;;;;;;;;;:26;6758:45;6751:67;;;6805:11;:13;;-1:-1:-1;;6805:13:8;;;6751:67;;;6843:11;;6836:4;:18;:48;;;;-1:-1:-1;6867:11:8;;6858:8;;:21;;;;;;;;;:26;;6836:48;:71;;;;-1:-1:-1;6888:8:8;6897:4;6888:14;;;;;;;;;:19;6836:71;6832:256;;;6965:11;;6956:8;;:21;;;;;;;;;6939:8;6948:4;6939:14;;;;;;;;:38;7026:4;6995:12;:28;7008:8;7026:4;7008:14;;;;;;;;;6995:28;;;;;;;;;;;:35;;;;7072:1;7048:8;7057:11;;7048:21;;;;;;;;;;:25;6832:256;6632:466;;;6563:541;:::o;27:7836::-;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o",
+  "source": "pragma solidity ^0.4.19;\n\n\ncontract multiowned {\n\n    // TYPES\n\n    // struct for the status of a pending operation.\n    struct PendingState {\n        uint yetNeeded;\n        uint ownersDone;\n        uint index;\n    }\n\n    // EVENTS\n\n    // this contract only has six types of events: it can accept a confirmation, in which case\n    // we record owner and operation (hash) alongside it.\n    event Confirmation(address owner, bytes32 operation);\n    event Revoke(address owner, bytes32 operation);\n    // some others are in the case of an owner changing.\n    event OwnerChanged(address oldOwner, address newOwner);\n    event OwnerAdded(address newOwner);\n    event OwnerRemoved(address oldOwner);\n    // the last one is emitted if the required signatures change\n    event RequirementChanged(uint newRequirement);\n\n    // MODIFIERS\n\n    // simple single-sig function modifier.\n    modifier onlyowner {\n        require(isOwner(msg.sender));\n        _;\n    }\n\n    // simple single-sig function modifier.\n    modifier onlycreator {\n        require(m_owners[1] == uint(msg.sender));\n        _;\n    }\n    // multi-sig function modifier: the operation must have an intrinsic hash in order\n    // that later attempts can be realised as the same underlying operation and\n    // thus count as confirmations.\n    modifier onlymanyowners(bytes32 _operation) {\n        require(confirmAndCheck(_operation));\n        _;\n    }\n\n    // METHODS\n\n    // constructor is given number of sigs required to do protected \"onlymanyowners\" transactions\n    // as well as the selection of addresses capable of confirming them.\n    function multiowned(address[] _owners, uint _required) {\n        m_numOwners = _owners.length + 1;\n        m_owners[1] = uint(msg.sender);\n        m_ownerIndex[uint(msg.sender)] = 1;\n        for (uint i = 0; i < _owners.length; ++i)\n        {\n            m_owners[2 + i] = uint(_owners[i]);\n            m_ownerIndex[uint(_owners[i])] = 2 + i;\n        }\n        m_required = _required;\n    }\n\n    // Revokes a prior confirmation of the given operation\n    function revoke(bytes32 _operation) external {\n        uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n        // make sure they're an owner\n        if (ownerIndex == 0) return;\n        uint ownerIndexBit = 2 ** ownerIndex;\n        var pending = m_pending[_operation];\n        if (pending.ownersDone & ownerIndexBit > 0) {\n            pending.yetNeeded++;\n            pending.ownersDone -= ownerIndexBit;\n            Revoke(msg.sender, _operation);\n        }\n    }\n\n    // Replaces an owner `_from` with another `_to`.\n    function changeOwner(address _from, address _to) onlymanyowners(sha3(msg.data)) external {\n        if (isOwner(_to)) return;\n        uint ownerIndex = m_ownerIndex[uint(_from)];\n        if (ownerIndex == 0) return;\n\n        clearPending();\n        m_owners[ownerIndex] = uint(_to);\n        m_ownerIndex[uint(_from)] = 0;\n        m_ownerIndex[uint(_to)] = ownerIndex;\n        OwnerChanged(_from, _to);\n    }\n\n    function addOwner(address _owner) onlymanyowners(sha3(msg.data)) external {\n        if (isOwner(_owner)) return;\n\n        clearPending();\n        if (m_numOwners >= c_maxOwners)\n            reorganizeOwners();\n        if (m_numOwners >= c_maxOwners)\n            return;\n        m_numOwners++;\n        m_owners[m_numOwners] = uint(_owner);\n        m_ownerIndex[uint(_owner)] = m_numOwners;\n        OwnerAdded(_owner);\n    }\n\n    function removeOwner(address _owner) onlymanyowners(sha3(msg.data)) external {\n        uint ownerIndex = m_ownerIndex[uint(_owner)];\n        if (ownerIndex == 0) return;\n        if (m_required > m_numOwners - 1) return;\n\n        m_owners[ownerIndex] = 0;\n        m_ownerIndex[uint(_owner)] = 0;\n        clearPending();\n        reorganizeOwners();\n        //make sure m_numOwner is equal to the number of owners and always points to the optimal free slot\n        OwnerRemoved(_owner);\n    }\n\n    function changeRequirement(uint _newRequired) onlymanyowners(sha3(msg.data)) external {\n        if (_newRequired > m_numOwners) return;\n        m_required = _newRequired;\n        clearPending();\n        RequirementChanged(_newRequired);\n    }\n\n    // Gets an owner by 0-indexed position (using numOwners as the count)\n    function getOwner(uint ownerIndex) external constant returns (address) {\n        return address(m_owners[ownerIndex + 1]);\n    }\n\n    function isOwner(address _addr) returns (bool) {\n        return m_ownerIndex[uint(_addr)] > 0;\n    }\n\n    function hasConfirmed(bytes32 _operation, address _owner) constant returns (bool) {\n        var pending = m_pending[_operation];\n        uint ownerIndex = m_ownerIndex[uint(_owner)];\n\n        // make sure they're an owner\n        if (ownerIndex == 0) return false;\n\n        // determine the bit to set for this owner.\n        uint ownerIndexBit = 2 ** ownerIndex;\n        return !(pending.ownersDone & ownerIndexBit == 0);\n    }\n\n    // INTERNAL METHODS\n\n    function confirmAndCheck(bytes32 _operation) internal returns (bool) {\n        // determine what index the present sender is:\n        uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n        // make sure they're an owner\n        if (ownerIndex == 0) return;\n\n        var pending = m_pending[_operation];\n        // if we're not yet working on this operation, switch over and reset the confirmation status.\n        if (pending.yetNeeded == 0) {\n            // reset count of confirmations needed.\n            pending.yetNeeded = m_required;\n            // reset which owners have confirmed (none) - set our bitmap to 0.\n            pending.ownersDone = 0;\n            pending.index = m_pendingIndex.length++;\n            m_pendingIndex[pending.index] = _operation;\n        }\n        // determine the bit to set for this owner.\n        uint ownerIndexBit = 2 ** ownerIndex;\n        // make sure we (the message sender) haven't confirmed this operation previously.\n        if (pending.ownersDone & ownerIndexBit == 0) {\n            Confirmation(msg.sender, _operation);\n            // ok - check if count is enough to go ahead.\n            if (pending.yetNeeded <= 1) {\n                // enough confirmations: reset and run interior.\n                delete m_pendingIndex[m_pending[_operation].index];\n                delete m_pending[_operation];\n                return true;\n            }\n            else\n            {\n                // not enough: record that this owner in particular confirmed.\n                pending.yetNeeded--;\n                pending.ownersDone |= ownerIndexBit;\n            }\n        }\n    }\n\n    function reorganizeOwners() private {\n        uint free = 1;\n        while (free < m_numOwners)\n        {\n            while (free < m_numOwners && m_owners[free] != 0) free++;\n            while (m_numOwners > 1 && m_owners[m_numOwners] == 0) m_numOwners--;\n            if (free < m_numOwners && m_owners[m_numOwners] != 0 && m_owners[free] == 0)\n            {\n                m_owners[free] = m_owners[m_numOwners];\n                m_ownerIndex[m_owners[free]] = free;\n                m_owners[m_numOwners] = 0;\n            }\n        }\n    }\n\n    function clearPending() internal {\n        uint length = m_pendingIndex.length;\n        for (uint i = 0; i < length; ++i)\n            if (m_pendingIndex[i] != 0)\n                delete m_pending[m_pendingIndex[i]];\n        delete m_pendingIndex;\n    }\n\n    // FIELDS\n\n    // the number of owners that must confirm the same operation before it is run.\n    uint public m_required;\n    // pointer used to find a free slot in m_owners\n    uint public m_numOwners;\n\n    // list of owners\n    uint[256] m_owners;\n    uint constant c_maxOwners = 250;\n    // index on the list of owners to allow reverse lookup\n    mapping(uint => uint) m_ownerIndex;\n    // the ongoing operations.\n    mapping(bytes32 => PendingState) m_pending;\n    bytes32[] m_pendingIndex;\n}\n",
+  "sourcePath": "/home/savao/hg/smart-contracts/contracts/multiowned.sol",
+  "networks": {},
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2018-02-16T13:47:57.387Z"
+}

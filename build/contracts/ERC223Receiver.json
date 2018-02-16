@@ -1,0 +1,41 @@
+{
+  "contractName": "ERC223Receiver",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "tokenFallback",
+      "outputs": [
+        {
+          "name": "ok",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6060604052341561000f57600080fd5b60fb8061001d6000396000f300606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663c0ee0b8a81146043575b600080fd5b3415604d57600080fd5b60b26004803573ffffffffffffffffffffffffffffffffffffffff169060248035919060649060443590810190830135806020601f8201819004810201604051908101604052818152929190602084018383808284375094965060c695505050505050565b604051901515815260200160405180910390f35b600193925050505600a165627a7a723058201a7510ba7ebb5dacd9ab2bec559126b7ff5d74434b949125fa0725c2dadefbf10029",
+  "deployedBytecode": "0x606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663c0ee0b8a81146043575b600080fd5b3415604d57600080fd5b60b26004803573ffffffffffffffffffffffffffffffffffffffff169060248035919060649060443590810190830135806020601f8201819004810201604051908101604052818152929190602084018383808284375094965060c695505050505050565b604051901515815260200160405180910390f35b600193925050505600a165627a7a723058201a7510ba7ebb5dacd9ab2bec559126b7ff5d74434b949125fa0725c2dadefbf10029",
+  "sourceMap": "78:1047:6:-;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "78:1047:6:-;;;;;;;;;;;;;;;;;;;;;;;277:846;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;277:846:6;;-1:-1:-1;277:846:6;;-1:-1:-1;;;;;;277:846:6;;;;;;;;;;;;;;;;;;;1112:4;277:846;;;;;:::o",
+  "source": "pragma solidity ^0.4.9;\n\n/*\n* Contract that is working with ERC223 tokens\n*/\n\ncontract ERC223Receiver {\n\n    struct TKN {\n        address sender;\n        uint value;\n        bytes data;\n        bytes4 sig;\n    }\n\n    // Override this function to have working tokenFallback\n    function tokenFallback(address _from, uint _value, bytes _data) public pure returns (bool ok) {\n        // TKN memory tkn;\n        // tkn.sender = _from;\n        // tkn.value = _value;\n        // tkn.data = _data;\n        // uint32 u = uint32(_data[3]) + (uint32(_data[2]) << 8) + (uint32(_data[1]) << 16) + (uint32(_data[0]) << 24);\n        // tkn.sig = bytes4(u);\n\n        /* tkn variable is analogue of msg variable of Ether transaction\n        *  tkn.sender is person who initiated this token transaction   (analogue of msg.sender)\n        *  tkn.value the number of tokens that were sent   (analogue of msg.value)\n        *  tkn.data is data of token transaction   (analogue of msg.data)\n        *  tkn.sig is 4 bytes signature of function\n        *  if data of token transaction is a function execution\n        */\n        return true;\n    }\n}",
+  "sourcePath": "/home/savao/hg/smart-contracts/contracts/Receiver_Interface.sol",
+  "networks": {},
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2018-02-16T13:47:57.387Z"
+}
