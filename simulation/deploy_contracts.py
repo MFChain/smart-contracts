@@ -21,8 +21,8 @@ with open('../contracts/4tests.sol', 'r') as contracts_file:
 with open('../contracts/4tests_Holder.sol', 'r') as contracts_file:
     holder_source_code = contracts_file.read()
 
-compiled_controller = compile_source(controller_source_code)
-compiled_holder = compile_source(holder_source_code)
+compiled_controller = compile_source(controller_source_code, optimize=True, optimize_runs=500)
+compiled_holder = compile_source(holder_source_code, optimize=True, optimize_runs=500)
 
 holder_interface = compiled_holder['<stdin>:Holder']
 ico_controller_interface = compiled_controller['<stdin>:ICO_controller']
