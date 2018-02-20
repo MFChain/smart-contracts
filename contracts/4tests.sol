@@ -89,6 +89,40 @@ contract Ownable {
 }
 
 
+/*
+* Contract that is working with ERC223 tokens
+*/
+
+contract ERC223Receiver {
+
+    struct TKN {
+        address sender;
+        uint value;
+        bytes data;
+        bytes4 sig;
+    }
+
+    // Override this function to have working tokenFallback
+    function tokenFallback(address _from, uint _value, bytes _data) public pure returns (bool ok) {
+        // TKN memory tkn;
+        // tkn.sender = _from;
+        // tkn.value = _value;
+        // tkn.data = _data;
+        // uint32 u = uint32(_data[3]) + (uint32(_data[2]) << 8) + (uint32(_data[1]) << 16) + (uint32(_data[0]) << 24);
+        // tkn.sig = bytes4(u);
+
+        /* tkn variable is analogue of msg variable of Ether transaction
+        *  tkn.sender is person who initiated this token transaction   (analogue of msg.sender)
+        *  tkn.value the number of tokens that were sent   (analogue of msg.value)
+        *  tkn.data is data of token transaction   (analogue of msg.data)
+        *  tkn.sig is 4 bytes signature of function
+        *  if data of token transaction is a function execution
+        */
+        return true;
+    }
+}
+
+
 /**
  * @title ERC20Basic
  * @dev Simpler version of ERC20 interface
@@ -247,29 +281,6 @@ contract ERC223 is ERC20 {
 }
 
 
-/*
-Base class contracts willing to accept ERC223 token transfers must conform to.
-
-Sender: msg.sender to the token contract, the address originating the token transfer.
-          - For user originated transfers sender will be equal to tx.origin
-          - For contract originated transfers, tx.origin will be the user that made the tx that produced the transfer.
-Origin: the origin address from whose balance the tokens are sent
-          - For transfer(), origin = msg.sender
-          - For transferFrom() origin = _from to token contract
-Value is the amount of tokens sent
-Data is arbitrary data sent with the token transfer. Simulates ether tx.data
-
-From, origin and value shouldn't be trusted unless the token contract is trusted.
-If sender == tx.origin, it is safe to trust it regardless of the token.
-*/
-
-contract ERC223Receiver {
-  function tokenFallback(address _sender, address _origin, uint _value, bytes _data) returns (bool ok){
-      return true;
-  }
-}
-
-
 contract Standard223Token is ERC223, StandardToken {
     //function that is called when a user or another contract wants to transfer funds
     function transfer(address _to, uint _value, bytes _data) returns (bool success) {
@@ -298,7 +309,7 @@ contract Standard223Token is ERC223, StandardToken {
     //function that is called when transaction target is a contract
     function contractFallback(address _origin, address _to, uint _value, bytes _data) private returns (bool success) {
         ERC223Receiver reciever = ERC223Receiver(_to);
-        return reciever.tokenFallback(msg.sender, _origin, _value, _data);
+        return reciever.tokenFallback(msg.sender, _value, _data);
     }
 
     //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
@@ -531,11 +542,11 @@ contract ICO_controller is Ownable {
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 80000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
 
-    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01
-    uint constant public Q1_2019_START_DATE = 1546300800; // 2019 01 01
-    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01
-    uint constant public Q3_2019_START_DATE = 1561939200; // 2019 07 01
-    uint constant public Q4_2019_START_DATE = 1569888000; // 2019 10 01
+    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01 
+    uint constant public Q1_2019_START_DATE = 1546300800; // 2019 01 01 
+    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
+    uint constant public Q3_2019_START_DATE = 1561939200; // 2019 07 01 
+    uint constant public Q4_2019_START_DATE = 1569888000; // 2019 10 01 
     uint public devRewardReleaseTime;
     uint[4] public unlockMarketingTokensTime;
     uint public unlockIndex;
@@ -571,9 +582,11 @@ contract ICO_controller is Ownable {
     }
 
     function removeBuyerFromWhitelist(address _buyer) public onlyOwner returns (bool success) {
-        require(_buyer != address(0));
+        if (buyersWhitelist[_buyer] == true) {
         buyersWhitelist[_buyer] = false;
         return true;
+        }
+        return false;
     }
 
     function addBuyers(address[] _buyers) external onlyOwner returns (bool success) {
@@ -643,7 +656,7 @@ contract ICO_controller is Ownable {
         require(crowdsale.hasEnded() == true);
         require(crowdsaleFinished == false);
         crowdsale.burnRemainingTokens();
-        uint256 totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
+        totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
             token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             // sends token for support program
