@@ -1,8 +1,9 @@
 import csv
 import os
+import time
 
 from web3 import Web3, HTTPProvider
-from solc import compile_source
+from solc import compile_files
 
 try:
     os.remove("account_data.db")
@@ -41,7 +42,8 @@ while True:
         holder_receipt = w3.eth.getTransactionReceipt(holder_tx_hash)
         break
     except:
-        time.sleep(3)
+        print("Wait for Holder contract to be deployed")
+        time.sleep(5)
         continue
 holder_contract_address = holder_receipt['contractAddress']
 
@@ -55,13 +57,14 @@ while True:
         controller_receipt = w3.eth.getTransactionReceipt(controller_tx_hash)
         break
     except Exception as e:
-        time.sleep(3)
+        print("Wait for ICO controller contract to be deployed")
+        time.sleep(5)
         continue
 
 controller_contract_address = controller_receipt['contractAddress']
 token_contract_address = ico_controller_contract(controller_contract_address).call().token()
 
-print("Holder contract address: {}\n Holder contract gas spent: {}".
+print("\n\nHolder contract address: {}\n Holder contract gas spent: {}".
       format(holder_contract_address, holder_receipt['gasUsed']))
 print("Controller contract address: {}\n Controller contract gas spent: {}".
       format(controller_contract_address, controller_receipt['gasUsed']))

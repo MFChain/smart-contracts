@@ -75,12 +75,13 @@ if __name__ == '__main__':
             tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
             break
         except:
-            time.sleep(3)
+            print("Wait for ico start transaction to be confirmed")
+            time.sleep(5)
             continue
 
     time.sleep(15)
     ico_address = getattr(ico_controller_instance.call(), stage_member_map[stage])()
-    print("{} address: {}".format(stage, ico_address))
+    print("\n\n{} address: {}".format(stage, ico_address))
     with open('deploy_info.csv', 'at') as text_file:
         spamwriter = csv.writer(text_file, quoting=csv.QUOTE_MINIMAL)
         spamwriter.writerow((stage, ico_address))
