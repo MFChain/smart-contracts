@@ -45,8 +45,10 @@ while True:
         print("Wait for Holder contract to be deployed")
         time.sleep(5)
         continue
-holder_contract_address = holder_receipt['contractAddress']
 
+print(holder_receipt)
+holder_contract_address = holder_receipt['contractAddress']
+print(holder_contract_address)
 controller_tx_hash = ico_controller_contract.deploy(
     transaction={'from': w3.eth.accounts[0]},
     args=(holder_contract_address,

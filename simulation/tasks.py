@@ -8,5 +8,5 @@ def run(ctx):
     ctx.run('geth --datadir blchain --rpc --nodiscover --mine --minerthreads=1 --rpccorsdomain "*" --rpcapi "db,eth,net,web3,personal" --networkid 12')
 
 @task
-def run_ropsten(ctx):
-    ctx.run('geth --syncmode "light" --cache 512 --datadir "blchain_ropsten" --rpc --rpccorsdomain "*" --rpcapi "db,eth,net,web3,personal" --testnet')
+def run_rinkeby(ctx):
+    ctx.run('geth --syncmode "fast" --cache 512 --datadir "blchain_rinkeby" --rpc --rpccorsdomain "*" --rpcapi "db,eth,net,web3,personal" --rinkeby')

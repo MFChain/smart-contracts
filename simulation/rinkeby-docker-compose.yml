@@ -8,4 +8,4 @@ services:
       - "30303:30303"
     volumes:
       - ../:/workspace
-    command: /bin/bash -c "cd /workspace/simulation && exec invoke run_ropsten"
+    command: /bin/bash -c "cd /workspace/simulation && exec invoke run_rinkeby"
