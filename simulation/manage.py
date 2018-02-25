@@ -83,14 +83,14 @@ def print_stage_info():
     if not ico_array:
         print("No stage was activated")
 
-    print("Current date: {}\n".format(
-        datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%SZ'))
+    print("\nUTC+0 is used\nCurrent date: {}\n".format(
+        datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'))
     )
     for name, ico_instance in ico_array:
         print("Stage: {}\n  Address: {}\n  Has ended: {}\n  Start date: {}\n  End date: {}".format(
             name, ico_instance.address, ico_instance.call().hasEnded(),
-            datetime.utcfromtimestamp(ico_instance.call().startTime()).strftime('%Y-%m-%dT%H:%M:%SZ'),
-            datetime.utcfromtimestamp(ico_instance.call().endTime()).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            datetime.utcfromtimestamp(ico_instance.call().startTime()).strftime('%Y-%m-%d %H:%M:%S'),
+            datetime.utcfromtimestamp(ico_instance.call().endTime()).strftime('%Y-%m-%d %H:%M:%S'),
         ))
         print("  Wei raised: {}\n".format(ico_instance.call().getWeiRaised()))
 
