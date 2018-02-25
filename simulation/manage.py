@@ -92,7 +92,7 @@ def print_stage_info():
             datetime.utcfromtimestamp(ico_instance.call().startTime()).strftime('%Y-%m-%d %H:%M:%S'),
             datetime.utcfromtimestamp(ico_instance.call().endTime()).strftime('%Y-%m-%d %H:%M:%S'),
         ))
-        print("  Wei raised: {}\n".format(ico_instance.call().getWeiRaised()))
+        print("  Wei raised: {}\n".format(ico_instance.call().weiRaised()))
 
 
 ap = argparse.ArgumentParser()
