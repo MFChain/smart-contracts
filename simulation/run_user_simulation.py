@@ -4,8 +4,9 @@ from random import randint
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 from sqlalchemy.orm import sessionmaker
+from .utils import wait_for_tx, ACCOUNT_INDENT, CSV_ROWS, get_csv_file_row
 
-from user_token import Account, engine, get_or_create
+from .user_token import Account, engine, get_or_create
 
 
 def get_expected_token_amount(wei_amount, rate):
@@ -24,17 +25,7 @@ def get_expected_token_amount(wei_amount, rate):
     return basic_amount + bonus_amount
 
 
-def wait_for_tx(tx_hash):
-    while True:
-        try:
-            w3.eth.getTransactionReceipt(tx_hash)
-            break
-        except:
-            time.sleep(3)
-            continue
-
 NUMBER_OF_ACCOUNTS = 50
-ACCOUNT_INDENT = 4
 
 w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
 w3.personal.unlockAccount(w3.eth.accounts[0], '1')
@@ -42,7 +33,7 @@ session = sessionmaker(bind=engine)()
 
 compiled_source = compile_files(
     ["../contracts/ICO_controller.sol"],
-    optimize=True, optimize_runs=500)
+    optimize=True, optimize_runs=100)
 
 ico_interface = compiled_source['../contracts/ICO_crowdsale.sol:WhitelistedCrowdsale']
 ico_controller_interface = compiled_source['../contracts/ICO_controller.sol:ICO_controller']
@@ -55,13 +46,10 @@ ico_controller_contract = w3.eth.contract(
 )
 
 with open('deploy_info.csv', 'rt') as text_file:
-    spamreader = csv.reader(text_file, quoting=csv.QUOTE_MINIMAL)
-    next(spamreader)
-    next(spamreader)
-    _, ico_controller_address = next(spamreader)
-    raw = None
-    for raw in spamreader: pass
-    stage, ico_address = raw
+    _, ico_controller_address = get_csv_file_row(text_file, CSV_ROWS['controller'])
+
+with open('deploy_info.csv', 'rt') as text_file:
+    stage, ico_address = get_csv_file_row(text_file, CSV_ROWS['last_row'])
 
 print("Simulate {} with address: {}".format(stage, ico_address))
 
@@ -81,7 +69,8 @@ for acc in w3.eth.accounts[ACCOUNT_INDENT:ACCOUNT_INDENT + NUMBER_OF_ACCOUNTS]:
     if not ico_controller_instance.call().isAddressWhitelisted(acc):
         wait_for_tx(ico_controller_instance.transact(
             {'from': w3.eth.accounts[0]}
-        ).addBuyerToWhitelist(acc))
+        ).addBuyerToWhitelist(acc),
+                    w3, delay=3)
 
     value_eth = randint(1, 110)
     value = w3.toWei(value_eth, 'ether')
@@ -89,7 +78,7 @@ for acc in w3.eth.accounts[ACCOUNT_INDENT:ACCOUNT_INDENT + NUMBER_OF_ACCOUNTS]:
         'from': acc,
         'to': ico_address,
         'value': value
-    }))
+    }), w3, delay=3)
     print("{} sends {} ETH".format(acc, value_eth))
     expected_amount = get_expected_token_amount(value, ico_rate)
     account_db = get_or_create(session, Account, address=acc)

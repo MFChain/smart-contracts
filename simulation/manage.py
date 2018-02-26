@@ -6,14 +6,12 @@ from datetime import datetime
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 
+from .utils import CSV_ROWS, get_csv_file_row, wait_for_tx
+
 
 def get_token_instance(compiled_source):
     with open('deploy_info.csv', 'rt') as text_file:
-        spamreader = csv.reader(text_file, quoting=csv.QUOTE_MINIMAL)
-        next(spamreader)
-        next(spamreader)
-        next(spamreader)
-        token_address = next(spamreader)[1]
+        token_address = get_csv_file_row(text_file, CSV_ROWS['token'])[1]
 
     token_interface = compiled_source['../contracts/MFC_coin.sol:MFC_Token']
     token_contract = w3.eth.contract(
@@ -25,10 +23,7 @@ def get_token_instance(compiled_source):
 
 def get_controller_instance(compiled_source):
     with open('deploy_info.csv', 'rt') as text_file:
-        spamreader = csv.reader(text_file, quoting=csv.QUOTE_MINIMAL)
-        next(spamreader)
-        next(spamreader)
-        address = next(spamreader)[1]
+        address = get_csv_file_row(text_file, CSV_ROWS['controller'])[1]
 
     ico_controller_interface = compiled_source['../contracts/ICO_controller.sol:ICO_controller']
 
@@ -52,15 +47,7 @@ def add_address_to_whitelist(address, controller_instance):
     tx_hash = controller_instance.transact(
         {'from': w3.eth.accounts[0]}
     ).addBuyerToWhitelist(address)
-    while True:
-        try:
-            w3.eth.getTransactionReceipt(tx_hash)
-            break
-        except Exception as e:
-            print("Wait for account to be added to whitelist")
-            time.sleep(5)
-            continue
-
+    wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to whitelist")
     print("\n\n{} successfully added to whitelist".format(address))
 
 

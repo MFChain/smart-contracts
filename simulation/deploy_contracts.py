@@ -1,9 +1,10 @@
 import csv
 import os
-import time
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
+
+from .utils import wait_for_tx
 
 try:
     os.remove("account_data.db")
@@ -19,7 +20,7 @@ HOLDERS_ACCOUNTS = w3.eth.accounts[1:4]
 
 compiled_source = compile_files([
     "../contracts/Holder.sol",
-    "../contracts/ICO_controller.sol"], optimize=True, optimize_runs=500)
+    "../contracts/ICO_controller.sol"], optimize=True, optimize_runs=100)
 
 holder_interface = compiled_source['../contracts/Holder.sol:Holder']
 ico_controller_interface = compiled_source['../contracts/ICO_controller.sol:ICO_controller']
@@ -37,14 +38,10 @@ holder_tx_hash = holder_contract.deploy(
           1,  # Number of accounts needed to confirm changes
           ESCROW_ADDRESS)  # Escrow account
 )
-while True:
-    try:
-        holder_receipt = w3.eth.getTransactionReceipt(holder_tx_hash)
-        break
-    except:
-        print("Wait for Holder contract to be deployed")
-        time.sleep(5)
-        continue
+
+holder_receipt = wait_for_tx(holder_tx_hash,
+                             w3,
+                             wait_message="Wait for Holder contract to be deployed")
 
 print(holder_receipt)
 holder_contract_address = holder_receipt['contractAddress']
@@ -54,14 +51,10 @@ controller_tx_hash = ico_controller_contract.deploy(
     args=(holder_contract_address,
           ESCROW_ADDRESS)  # Escrow account
 )
-while True:
-    try:
-        controller_receipt = w3.eth.getTransactionReceipt(controller_tx_hash)
-        break
-    except Exception as e:
-        print("Wait for ICO controller contract to be deployed")
-        time.sleep(5)
-        continue
+
+controller_receipt = wait_for_tx(controller_tx_hash,
+                                 w3,
+                                 wait_message="Wait for ICO controller contract to be deployed")
 
 controller_contract_address = controller_receipt['contractAddress']
 token_contract_address = ico_controller_contract(controller_contract_address).call().token()
