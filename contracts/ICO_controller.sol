@@ -127,6 +127,7 @@ contract ICO_controller is Ownable {
     function addAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
         for(uint i = 0; i < _airdropAddresses.length; i++) {
             require(_airdropAddresses[i] != address(0));
+            require(airdropList[_airdropAddresses[i]] == false);
             airdropList[_airdropAddresses[i]] = true;
             totalAirdropAdrresses = totalAirdropAdrresses.add(1);
         }
@@ -135,6 +136,7 @@ contract ICO_controller is Ownable {
 
     function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
         for(uint i = 0; i < _airdropAddresses.length; i++) {
+            require(airdropList[_airdropAddresses[i]] == true);
             airdropList[_airdropAddresses[i]] = false;
             totalAirdropAdrresses = totalAirdropAdrresses.sub(1);
         }
@@ -197,7 +199,7 @@ contract ICO_controller is Ownable {
 
     }
 
-    // Count each buyer spent amount in case ICO wuoldn't reach SOFTCUP
+    // Count each buyer spent amount in case ICO wouldn't reach SOFTCUP
     function addBuyerSpent(address _buyer, uint256 _amount) external onlyIco {
         buyerSpent[_buyer] = buyerSpent[_buyer].add(_amount);
     }
