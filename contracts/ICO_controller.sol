@@ -18,6 +18,9 @@ contract ICO_controller is Ownable {
     // list of buyer are able to participate in ICOs
     mapping(address => bool) public buyersWhitelist;
 
+    // list of addresses accepted to airdrop
+    mapping(address => bool) public airdropList;
+
     // store each buyer spent ether
     mapping(address => uint256) public buyerSpent;
 
@@ -37,6 +40,7 @@ contract ICO_controller is Ownable {
     uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 80000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
+    uint256 constant public AIRDROP_SUPPLY = 5000000 * 1 ether;
 
     uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01 
     uint constant public Q1_2019_START_DATE = 1546300800; // 2019 01 01 
@@ -50,6 +54,7 @@ contract ICO_controller is Ownable {
 
     uint256 public totalDevReward;
     uint256 public totalSold;
+    uint32 public totalAirdropAdrresses;
 
     bool public crowdsaleFinished;
 
@@ -119,6 +124,23 @@ contract ICO_controller is Ownable {
         }
         return true;
     }
+ 
+    function addAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
+        for(uint i = 0; i < _airdropAddresses.length; i++) {
+            require(_airdropAddresses[i] != address(0));
+            airdropList[_airdropAddresses[i]] = true;
+            totalAirdropAdrresses = totalAirdropAdrresses.add(1);
+        }
+        return true;
+    }
+
+    function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
+        for(uint i = 0; i < _airdropAddresses.length; i++) {
+            airdropList[_airdropAddresses[i]] = false;
+            totalAirdropAdrresses = totalAirdropAdrresses.sub(1);
+        }
+        return true;
+    }
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
     function startPrivateOffer(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
@@ -154,14 +176,16 @@ contract ICO_controller is Ownable {
         crowdsale.burnRemainingTokens();
         totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
-            token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             // sends token for support program
-            token.burn(MAX_DEV_REWARD.sub(totalDevReward));
+            token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             // burn some unspent reward tokens
-            owner.transfer(this.balance.div(2));
+            token.burn(MAX_DEV_REWARD.sub(totalDevReward));
+            // burn after airdrop left tokens
+            token.burn(AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses)));
             // send 50% of ico eth to contract onwer
-            address(holder).transfer(this.balance);
+            owner.transfer(this.balance.div(2));
             // send other 50% to multisig holder address
+            address(holder).transfer(this.balance);
         }
         crowdsaleFinished = true;
 
@@ -202,5 +226,12 @@ contract ICO_controller is Ownable {
         token.transfer(owner, amount);
         releaseMarketingTokenAmount = amount;
         unlockIndex++;
+    }
+
+    function getAirdropTokens() external {
+        require(airdropList[msg.sender]);
+        require(crowdsaleFinished);
+        airdropList[msg.sender] = false;
+        token.transfer(msg.sender, AIRDROP_SUPPLY.div(totalAirdropAdrresses));
     }
 }

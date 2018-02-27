@@ -104,17 +104,14 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     function getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
         uint256 basicAmount = weiAmount.mul(rate);
         uint256 bonusAmount = 0;
-        if (weiAmount < 5 ether) {
+        if (weiAmount < 10 ether) {
 
-        } else if (weiAmount < 10 ether) {
+        } else if (weiAmount < 25 ether) {
             bonusAmount = basicAmount.div(10);
             // 10%
-        } else if (weiAmount < 25 ether) {
+        } else if (weiAmount < 100 ether) {
             bonusAmount = basicAmount.mul(15).div(100);
             // 15%
-        } else if (weiAmount < 100 ether) {
-            bonusAmount = basicAmount.mul(17).div(100);
-            // 17%
         } else {
             bonusAmount = basicAmount.div(5);
             // 20%
@@ -141,7 +138,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         token.burnAll();
     }
 
-    function getWeiRaised() external returns (uint256 weiRaised){
+    function getWeiRaised() external returns (uint256){
         return weiRaised;
     }
 
