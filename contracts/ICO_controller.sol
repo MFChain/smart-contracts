@@ -142,29 +142,36 @@ contract ICO_controller is Ownable {
         return true;
     }
 
+    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate) internal returns (WhitelistedCrowdsale){
+        require(_startTime >= now);
+        require(_endTime >= _startTime);
+        require(_rate > 0);
+        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
+    }
+
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
-    function startPrivateOffer(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
+    function startPrivateOffer(uint256 _startTime, uint256 _endTime) external onlyOwner {
         require(address(privateOffer) == address(0));
-        privateOffer = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
+        privateOffer = startIco(_startTime, _endTime, 14000);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
     // Create PreSale ICO
-    function startPreSaleIco(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
+    function startPreSaleIco(uint256 _startTime, uint256 _endTime) external onlyOwner {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
+        preSale = startIco(_startTime, _endTime, 12000);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
 
     // Create Crowdsale
-    function startCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate) external onlyOwner {
+    function startCrowdsale(uint256 _startTime, uint256 _endTime) external onlyOwner {
         require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
-        crowdsale = new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
+        crowdsale = startIco(_startTime, _endTime, 10000);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
         preSale.burnRemainingTokens();
     }
