@@ -28,7 +28,7 @@ CSV_ROWS = {'holder': 1,
 
 def get_csv_file_row(file, row_index):
     spamreader = csv.reader(file, quoting=csv.QUOTE_MINIMAL)
-    if row_index == 'last_stage':
+    if row_index == 'last_row':
         row = None
         for row in spamreader: pass
         return row
