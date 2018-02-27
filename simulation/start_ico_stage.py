@@ -37,7 +37,6 @@ ap.add_argument('--stage', '-t', type=str, help='ICO stage (private_offer, presa
                 choices=['private_offer', 'presale', 'crowdsale'])
 
 ap.add_argument('--provider', '-p', type=url_type, help='http url to provider', default='http://127.0.0.1:8545')
-ap.add_argument('--rate', '-r', type=int, help='ETH=>Token exhcage rate', default=1)
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
@@ -64,7 +63,7 @@ if __name__ == '__main__':
     ico_controller_instance = ico_controller_contract(address)
     contract_method = getattr(ico_controller_instance.transact({'from': w3.eth.accounts[0]}), stage_method_map[stage])
 
-    tx_hash = contract_method(start_date, start_date + duration, rate)
+    tx_hash = contract_method(start_date, start_date + duration)
 
     tx_receipt = wait_for_tx(tx_hash, w3, wait_message="Wait for ico start transaction to be confirmed")
 

@@ -40,6 +40,9 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
 
     ICO_controller private controller;
 
+    uint256 public maxPurchase;
+    uint256 public minPurchase;
+
     /**
      * event for token purchase logging
      * @param purchaser who paid for the tokens
@@ -50,12 +53,14 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, address _wallet, MFC_Token _token) public {
+    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _minPurchase, uint256 _maxPurchase, address _wallet, MFC_Token _token) public {
         startTime = _startTime;
         endTime = _endTime;
         rate = _rate;
         wallet = _wallet;
         token = _token;
+        maxPurchase = _maxPurchase;
+        minPurchase = _minPurchase;
         controller = ICO_controller(msg.sender);
     }
 
@@ -124,8 +129,10 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     function validPurchase() internal view returns (bool) {
         bool withinPeriod = now >= startTime && now <= endTime;
         bool nonZeroPurchase = msg.value != 0;
+        bool lessThemMaximum = msg.value =< maxPurchase;
+        bool moreThenMinimum = msg.value >= minPurchase;
         bool isWhitelisted = controller.isAddressWhitelisted(msg.sender);
-        return withinPeriod && nonZeroPurchase && isWhitelisted;
+        return withinPeriod && nonZeroPurchase && isWhitelisted && lessThemMaximum && moreThenMinimum;
     }
 
     function burnRemainingTokens() external onlyOwner {

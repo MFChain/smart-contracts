@@ -42,15 +42,15 @@ contract ICO_controller is Ownable {
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
     uint256 constant public AIRDROP_SUPPLY = 5000000 * 1 ether;
 
-    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01 
-    uint constant public Q1_2019_START_DATE = 1546300800; // 2019 01 01 
-    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
-    uint constant public Q3_2019_START_DATE = 1561939200; // 2019 07 01 
-    uint constant public Q4_2019_START_DATE = 1569888000; // 2019 10 01 
-    uint public devRewardReleaseTime;
-    uint[4] public unlockMarketingTokensTime;
-    uint public unlockIndex;
-    uint public releaseMarketingTokenAmount = MARKETING_SUPPORT_SUPPLY.div(4);
+    uint32 constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01  
+    uint32 constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
+    uint32 constant public Q2_2020_START_DATE = 1585699200; // 2020 04 01
+
+    uint32 public devRewardReleaseTime;
+    uint[2] public unlockMarketingTokensTime;
+    uint public unlockIndex = 0;
+
+    uint256 public releaseMarketingTokenAmount = MARKETING_SUPPORT_SUPPLY.div(2);
 
     uint256 public totalDevReward;
     uint256 public totalSold;
@@ -59,12 +59,11 @@ contract ICO_controller is Ownable {
     bool public crowdsaleFinished;
 
     function ICO_controller(address _holder, address _incentive_program) {
-        devRewardReleaseTime = Q3_2018_START_DATE + uint(block.blockhash(block.number - 1)) % 7948800;
+        devRewardReleaseTime = Q3_2018_START_DATE + (uint(block.blockhash(block.number - 1)) % 7948800);
 
-        unlockMarketingTokensTime[0] = Q1_2019_START_DATE + uint(block.blockhash(block.number - 2)) % 7948800;
-        unlockMarketingTokensTime[1] = Q2_2019_START_DATE + uint(block.blockhash(block.number - 3)) % 7948800;
-        unlockMarketingTokensTime[2] = Q3_2019_START_DATE + uint(block.blockhash(block.number - 4)) % 7948800;
-        unlockMarketingTokensTime[3] = Q4_2019_START_DATE + uint(block.blockhash(block.number - 5)) % 7948800;
+        unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 7948800);
+        unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 7948800);
+
         holder = _holder;
         incentiveProgram = _incentive_program;
     }
@@ -142,18 +141,18 @@ contract ICO_controller is Ownable {
         return true;
     }
 
-    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate) internal returns (WhitelistedCrowdsale){
+    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max) internal returns (WhitelistedCrowdsale){
         require(_startTime >= now);
         require(_endTime >= _startTime);
         require(_rate > 0);
-        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, address(this), token);
+        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, _min,_max, address(this), token);
     }
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
     function startPrivateOffer(uint256 _startTime, uint256 _endTime) external onlyOwner {
         require(address(privateOffer) == address(0));
         privateOffer = startIco(_startTime, _endTime, 14000);
-        token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
+        token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY, 1 ether, 200 ether);
     }
 
     // Create PreSale ICO
@@ -162,7 +161,7 @@ contract ICO_controller is Ownable {
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
         preSale = startIco(_startTime, _endTime, 12000);
-        token.transfer(address(preSale), PRE_SALE_SUPPLY);
+        token.transfer(address(preSale), PRE_SALE_SUPPLY, 5 ether, 200 ether);
         privateOffer.burnRemainingTokens();
     }
 
@@ -172,7 +171,7 @@ contract ICO_controller is Ownable {
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
         crowdsale = startIco(_startTime, _endTime, 10000);
-        token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
+        token.transfer(address(crowdsale), CROWDSALE_SUPPLY, 0.5 ether, 200 ether);
         preSale.burnRemainingTokens();
     }
 
@@ -225,7 +224,7 @@ contract ICO_controller is Ownable {
     }
 
     function getLockedMarketingTokens() onlyOwner external {
-        require(unlockIndex < 4);
+        require(unlockIndex < 2);
         require(unlockMarketingTokensTime[unlockIndex] < now);
         uint256 amount = releaseMarketingTokenAmount;
         // It is needed to prevent DAO vulnerability that allows owner get all tokens for once.

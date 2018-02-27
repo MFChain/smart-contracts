@@ -13,7 +13,7 @@ contract TokenHolder is multiowned, ERC223Receiver {
 
     MFC_Token public token;
 
-    function Holder(address[] _owners, uint _required, MFC_Token _token) multiowned(_owners, _required) {
+    function TokenHolder(address[] _owners, uint _required, MFC_Token _token) multiowned(_owners, _required) {
         token = _token;
     }
 
