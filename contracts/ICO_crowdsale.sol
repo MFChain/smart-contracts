@@ -129,7 +129,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     function validPurchase() internal view returns (bool) {
         bool withinPeriod = now >= startTime && now <= endTime;
         bool nonZeroPurchase = msg.value != 0;
-        bool lessThemMaximum = msg.value =< maxPurchase;
+        bool lessThemMaximum = msg.value <= maxPurchase;
         bool moreThenMinimum = msg.value >= minPurchase;
         bool isWhitelisted = controller.isAddressWhitelisted(msg.sender);
         return withinPeriod && nonZeroPurchase && isWhitelisted && lessThemMaximum && moreThenMinimum;

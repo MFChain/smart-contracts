@@ -42,11 +42,11 @@ contract ICO_controller is Ownable {
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
     uint256 constant public AIRDROP_SUPPLY = 5000000 * 1 ether;
 
-    uint32 constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01  
-    uint32 constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
-    uint32 constant public Q2_2020_START_DATE = 1585699200; // 2020 04 01
+    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01  
+    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
+    uint constant public Q2_2020_START_DATE = 1585699200; // 2020 04 01
 
-    uint32 public devRewardReleaseTime;
+    uint public devRewardReleaseTime;
     uint[2] public unlockMarketingTokensTime;
     uint public unlockIndex = 0;
 
@@ -54,7 +54,7 @@ contract ICO_controller is Ownable {
 
     uint256 public totalDevReward;
     uint256 public totalSold;
-    uint32 public totalAirdropAdrresses;
+    uint256 public totalAirdropAdrresses;
 
     bool public crowdsaleFinished;
 
@@ -151,8 +151,8 @@ contract ICO_controller is Ownable {
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
     function startPrivateOffer(uint256 _startTime, uint256 _endTime) external onlyOwner {
         require(address(privateOffer) == address(0));
-        privateOffer = startIco(_startTime, _endTime, 14000);
-        token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY, 1 ether, 200 ether);
+        privateOffer = startIco(_startTime, _endTime, 14000, 1 ether, 200 ether);
+        token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
     // Create PreSale ICO
@@ -160,8 +160,8 @@ contract ICO_controller is Ownable {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = startIco(_startTime, _endTime, 12000);
-        token.transfer(address(preSale), PRE_SALE_SUPPLY, 5 ether, 200 ether);
+        preSale = startIco(_startTime, _endTime, 12000, 5 ether, 200 ether);
+        token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
 
@@ -170,8 +170,8 @@ contract ICO_controller is Ownable {
         require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
-        crowdsale = startIco(_startTime, _endTime, 10000);
-        token.transfer(address(crowdsale), CROWDSALE_SUPPLY, 0.5 ether, 200 ether);
+        crowdsale = startIco(_startTime, _endTime, 10000, 0.5 ether, 200 ether);
+        token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
         preSale.burnRemainingTokens();
     }
 
