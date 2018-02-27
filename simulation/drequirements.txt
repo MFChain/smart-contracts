@@ -1,0 +1,4 @@
+invoke==0.18.0
+py-solc
+web3
+sqlalchemy==1.2.3
