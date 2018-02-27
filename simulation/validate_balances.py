@@ -3,8 +3,8 @@ from web3 import Web3, HTTPProvider
 from solc import compile_files
 from sqlalchemy.orm import sessionmaker
 
-from .user_token import Account, engine
-from .utils import CSV_ROWS, get_csv_file_row
+from user_token import Account, engine
+from utils import CSV_ROWS, get_csv_file_row
 
 w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
 session = sessionmaker(bind=engine)()

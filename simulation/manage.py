@@ -6,7 +6,7 @@ from datetime import datetime
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 
-from .utils import CSV_ROWS, get_csv_file_row, wait_for_tx
+from utils import CSV_ROWS, get_csv_file_row, wait_for_tx
 
 
 def get_token_instance(compiled_source):

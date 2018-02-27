@@ -6,7 +6,7 @@ import urllib
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 
-from .utils import wait_for_tx, get_csv_file_row, CSV_ROWS
+from utils import wait_for_tx, get_csv_file_row, CSV_ROWS
 
 stage_method_map = {
     'private_offer': 'startPrivateOffer',
@@ -68,7 +68,6 @@ if __name__ == '__main__':
 
     tx_receipt = wait_for_tx(tx_hash, w3, wait_message="Wait for ico start transaction to be confirmed")
 
-    time.sleep(15)
     ico_address = getattr(ico_controller_instance.call(), stage_member_map[stage])()
     print("\n\n{} address: {}".format(stage, ico_address))
     with open('deploy_info.csv', 'at') as text_file:

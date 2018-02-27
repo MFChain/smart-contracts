@@ -4,7 +4,7 @@ import os
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 
-from .utils import wait_for_tx
+from utils import wait_for_tx
 
 try:
     os.remove("account_data.db")

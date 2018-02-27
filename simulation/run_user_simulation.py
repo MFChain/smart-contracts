@@ -4,9 +4,9 @@ from random import randint
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 from sqlalchemy.orm import sessionmaker
-from .utils import wait_for_tx, ACCOUNT_INDENT, CSV_ROWS, get_csv_file_row
+from utils import wait_for_tx, ACCOUNT_INDENT, CSV_ROWS, get_csv_file_row
 
-from .user_token import Account, engine, get_or_create
+from user_token import Account, engine, get_or_create
 
 
 def get_expected_token_amount(wei_amount, rate):
