@@ -54,7 +54,7 @@ if __name__ == '__main__':
         with open('deploy_info.csv', 'rt') as text_file:
             address = get_csv_file_row(text_file, CSV_ROWS['controller'])[1]
 
-    compiled_source = compile_files(["../contracts/ICO_controller.sol"])
+    compiled_source = compile_files(["../contracts/ICO_controller.sol"],  optimize=True)
     ico_controller_interface = compiled_source['../contracts/ICO_controller.sol:ICO_controller']
 
     ico_controller_contract = w3.eth.contract(

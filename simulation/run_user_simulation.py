@@ -31,7 +31,7 @@ session = sessionmaker(bind=engine)()
 
 compiled_source = compile_files(
     ["../contracts/ICO_controller.sol"],
-    optimize=True, optimize_runs=100)
+    optimize=True)
 
 ico_interface = compiled_source['../contracts/ICO_crowdsale.sol:WhitelistedCrowdsale']
 ico_controller_interface = compiled_source['../contracts/ICO_controller.sol:ICO_controller']
