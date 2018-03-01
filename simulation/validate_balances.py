@@ -11,7 +11,7 @@ session = sessionmaker(bind=engine)()
 
 compiled_source = compile_files(
     ["../contracts/ICO_controller.sol"],
-    optimize=True, optimize_runs=500)
+    optimize=True)
 
 token_interface = compiled_source['../contracts/MFC_coin.sol:MFC_Token']
 
