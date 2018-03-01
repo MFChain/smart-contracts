@@ -96,7 +96,7 @@ if __name__ == '__main__':
     w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
     w3.personal.unlockAccount(w3.eth.accounts[0], '1')
 
-    compiled_source = compile_files(["../contracts/ICO_controller.sol"])
+    compiled_source = compile_files(["../contracts/ICO_controller.sol"],  optimize=True)
 
     token_instance = get_token_instance(compiled_source)
     controller_instance = get_controller_instance(compiled_source)

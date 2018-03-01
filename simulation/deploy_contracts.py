@@ -20,7 +20,7 @@ HOLDERS_ACCOUNTS = w3.eth.accounts[1:4]
 
 compiled_source = compile_files([
     "../contracts/Holder.sol",
-    "../contracts/ICO_controller.sol"], optimize=True, optimize_runs=100)
+    "../contracts/ICO_controller.sol"], optimize=True)
 
 holder_interface = compiled_source['../contracts/Holder.sol:Holder']
 ico_controller_interface = compiled_source['../contracts/ICO_controller.sol:ICO_controller']
