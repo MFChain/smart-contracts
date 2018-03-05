@@ -236,9 +236,9 @@ contract BurnableToken is Standard223Token {
 
 contract MFC_Token is BurnableToken {
 
-    string public constant name = "MFC Coin Token";
+    string public constant name = "MFX Coin Token";
 
-    string public constant symbol = "MFC";
+    string public constant symbol = "MFX";
 
     uint32 public constant decimals = 18;
 

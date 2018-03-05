@@ -15,7 +15,6 @@ except OSError:
 
 # web3.py instance
 w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
-
 try:
     w3.personal.unlockAccount(w3.eth.accounts[0], '1')
 except:
