@@ -152,7 +152,7 @@ contract ICO_controller is Ownable {
     }
 
     function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max) internal returns (WhitelistedCrowdsale){
-        return startIco(_startTime, _endTime, _rate, _min,_max, address(this), token);
+        return startIco(_startTime, _endTime, _rate, _min,_max, address(this));
     }
 
     function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max, address _escrow) internal returns (WhitelistedCrowdsale){
@@ -199,7 +199,7 @@ contract ICO_controller is Ownable {
         totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
             // sends token for support program
-            success = token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
+            bool success = token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             assert(success==true);
             // burn some unspent reward tokens
             token.burn(MAX_DEV_REWARD.sub(totalDevReward));

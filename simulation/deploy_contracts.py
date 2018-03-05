@@ -89,8 +89,8 @@ if __name__ == '__main__':
                                      w3,
                                      wait_message="Wait for ICO controller contract to be deployed")
     controller_contract_address = controller_receipt['contractAddress']
-
-    token_contract_address = ico_controller_contract(controller_contract_address).call().token()
+    controller_instance = ico_controller_contract(controller_contract_address)
+    token_contract_address = controller_instance.call().token()
 
     token_holder_tx_hash = token_holder_contract.deploy(
         transaction={'from': w3.eth.accounts[0]},
@@ -102,6 +102,12 @@ if __name__ == '__main__':
                                        w3,
                                        wait_message="Wait for Token holder contract to be deployed")
     token_holder_address = token_holder_receipt['contractAddress']
+    tx_hash = controller_instance.transact(
+        {'from': w3.eth.accounts[0]}
+    ).setIncentiveProgram(token_holder_address)
+    wait_for_tx(tx_hash,
+                w3,
+                wait_message="Wait for Token holder contract to be added to Controller")
 
     print("\n\nHolder contract address: {}\n Holder contract gas spent: {}".
           format(holder_contract_address, holder_receipt['gasUsed']))
