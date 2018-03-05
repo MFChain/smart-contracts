@@ -26,8 +26,8 @@ contract ICO_controller is Ownable {
     // devs&advisors reward
     mapping(address => uint256) public devRewards;
 
-    address incentiveProgram;
-    address escrowIco;
+    address public incentiveProgram;
+    address public escrowIco;
 
     WhitelistedCrowdsale public privateOffer;
     WhitelistedCrowdsale public preSale;
