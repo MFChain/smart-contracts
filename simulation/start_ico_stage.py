@@ -28,7 +28,7 @@ ap.add_argument('--address', '-a', type=str, help='ICO controller address.', def
 ap.add_argument('--escrow_address', '-e', type=str, help='Escrow address for privateOffer', default='0')
 ap.add_argument('--start_date', '-s', type=int, help='ICO start unix datetime', default=int(time.time() + 5))
 ap.add_argument('--end_date', '-d', type=int, help='ICO end unit datetime delta', required=True)
-ap.add_argument('--stage', '-t', type=str, help='ICO stage (private_offer, presale, crowdsale, finish)',
+ap.add_argument('--stage', '-t', type=str, help='ICO stage (private_offer, presale, crowdsale)',
                 choices=['private_offer', 'presale', 'crowdsale'])
 
 ap.add_argument('--provider', '-p', type=url_type, help='http url to provider', default='http://127.0.0.1:8545')
