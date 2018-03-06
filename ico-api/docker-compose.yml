@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  uwsgi_api:
+    build: .
+    ports:
+      - "8181:8181"
+    volumes:
+      - ../:/workspace
+    command: /bin/bash -c "cd /workspace/ico-api && exec invoke run"
+
+networks:
+  default:
+    external:
+      name: simulation_default
