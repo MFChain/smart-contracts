@@ -27,7 +27,7 @@ def ethereum_accounts(accounts):
         raise argparse.ArgumentTypeError('Account arguments do not match "<address1>,<address2>"')
     accounts = re.findall(r'0x[a-fA-F0-9]{40}', accounts)
     for acc in accounts:
-        if not w3.isAddress(acc):
+        if not w3.isChecksumAddress(acc):
             raise argparse.ArgumentTypeError('Some of accounts are not correct')
     return accounts
 
