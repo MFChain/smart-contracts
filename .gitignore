@@ -2,3 +2,5 @@
 .ipynb*
 .json
 node_modules
+ico-api/addresses.csv
+__pycache__
