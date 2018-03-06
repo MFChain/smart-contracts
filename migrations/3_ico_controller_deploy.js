@@ -28,4 +28,3 @@ module.exports = function (deployer, network, accounts) {
             return controller.setIncentiveProgram(tokenHolder.address);
         })
 }
-
