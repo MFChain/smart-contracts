@@ -81,8 +81,8 @@ contract('MFC_Token tests constructor', function(accounts) {
       }).then(function(totalSupply) {
           totalSupply_value = totalSupply.valueOf();
       }).then(function() {
-          assert.equal(balance_value, 500000000000000000000000000, "500000000000000000000000000 wasn't in the first account");
-          assert.equal(totalSupply_value, 500000000000000000000000000, "totalSupply is not 500000000000000000000000000 MFC_Token");
+          assert.equal(balance_value, 507000000000000000000000000, "500000000000000000000000000 wasn't in the first account");
+          assert.equal(totalSupply_value, 507000000000000000000000000, "totalSupply is not 500000000000000000000000000 MFC_Token");
       });
     });
 });
@@ -92,31 +92,45 @@ contract('MFC_Token tests burn', async function(accounts) {
     /* Task 17 - Create test for MFC_coin burn() with Truffle */
 
     /* Using Truffle, we check method for MFC_coin burn() and test 4 variants:
-        regular burning - whe*n the sender have enough tokens */
-    it("should transfer 10 tokens to second account and second account should burn 10 tokens", function() {
-        var user_balance;
+        regular burning - when the sender have enough tokens */
+    it("test burn method with enough balance", function() {
+        var user_balance_before;
         var owner = accounts[0];
         var user = accounts[1];
         var token_contract;
+        var oldTotalSupply;
+        var newTotalSupply;
         return token.deployed().then(function(instance) {
             token_contract = instance;
             return token_contract.transfer(user, 10, {'from': owner});
         }).then(function(){
+            return token_contract.totalSupply.call();
+        }).then(function(totalSupply) {
+            return totalSupply.toNumber();
+        }).then(function(totalSupply){
+            oldTotalSupply = totalSupply;
             return token_contract.balanceOf.call(user);
         }).then(function(balance) {
-            user_balance_befor = balance.valueOf();
+            user_balance_before = balance.toNumber();
             return token_contract.burn(10, {'from': user});
         }).then(function(){
+            return token_contract.totalSupply.call();
+        }).then(function(totalSupply) {
+            return totalSupply.toNumber();
+        }).then(function(totalSupply){
+            newTotalSupply = totalSupply;
             return token_contract.balanceOf.call(user);
         }).then(function(balance) {
             return balance.toNumber();
         }).then(function(user_balance_after) {
-            assert.equal(user_balance_befor, user_balance_after + 10, "something went wrong");
+            console.log("user balance changed on wrong number" + (user_balance_before - user_balance_after));
+            assert.equal(user_balance_before - 10, user_balance_after, "user balance changed on wrong number" + user_balance_before - user_balance_after);
+            assert.equal(oldTotalSupply - 10, newTotalSupply, "totalSupply changed on wrong number");
         });
     });
 
     /* burning without enough tokens */
-    it("should transfer 1 tokens to second account and second account should try to burn 10 tokens and should receive an error: revert", function() {
+    it("test burn method without enough balance", function() {
         var owner = accounts[0];
         var user = accounts[2];
         var token_contract;
@@ -125,25 +139,29 @@ contract('MFC_Token tests burn', async function(accounts) {
             return token_contract.transfer(user, 1, {'from': owner});
         }).then(function() {
             return token_contract.burn(10, {'from': user});
+        }).then(function() {
+            assert.isFalse(true, 'Expect exception. User does not have enough tokens');
         }).catch(function(e){
-            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "something went wrong");
+            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "wrong error thrown");
         });
     });
 
-    /* burning without balan*ce */
-    it("the second account does not have a record in the balance sheet and will try to burn 10 tokens and should receive an error: revert", function() {
+    /* burning without balance */
+    it("test burn method without balance", function() {
         var user = accounts[3];
         var token_contract;
         return token.deployed().then(function(instance) {
             token_contract = instance;
             return token_contract.burn(10, {'from': user});
+        }).then(function() {
+            assert.isFalse(true, 'Expect exception. User does not have balance');
         }).catch(function(e){
-            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "something went wrong");
+            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "wrong error thrown");
         });
     });
 
     /* balance of burner = 0 */
-    it("the second account have a record in the balance sheet but have 0 tokens and will try to burn 10 tokens and should receive an error: revert", function() {
+    it("test burn method with zero balance", function() {
         var owner = accounts[0];
         var user = accounts[4];
         var token_contract;
@@ -154,8 +172,10 @@ contract('MFC_Token tests burn', async function(accounts) {
             return token_contract.burn(1, {'from': user});
         }).then(function() {
             return token_contract.burn(10, {'from': user});
+        }).then(function() {
+            assert.isFalse(true, 'Expect exception. The user has a zero balance');
         }).catch(function(e){
-            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "something went wrong");
+            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "wrong error thrown");
         });
     });
 });
@@ -166,8 +186,8 @@ contract('MFC_Token tests burnAll', async function(accounts) {
 
     /* Using Truffle, we check method for MFC_coin burnAll() and test 3 variants:
        - burner have balance */
-    it("should transfer 10 tokens to second account and second account should burn all tokens", function() {
-        var user_balance_befor;
+    it("test burnAll method with nonzero balance", function() {
+        var user_balance_before;
         var owner = accounts[0];
         var user = accounts[5];
         var token_contract;
@@ -177,36 +197,41 @@ contract('MFC_Token tests burnAll', async function(accounts) {
         }).then(function() {
             return token_contract.balanceOf.call(user);
         }).then(function(balance) {
-            user_balance_befor = balance.valueOf();
+            user_balance_before = balance.valueOf();
             return token_contract.burnAll({'from': user});
         }).then(function() {
             return token_contract.balanceOf.call(user);
         }).then(function(balance) {
             return balance.valueOf();
         }).then(function(user_balance_after){
-            assert.equal(user_balance_befor, 10, "something went wrong");
-            assert.equal(user_balance_after, 0, "something went wrong");
+            assert.equal(user_balance_before, 10, "User have wrong balance befor burning");
+            assert.equal(user_balance_after, 0, "User have wrong balance after burning");
         });
     });
 
     /* burner not have balance */
-    it("the second account does not have a record in the balance sheet and will try to burn all tokens", function() {
+    it("test burnAll method without balance", function() {
         var user = accounts[6];
         var token_contract;
+        var oldTotalSupply;
+        var newTotalSupply;
         return token.deployed().then(function(instance) {
             token_contract = instance;
+            oldTotalSupply = token_contract.totalSupply();
             return token_contract.burnAll({'from': user});
         }).then(function() {
             return token_contract.balanceOf.call(user);
         }).then(function(balance) {
+            newTotalSupply = token_contract.totalSupply();
             return balance.valueOf();
         }).then(function(balance) {
-            assert.equal(balance, 0, "something went wrong");
+            assert.equal(balance, 0, "User must have zero balance after burning, but it have not");
+            assert.equal(oldTotalSupply, newTotalSupply, "the totalSupply has changed, although it should not");
         });
     });
 
     /* balance of burner = 0 */
-    it("should transfer 10 tokens to second account and second account should burn 10 tokens, then should bur all tokens", function() {
+    it("test burnAll method with zero balance", function() {
         var owner = accounts[0];
         var user = accounts[7];
         var token_contract;
@@ -220,9 +245,7 @@ contract('MFC_Token tests burnAll', async function(accounts) {
         }).then(function() {
             return token_contract.balanceOf.call(user);
         }).then(function(balance) {
-            return balance.valueOf();
-        }).then(function(balance) {
-            assert.equal(balance, 0, "something went wrong");
+            assert.equal(balance.valueOf(), 0, "User must have zero balance after burning, but it have not");
         });
     });
 });
@@ -232,7 +255,7 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
 
     /* Using Truffle, we check method for MFC_coin transferFrom() and test 7 variants:
        - if the sender have enough allowed tokens and send to address */
-    it("owner should approve amount of tokens to spender and spender should transfer amount of tokens to receiver", async function() {
+    it("test transferFrom with enough approved amount", async function() {
         let owner = accounts[0];
         let spender = accounts[8];
         let receiver = accounts[9];
@@ -241,9 +264,9 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let contract = await token.deployed();
 
         let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_befor = balance.toNumber();
+        let receiver_balance_before = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_befor = balance.toNumber();
+        let owner_balance_before = balance.toNumber();
 
         await contract.approve(spender, amount, {'from': owner})
         await contract.transferFrom(owner, receiver, amount, {'from': spender})
@@ -253,12 +276,12 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(owner);
         let owner_balance_after = balance.toNumber();
 
-        assert.equal(owner_balance_after, owner_balance_befor - amount, "Amount wasn't correctly taken from the sender");
-        assert.equal(receiver_balance_after, receiver_balance_befor + amount, "Amount wasn't correctly sent to the receiver");
+        assert.equal(owner_balance_after, owner_balance_before - amount, "Amount wasn't correctly taken from the sender");
+        assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
     });
 
     /* if the sender have enough allowed tokens and send to contract with tokenFallback() */
-    it("owner should approve amount of tokens to spender and spender should transfer amount of tokens to receiver, where receiver is contract with ERC223Receiver interface", async function() {
+    it("test transferFrom to contract with ERC223Receiver interface", async function() {
         let owner = accounts[0];
         let spender = accounts[10];
         let amount = 100;
@@ -267,9 +290,9 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let receiver = await erc223receiver.deployed();
 
         let balance = await contract.balanceOf.call(receiver.contract.address);
-        let receiver_balance_befor = balance.toNumber();
+        let receiver_balance_before = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_befor = balance.toNumber();
+        let owner_balance_before = balance.toNumber();
 
         await contract.approve(spender, amount, {'from': owner});
         const transferFromMethodTransactionData = web3Abi.encodeFunctionCall(
@@ -288,12 +311,12 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(owner);
         let owner_balance_after = balance.toNumber();
 
-        assert.equal(owner_balance_after, owner_balance_befor - amount, "Amount wasn't correctly taken from the sender");
-        assert.equal(receiver_balance_after, receiver_balance_befor + amount, "Amount wasn't correctly sent to the receiver");
+        assert.equal(owner_balance_after, owner_balance_before - amount, "Amount wasn't correctly taken from the sender");
+        assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
     });
 
     /* if the sender have enough allowed tokens and send to contract without tokenFallback() */
-    it("owner should approve amount of tokens to spender and spender should try to transfer amount of tokens to receiver, where receiver is contract without ERC223Receiver interface and should receive an error: revert", async function() {
+    it("test transferFrom to contract without ERC223Receiver interface", async function() {
         let owner = accounts[0];
         let spender = accounts[11];
         let amount = 100;
@@ -302,9 +325,9 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let receiver = await StandardToken.deployed();
 
         let balance = await contract.balanceOf.call(receiver.contract.address);
-        let receiver_balance_befor = balance.toNumber();
+        let receiver_balance_before = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_befor = balance.toNumber();
+        let owner_balance_before = balance.toNumber();
 
         await contract.approve(spender, amount, {'from': owner});
         const transferFromMethodTransactionData = web3Abi.encodeFunctionCall(
@@ -328,12 +351,12 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(owner);
         let owner_balance_after = balance.toNumber();
 
-        assert.equal(owner_balance_after, owner_balance_befor, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_befor, "Balance changed, it isn't correct");
+        assert.equal(owner_balance_after, owner_balance_before, "Balance changed, it isn't correct");
+        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
     });
 
     /* if the sender have not enough allowed tokens and send to address */
-    it("owner should approve amount of tokens to spender and spender should try to transfer more then amount of tokens to receiver and should receive an error: revert", async function() {
+    it("test transferFrom with more amount than approved", async function() {
         let owner = accounts[0];
         let spender = accounts[12];
         let receiver = accounts[13];
@@ -343,9 +366,9 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let contract = await token.deployed();
 
         let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_befor = balance.toNumber();
+        let receiver_balance_before = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_befor = balance.toNumber();
+        let owner_balance_before = balance.toNumber();
 
         await contract.approve(spender, amount, {'from': owner});
         try {
@@ -360,12 +383,12 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(owner);
         let owner_balance_after = balance.toNumber();
 
-        assert.equal(owner_balance_after, owner_balance_befor, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_befor, "Balance changed, it isn't correct");
+        assert.equal(owner_balance_after, owner_balance_before, "Balance changed, it isn't correct");
+        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
     });
 
     /* if the sender have not allowance and send to address */
-    it("spender should try to transfer amount of tokens to receiver without allowance and should receive an error: revert", async function() {
+    it("test transferFrom without allowance", async function() {
         let owner = accounts[0];
         let spender = accounts[14];
         let receiver = accounts[15];
@@ -374,9 +397,9 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let contract = await token.deployed();
 
         let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_befor = balance.toNumber();
+        let receiver_balance_before = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_befor = balance.toNumber();
+        let owner_balance_before = balance.toNumber();
 
         try {
             await contract.transferFrom(owner, receiver, amount, {'from': spender});
@@ -390,12 +413,12 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(owner);
         let owner_balance_after = balance.toNumber();
 
-        assert.equal(owner_balance_after, owner_balance_befor, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_befor, "Balance changed, it isn't correct");
+        assert.equal(owner_balance_after, owner_balance_before, "Balance changed, it isn't correct");
+        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
     });
 
     /* if the from have not enough tokens and send to address */
-    it("owner should transfer amount of tokens to user, user should approve amount of tokens to spender then should transfer half of amount of tokens to owner and spender should try to transfer amount of tokens to receiver and should receive an error: revert", async function() {
+    it("test transferFrom with not enough amount on from balance", async function() {
         let owner = accounts[0];
         let spender = accounts[16];
         let receiver = accounts[17];
@@ -406,14 +429,14 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let contract = await token.deployed();
 
         let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_befor = balance.toNumber();
+        let receiver_balance_before = balance.toNumber();
 
         await contract.transfer(user, amount, {'from': owner});
         await contract.approve(spender, amount, {'from': user});
         await contract.transfer(owner, amount2, {'from': user});
 
         balance = await contract.balanceOf.call(user);
-        let user_balance_befor = balance.toNumber();
+        let user_balance_before = balance.toNumber();
 
         try {
             await contract.transferFrom(user, receiver, amount, {'from': spender});
@@ -427,7 +450,7 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(user);
         let user_balance_after = balance.toNumber();
 
-        assert.equal(user_balance_befor, user_balance_after, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_befor, "Balance changed, it isn't correct");
+        assert.equal(user_balance_before, user_balance_after, "Balance changed, it isn't correct");
+        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
     });
 });
