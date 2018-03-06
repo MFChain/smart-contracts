@@ -1,4 +1,4 @@
 .idea
 .ipynb*
 .json
-node_modules/
+node_modules

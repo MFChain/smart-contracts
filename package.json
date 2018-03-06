@@ -1,44 +1,27 @@
 {
-  "_from": "web3-eth-abi",
-  "_id": "web3-eth-abi@1.0.0-beta.30",
-  "_inBundle": false,
-  "_integrity": "sha1-bqUsmZqFBbR8L4i6YdKmgKEGZAk=",
-  "_location": "/web3-eth-abi",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "tag",
-    "registry": true,
-    "raw": "web3-eth-abi",
-    "name": "web3-eth-abi",
-    "escapedName": "web3-eth-abi",
-    "rawSpec": "",
-    "saveSpec": null,
-    "fetchSpec": "latest"
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "https://registry.npmjs.org/web3-eth-abi/-/web3-eth-abi-1.0.0-beta.30.tgz",
-  "_shasum": "6ea52c999a8505b47c2f88ba61d2a680a1066409",
-  "_spec": "web3-eth-abi",
-  "_where": "/home/savao/hg/smart-contracts",
-  "bundleDependencies": false,
   "dependencies": {
-    "bn.js": "4.11.6",
-    "underscore": "1.8.3",
-    "web3-core-helpers": "1.0.0-beta.30",
-    "web3-utils": "1.0.0-beta.30"
+    "web3-eth-abi": "1.0.0-beta.30",
+    "web3": "*"
   },
-  "deprecated": false,
-  "description": "Web3 module encode and decode EVM in/output.",
-  "license": "LGPL-3.0",
-  "main": "src/index.js",
-  "name": "web3-eth-abi",
-  "namespace": "ethereum",
+  "name": "truffle-test",
+  "description": "MFC ICO smart-contracts project",
+  "version": "1.0.0",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ethereum/web3.js/tree/master/packages/web3-eth-abi"
+    "url": "git+https://github.com/MFChain/smart-contracts.git"
   },
-  "version": "1.0.0-beta.30"
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MFChain/smart-contracts/issues"
+  },
+  "homepage": "https://github.com/MFChain/smart-contracts#readme"
 }

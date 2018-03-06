@@ -4,13 +4,9 @@ import argparse
 import urllib
 
 from web3 import Web3, HTTPProvider
-from solc import compile_source
+from solc import compile_files
 
-stage_method_map = {
-    'private_offer': 'startPrivateOffer',
-    'presale': 'startPreSaleIco',
-    'crowdsale': 'startCrowdsale'
-}
+from utils import wait_for_tx, get_csv_file_row, CSV_ROWS
 
 stage_member_map = {
     'private_offer': 'privateOffer',
@@ -29,49 +25,70 @@ def url_type(url):
 ap = argparse.ArgumentParser()
 
 ap.add_argument('--address', '-a', type=str, help='ICO controller address.', default='0')
+ap.add_argument('--escrow_address', '-e', type=str, help='Escrow address for privateOffer', default='0')
 ap.add_argument('--start_date', '-s', type=int, help='ICO start unix datetime', default=int(time.time() + 5))
-ap.add_argument('--duration', '-d', type=int, help='ICO duration unit datetime delta', required=True)
+ap.add_argument('--end_date', '-d', type=int, help='ICO end unit datetime delta', required=True)
 ap.add_argument('--stage', '-t', type=str, help='ICO stage (private_offer, presale, crowdsale)',
                 choices=['private_offer', 'presale', 'crowdsale'])
 
 ap.add_argument('--provider', '-p', type=url_type, help='http url to provider', default='http://127.0.0.1:8545')
-ap.add_argument('--rate', '-r', type=int, help='ETH=>Token exhcage rate', default=1)
 
-if __name__ == '__main__':
+
+def main():
     args = vars(ap.parse_args())
     address = args['address']
+    escrow_address = args['escrow_address']
     start_date = args.get('start_date')
-    duration = args.get('duration')
+    end_date = args.get('end_date')
     stage = args.get('stage')
     net_provider = args.get('provider')
-    rate = args.get('rate')
 
     w3 = Web3(HTTPProvider(net_provider))
+    w3.personal.unlockAccount(w3.eth.accounts[0], '1')
 
     if address == '0':
         with open('deploy_info.csv', 'rt') as text_file:
-            spamreader = csv.reader(text_file, quoting=csv.QUOTE_MINIMAL)
-            next(spamreader)
-            address = next(spamreader)[1]
+            address = get_csv_file_row(text_file, CSV_ROWS['controller'])[1]
 
-    with open('../contracts/4tests.sol', 'r') as contracts_file:
-        source_code = contracts_file.read()
-
-    ico_controller_interface = compile_source(source_code)['<stdin>:ICO_controller']
+    compiled_source = compile_files(["../contracts/ICO_controller.sol"], optimize=True)
+    ico_controller_interface = compiled_source['../contracts/ICO_controller.sol:ICO_controller']
 
     ico_controller_contract = w3.eth.contract(
         abi=ico_controller_interface['abi'],
         bytecode=ico_controller_interface['bin'])
     ico_controller_instance = ico_controller_contract(address)
-    contract_method = getattr(ico_controller_instance.transact({'from': w3.eth.accounts[0]}), stage_method_map[stage])
 
-    tx_hash = contract_method(start_date, start_date + duration, rate)
-    tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+    if stage == 'private_offer':
+        if escrow_address == '0':
+            escrow_address = ico_controller_instance.call().holder()
+        tx_hash = ico_controller_instance.transact(
+            {'from': w3.eth.accounts[0]}
+        ).private_offer(start_date, end_date, escrow_address)
+    elif stage == 'presale':
+        tx_hash = ico_controller_instance.transact(
+            {'from': w3.eth.accounts[0]}
+        ).presale(start_date, end_date)
+    elif stage == 'crowdsale':
+        tx_hash = ico_controller_instance.transact(
+            {'from': w3.eth.accounts[0]}
+        ).crowdsale(start_date, end_date)
+
+    tx_receipt = wait_for_tx\
+        (tx_hash,
+         w3,
+         wait_message="Wait for start {} transaction to be confirmed".format(stage))
 
     ico_address = getattr(ico_controller_instance.call(), stage_member_map[stage])()
-    print("{} address: {}".format(stage, ico_address))
+    if ico_address == "0x0000000000000000000000000000000000000000":
+        print("ICO Start Failure. Possible Start or End date error.")
+        return
+    print("\n\n{} address: {}".format(stage, ico_address))
     with open('deploy_info.csv', 'at') as text_file:
         spamwriter = csv.writer(text_file, quoting=csv.QUOTE_MINIMAL)
         spamwriter.writerow((stage, ico_address))
 
     print("Gas used: {}".format(tx_receipt['gasUsed']))
+
+
+if __name__ == '__main__':
+    main()
