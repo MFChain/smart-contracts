@@ -4,7 +4,6 @@ import "./SafeMath.sol";
 import "./Ownable.sol";
 import "./MFC_coin.sol";
 import "./ICO_crowdsale.sol";
-import "./Holder.sol";
 
 contract ICO_controller is Ownable {
 
@@ -76,15 +75,15 @@ contract ICO_controller is Ownable {
     }
 
     function addBuyerToWhitelist(address _buyer) public onlyOwner returns (bool success) {
-        require(_buyer != address(0));
+        assert(_buyer != address(0));
         buyersWhitelist[_buyer] = true;
         return true;
     }
 
     function removeBuyerFromWhitelist(address _buyer) public onlyOwner returns (bool success) {
         if (buyersWhitelist[_buyer] == true) {
-        buyersWhitelist[_buyer] = false;
-        return true;
+            buyersWhitelist[_buyer] = false;
+            return true;
         }
         return false;
     }
@@ -109,8 +108,8 @@ contract ICO_controller is Ownable {
 
     // Adds Devs Token Reward
     function addDevReward(address _devAddress, uint256 _amount) public onlyOwner returns (bool success) {
-        require(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
-        require(_devAddress != address(0));
+        assert(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
+        assert(_devAddress != address(0));
         totalDevReward = totalDevReward.add(_amount);
         devRewards[_devAddress] = devRewards[_devAddress].add(_amount);
         return true;
@@ -126,8 +125,8 @@ contract ICO_controller is Ownable {
  
     function addAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
         for(uint i = 0; i < _airdropAddresses.length; i++) {
-            require(_airdropAddresses[i] != address(0));
-            require(airdropList[_airdropAddresses[i]] == false);
+            assert(_airdropAddresses[i] != address(0));
+            assert(airdropList[_airdropAddresses[i]] == false);
             airdropList[_airdropAddresses[i]] = true;
             totalAirdropAdrresses = totalAirdropAdrresses.add(1);
         }
@@ -136,7 +135,7 @@ contract ICO_controller is Ownable {
 
     function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
         for(uint i = 0; i < _airdropAddresses.length; i++) {
-            require(airdropList[_airdropAddresses[i]] == true);
+            assert(airdropList[_airdropAddresses[i]] == true);
             airdropList[_airdropAddresses[i]] = false;
             totalAirdropAdrresses = totalAirdropAdrresses.sub(1);
         }
