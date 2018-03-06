@@ -24,6 +24,7 @@ MAX_ADDRESSES_IN_TX = 125
 
 def login_and_form_required(fn):
     def wrapper():
+        print(request.files)
         username = session.get('username')
         token = session.get('login_token')
         if (not username or not token or admins[username][1] != token
