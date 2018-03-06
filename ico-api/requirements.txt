@@ -1,0 +1,5 @@
+uwsgi
+flask
+invoke==0.18.0
+py-solc
+web3==4.0.0b11
