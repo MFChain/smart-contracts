@@ -59,10 +59,8 @@ def print_address_balance(address, token_instance):
 def print_stage_info():
     with open('deploy_info.csv', 'rt') as text_file:
         spamreader = csv.reader(text_file, quoting=csv.QUOTE_MINIMAL)
-        next(spamreader)
-        next(spamreader)
-        next(spamreader)
-        next(spamreader)
+        for i in range(CSV_ROWS['private_offer']):
+            next(spamreader)
         ico_array = []
         for name, address in spamreader:
             ico_array.append((name, get_ico_instance(address, compiled_source)))
@@ -82,10 +80,21 @@ def print_stage_info():
         print("  Wei raised: {}\n".format(ico_instance.call().weiRaised()))
 
 
+def finish_ico(controller_instance):
+    tx_hash = controller_instance.transact(
+        {'from': w3.eth.accounts[0]}
+    ).finishCrowdsale()
+    wait_for_tx(tx_hash, w3, wait_message="Wait for finish function")
+    print("Balance of escrow ICO is: {}".format(
+        w3.eth.getBalance(controller_instance.call().escrowIco())))
+    print("Balance of holder ICO is: {}".format(
+        w3.eth.getBalance(controller_instance.call().holder())))
+
+
 ap = argparse.ArgumentParser()
 
 ap.add_argument('--address', '-a', type=str, help='ICO controller address.')
-ap.add_argument('command', type=str, choices=['balance', 'whitelist', 'stage_info'],
+ap.add_argument('command', type=str, choices=['balance', 'whitelist', 'stage_info', 'finish'],
                 help='Command to do')
 
 if __name__ == '__main__':
@@ -96,7 +105,7 @@ if __name__ == '__main__':
     w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
     w3.personal.unlockAccount(w3.eth.accounts[0], '1')
 
-    compiled_source = compile_files(["../contracts/ICO_controller.sol"],  optimize=True)
+    compiled_source = compile_files(["../contracts/ICO_controller.sol"], optimize=True)
 
     token_instance = get_token_instance(compiled_source)
     controller_instance = get_controller_instance(compiled_source)
@@ -107,3 +116,5 @@ if __name__ == '__main__':
         add_address_to_whitelist(address, controller_instance)
     elif command == 'stage_info':
         print_stage_info()
+    elif command == 'finish':
+        finish_ico(controller_instance)

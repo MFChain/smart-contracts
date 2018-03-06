@@ -26,18 +26,19 @@ contract ICO_controller is Ownable {
     // devs&advisors reward
     mapping(address => uint256) public devRewards;
 
-    address incentiveProgram;
+    address public incentiveProgram;
+    address public escrowIco;
 
     WhitelistedCrowdsale public privateOffer;
     WhitelistedCrowdsale public preSale;
     WhitelistedCrowdsale public crowdsale;
 
-    uint256 constant public PRIVATE_OFFER_SUPPLY = 7000000 * 1 ether;
+    uint256 constant public PRIVATE_OFFER_SUPPLY = 14000000 * 1 ether;
     uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
     uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
     uint256 constant public SOFTCUP = 4720 * 1 ether;
     uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
-    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 80000000 * 1 ether;
+    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
     uint256 constant public AIRDROP_SUPPLY = 5000000 * 1 ether;
 
@@ -57,14 +58,16 @@ contract ICO_controller is Ownable {
 
     bool public crowdsaleFinished;
 
-    function ICO_controller(address _holder, address _incentive_program) {
+    function ICO_controller(address _holder, address _escrowIco) {
+        require(_holder!=address(0));
+        require(_escrowIco!=address(0));
         devRewardReleaseTime = Q3_2018_START_DATE + (uint(block.blockhash(block.number - 1)) % 7948800);
 
         unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 7948800);
         unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 7948800);
 
         holder = _holder;
-        incentiveProgram = _incentive_program;
+        escrowIco = _escrowIco;
     }
 
     function () payable {}
@@ -72,6 +75,11 @@ contract ICO_controller is Ownable {
     modifier onlyIco() {
         require(msg.sender == address(privateOffer) || msg.sender == address(preSale) || msg.sender == address(crowdsale));
         _;
+    }
+
+    function setIncentiveProgram(address _incentive_program) public onlyOwner {
+        require(incentiveProgram==address(0));
+        incentiveProgram = _incentive_program;
     }
 
     function addBuyerToWhitelist(address _buyer) public onlyOwner returns (bool success) {
@@ -143,16 +151,21 @@ contract ICO_controller is Ownable {
     }
 
     function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max) internal returns (WhitelistedCrowdsale){
+        return startIco(_startTime, _endTime, _rate, _min,_max, address(this));
+    }
+
+    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max, address _escrow) internal returns (WhitelistedCrowdsale){
         require(_startTime >= now);
         require(_endTime >= _startTime);
         require(_rate > 0);
-        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, _min,_max, address(this), token);
+        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, _min,_max, _escrow, token);
     }
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
-    function startPrivateOffer(uint256 _startTime, uint256 _endTime) external onlyOwner {
+    function startPrivateOffer(uint256 _startTime, uint256 _endTime, address _escrow) external onlyOwner {
         require(address(privateOffer) == address(0));
-        privateOffer = startIco(_startTime, _endTime, 14000, 1 ether, 200 ether);
+        require(_escrow != address(0));
+        privateOffer = startIco(_startTime, _endTime, 14000, 1 ether, 200 ether, _escrow);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
@@ -180,17 +193,19 @@ contract ICO_controller is Ownable {
         require(address(crowdsale) != address(0));
         require(crowdsale.hasEnded() == true);
         require(crowdsaleFinished == false);
+        require(incentiveProgram != address(0));
         crowdsale.burnRemainingTokens();
         totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         if (totalSold >= SOFTCUP) {
             // sends token for support program
-            token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
+            bool success = token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
+            assert(success==true);
             // burn some unspent reward tokens
             token.burn(MAX_DEV_REWARD.sub(totalDevReward));
             // burn after airdrop left tokens
             token.burn(AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses)));
             // send 50% of ico eth to contract onwer
-            owner.transfer(this.balance.div(2));
+            escrowIco.transfer(this.balance.div(2));
             // send other 50% to multisig holder address
             address(holder).transfer(this.balance);
         }
