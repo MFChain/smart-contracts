@@ -217,15 +217,17 @@ contract('MFC_Token tests burnAll', async function(accounts) {
         var newTotalSupply;
         return token.deployed().then(function(instance) {
             token_contract = instance;
-            oldTotalSupply = token_contract.totalSupply();
+            return token_contract.totalSupply();
+        }).then(function(totalSupply){
+            oldTotalSupply = totalSupply.toNumber();
             return token_contract.burnAll({'from': user});
         }).then(function() {
-            return token_contract.balanceOf.call(user);
+            return token_contract.totalSupply();
+        }).then(function(totalSupply) {
+            newTotalSupply = totalSupply.toNumber();
+            return token_contract.balanceOf(user);
         }).then(function(balance) {
-            newTotalSupply = token_contract.totalSupply();
-            return balance.valueOf();
-        }).then(function(balance) {
-            assert.equal(balance, 0, "User must have zero balance after burning, but it have not");
+            assert.equal(balance.valueOf(), 0, "User must have zero balance after burning, but it have not");
             assert.equal(oldTotalSupply, newTotalSupply, "the totalSupply has changed, although it should not");
         });
     });
