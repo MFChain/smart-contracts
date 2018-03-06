@@ -2,6 +2,8 @@ var Token = artifacts.require("MFC_Token");
 var Controller = artifacts.require("ICO_controller");
 var Web3 = require('web3');
 
+var BN = require('bn.js');
+
 
 Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.prototype.send
 var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
@@ -122,7 +124,7 @@ contract('ICO Controller', function (accounts) {
         return Controller.deployed().then(
             function (inst) {
                 controller_instance = inst;
-                return controller_instance.addBuyers(addAccounts, {from: addAccount});
+                return controller_instance.addBuyers(addAccounts, {from: addAccounts[0]});
             }).then(
             function () {
                 assert.isFalse(true, "Expect access exception. The function is only for owner");
@@ -288,8 +290,7 @@ contract('ICO Controller dev reward', function (accounts) {
     it("test addDevReward", function () {
         var addAccount = accounts[2];
         var controller_instance;
-        var devRewardSupply;
-        var expectedDevSupply = 40000000000000000000000000;
+        var expectedDevSupply = new BN('40000000000000000000000000', 10);
         return Controller.deployed().then(
             function (inst) {
                 controller_instance = inst;
@@ -303,15 +304,15 @@ contract('ICO Controller dev reward', function (accounts) {
                 return controller_instance.MAX_DEV_REWARD.call();
             }).then(
             function (supply) {
-                devRewardSupply = supply.valueOf();
-                assert.equal(devRewardSupply, expectedDevSupply, "Unexpected devreward supply");
-                return controller_instance.addDevReward(addAccount, devRewardSupply + 1);
+                supply = web3.utils.toBN(supply);
+                assert.equal(supply.toString(), expectedDevSupply.toString(), "Unexpected devreward supply");
+                return controller_instance.addDevReward(addAccount, (expectedDevSupply + 1).toString());
             }).then(
             function () {
                 assert.isFalse(true, "Expect exception. Too many dev tokens required")
             }).catch(
             function (error) {
-                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception while attempt to add to many tokens");
+                assert.equal(error.toString(), 'Error: VM Exception while processing transaction: invalid opcode', "Excpected revert exception while attempt to add to many tokens");
                 return controller_instance.addDevReward(addAccount, 10);
             }).then(
             function () {
@@ -323,13 +324,13 @@ contract('ICO Controller dev reward', function (accounts) {
             }).then(
             function (amount) {
                 assert.equal(amount.valueOf(), 10, "wrong total amount value");
-                return controller_instance.addDevReward(addAccount, devRewardSupply - 9);
+                return controller_instance.addDevReward(addAccount, expectedDevSupply - 9);
             }).then(
             function () {
                 assert.isFalse(true, "Expect exception. Too many dev tokens required");
             }).catch(
             function (error) {
-                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception too");
+                assert.equal(error.toString(), 'Error: VM Exception while processing transaction: invalid opcode', "Excpected revert exception too");
             });
     });
 
@@ -341,7 +342,7 @@ contract('ICO Controller dev reward', function (accounts) {
         return Controller.deployed().then(
             function (inst) {
                 controller_instance = inst;
-                return controller_instance.addRewards(addAccounts, amounts, {from: addAccount});
+                return controller_instance.addRewards(addAccounts, amounts, {from: addAccounts[0]});
             }).then(
             function () {
                 assert.isFalse(true, "Expect access exception. The function is only for owner")
@@ -358,7 +359,7 @@ contract('ICO Controller dev reward', function (accounts) {
                 return controller_instance.devRewards.call(addAccounts[1]);
             }).then(
             function (amount) {
-                assert.equal(amount.valueOf(), amounts[1], "Wrong amount for 0 index account");
+                assert.equal(amount.valueOf(), amounts[1], "Wrong amount for 1 index account");
                 return controller_instance.totalDevReward.call();
             }).then(
             function (amount) {
