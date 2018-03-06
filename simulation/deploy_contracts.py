@@ -17,7 +17,7 @@ except OSError:
 w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
 try:
     w3.personal.unlockAccount(w3.eth.accounts[0], '1')
-except:
+except ValueError:
     pass
 
 
@@ -26,6 +26,9 @@ def ethereum_accounts(accounts):
     if not matched:
         raise argparse.ArgumentTypeError('Account arguments do not match "<address1>,<address2>"')
     accounts = re.findall(r'0x[a-fA-F0-9]{40}', accounts)
+    for acc in accounts:
+        if not w3.isAddress(acc):
+            raise argparse.ArgumentTypeError('Some of accounts are not correct')
     return accounts
 
 
