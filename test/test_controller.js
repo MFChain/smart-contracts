@@ -9,8 +9,8 @@ var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 
 function wait(delay) {
-    var stop = new Date().getTime() / 1000;
-    while (new Date().getTime() / 1000 < stop + delay) {
+    var stop = new Date().getTime() / 1000 + delay;
+    while (new Date().getTime() / 1000 < stop) {
         ;
     }
 }
@@ -62,7 +62,7 @@ contract('ICO Controller', function (accounts) {
                 assert.equal(initial_balance.valueOf(), controller_balance, "Controller do not contain all initial balance.")
             });
     });
-    it("test addBuyerToWhitelist to whitelist", function () {
+    it("test addBuyerToWhitelist function", function () {
         var owner = accounts[0];
         var addAccount = accounts[2];
         var controller_instance;
@@ -90,7 +90,7 @@ contract('ICO Controller', function (accounts) {
         );
     });
 
-    it("test removeBuyerFromWhitelist from whitelist", function () {
+    it("test removeBuyerFromWhitelist function", function () {
         var owner = accounts[0];
         var addAccount = accounts[3];
         var controller_instance;
@@ -116,7 +116,7 @@ contract('ICO Controller', function (accounts) {
             });
     });
 
-    it("test addBuyers to whitelist", function () {
+    it("test addBuyers function", function () {
         var addAccounts = [accounts[4], accounts[5]];
         var controller_instance;
         return Controller.deployed().then(
@@ -128,6 +128,7 @@ contract('ICO Controller', function (accounts) {
                 assert.isFalse(true, "Expect access exception. The function is only for owner");
             }).catch(
             function (error) {
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception");
                 return controller_instance.addBuyers(addAccounts);
             }).then(
             function () {
@@ -166,7 +167,7 @@ contract('ICO Controller', function (accounts) {
     });
 });
 
-contract('ICO Controller', function (accounts) {
+contract('ICO Controller Airdrop', function (accounts) {
     it("test addAirdrop", function () {
         var addAccounts = [accounts[1], accounts[2]];
         var controller_instance;
@@ -223,7 +224,7 @@ contract('ICO Controller', function (accounts) {
     });
 });
 
-contract('ICO Controller', function (accounts) {
+contract('ICO Controller Airdrop long', function (accounts) {
     it("test getAirdropTokens", function () {
         var addAccounts = [accounts[3], accounts[4]];
         var controller_instance;
@@ -261,6 +262,7 @@ contract('ICO Controller', function (accounts) {
                 assert.isFalse(true, "Expect access exception. The function is only for airdrop accounts")
             }).catch(
             function (error) {
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception");
                 return controller_instance.getAirdropTokens({from: addAccounts[0]});
             }).then(
             function () {
@@ -282,7 +284,7 @@ contract('ICO Controller', function (accounts) {
 
 });
 
-contract('ICO Controller', function (accounts) {
+contract('ICO Controller dev reward', function (accounts) {
     it("test addDevReward", function () {
         var addAccount = accounts[2];
         var controller_instance;
@@ -297,6 +299,7 @@ contract('ICO Controller', function (accounts) {
                 assert.isFalse(true, "Expect access exception. The function is only for owner")
             }).catch(
             function (error) {
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception");
                 return controller_instance.MAX_DEV_REWARD.call();
             }).then(
             function (supply) {
@@ -308,6 +311,7 @@ contract('ICO Controller', function (accounts) {
                 assert.isFalse(true, "Expect exception. Too many dev tokens required")
             }).catch(
             function (error) {
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception while attempt to add to many tokens");
                 return controller_instance.addDevReward(addAccount, 10);
             }).then(
             function () {
@@ -325,7 +329,7 @@ contract('ICO Controller', function (accounts) {
                 assert.isFalse(true, "Expect exception. Too many dev tokens required");
             }).catch(
             function (error) {
-
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception too");
             });
     });
 
@@ -343,6 +347,7 @@ contract('ICO Controller', function (accounts) {
                 assert.isFalse(true, "Expect access exception. The function is only for owner")
             }).catch(
             function (error) {
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception");
                 return controller_instance.addRewards(addAccounts, amounts)
             }).then(
             function () {
