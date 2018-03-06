@@ -67,7 +67,7 @@ contract('MFC_Token tests constructor', function(accounts) {
 
     /* Using Truffle, we check method for MFC_coin constructor and test
        if the totalSupply and owner balance equal to INITIAL_SUPPLY value. */
-    it("should specify totalSupply as 500000000000000000000000000 MFC_Token and put all tokens in the first account", function() {
+    it("should specify totalSupply as 507000000000000000000000000 MFC_Token and put all tokens in the first account", function() {
         var balance_value;
         var totalSupply_value;
         var owner = accounts[0];
