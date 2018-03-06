@@ -4,8 +4,12 @@ from solc import compile_files
 import csv
 from uuid import uuid4
 from math import ceil
+import sys
 
-from simulation.utils import wait_for_tx, get_csv_file_row, CSV_ROWS
+sys.path.insert(0, './simulation')
+sys.path.insert(0, './ico-api')
+
+from utils import wait_for_tx, get_csv_file_row, CSV_ROWS
 
 web3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
 
@@ -41,29 +45,29 @@ def get_addresses(request):
     return addresses
 
 
-with open('api_admins.csv', 'r') as api_admins_file:
+with open('ico-api/api_admins.csv', 'r') as api_admins_file:
     reader = csv.reader(api_admins_file, quoting=csv.QUOTE_MINIMAL)
     for row in reader:
         admins[row[0]] = [row[1], None]
 
 tx = {'from': web3.eth.accounts[0]}
 
-with open('./simulation/deploy_info.csv', 'r') as deploy_info:
+with open('simulation/deploy_info.csv', 'r') as deploy_info:
     controller_address = get_csv_file_row(
         deploy_info,
         CSV_ROWS['controller']
         )[1]
     token_address = get_csv_file_row(deploy_info, 0)[1]
 
-compiled_source = compile_files(["./contracts/ICO_controller.sol"])
+compiled_source = compile_files(["contracts/ICO_controller.sol"])
 controller_interface = compiled_source[
-    './contracts/ICO_controller.sol:ICO_controller'
+    'contracts/ICO_controller.sol:ICO_controller'
     ]
 stage_interface = compiled_source[
-    './contracts/ICO_crowdsale.sol:WhitelistedCrowdsale'
+    'contracts/ICO_crowdsale.sol:WhitelistedCrowdsale'
     ]
 token_interface = compiled_source[
-    './contracts/MFC_coin.sol:MFC_Token'
+    'contracts/MFC_coin.sol:MFC_Token'
     ]
 
 controller_contract = web3.eth.contract(
