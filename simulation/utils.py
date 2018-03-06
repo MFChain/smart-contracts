@@ -19,10 +19,11 @@ def wait_for_tx(tx_hash, web3, delay=5, wait_message=None):
 
 CSV_ROWS = {'holder': 1,
             'controller': 2,
-            'token': 3,
-            'private_offer': 4,
-            'presale': 5,
-            'crowdsale': 6,
+            'token_holder':3,
+            'token': 4,
+            'private_offer': 5,
+            'presale': 6,
+            'crowdsale': 7,
             'last_row': 'last_row'}
 
 

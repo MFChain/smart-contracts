@@ -236,13 +236,13 @@ contract BurnableToken is Standard223Token {
 
 contract MFC_Token is BurnableToken {
 
-    string public constant name = "MFC Coin Token";
+    string public constant name = "MFX Coin Token";
 
-    string public constant symbol = "MFC";
+    string public constant symbol = "MFX";
 
     uint32 public constant decimals = 18;
 
-    uint256 public INITIAL_SUPPLY = 500000000 * 1 ether;
+    uint256 public INITIAL_SUPPLY = 507000000 * 1 ether;
 
     function MFC_Token() {
         totalSupply = INITIAL_SUPPLY;
