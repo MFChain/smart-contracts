@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "web3-eth-abi": "1.0.0-beta.30",
-    "web3": "*"
+    "web3": "1.0.0-beta.30"
   },
   "name": "truffle-test",
   "description": "MFC ICO smart-contracts project",

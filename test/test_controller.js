@@ -9,7 +9,6 @@ Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.pr
 var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 
-
 function wait(delay) {
     var stop = new Date().getTime() / 1000 + delay;
     while (new Date().getTime() / 1000 < stop) {
@@ -57,11 +56,11 @@ contract('ICO Controller', function (accounts) {
                 return token_instance.balanceOf(controller_instance.address);
             }).then(
             function (balance) {
-                controller_balance = balance.valueOf();
+                controller_balance = balance;
                 return token_instance.INITIAL_SUPPLY();
             }).then(
             function (initial_balance) {
-                assert.equal(initial_balance.valueOf(), controller_balance, "Controller do not contain all initial balance.")
+                assert.equal(initial_balance.toString(), controller_balance.toString(), "Controller do not contain all initial balance.")
             });
     });
     it("test addBuyerToWhitelist function", function () {
@@ -232,6 +231,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
         var controller_instance;
         var token_instance;
         var airdropTokensSupply;
+        var escrowAddress = accounts[2];
         var expectAirdropTokensSupply = 5000000000000000000000000;
         return Controller.deployed().then(
             function (inst) {
@@ -241,7 +241,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
             function () {
                 // stat ICOs
                 return controller_instance.startPrivateOffer(
-                    Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000));
+                    Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000), escrowAddress);
             }).then(
             function () {
                 wait(2);
@@ -254,7 +254,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
                     Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000));
             }).then(
             function () {
-                wait(20);
+                wait(2);
                 return controller_instance.finishCrowdsale();
             }).then(
             function () {
@@ -334,6 +334,9 @@ contract('ICO Controller dev reward', function (accounts) {
             });
     });
 
+});
+
+contract('ICO Controller dev reward', function (accounts) {
     it("test addRewards", function () {
         var addAccounts = [accounts[3], accounts[4]];
         var amounts = [11, 12];
@@ -363,7 +366,7 @@ contract('ICO Controller dev reward', function (accounts) {
                 return controller_instance.totalDevReward.call();
             }).then(
             function (amount) {
-                assert.equal(amount.valueOf(), 10 + amounts[0] + amounts[1], "Wrong totalDevReward value");
+                assert.equal(amount.valueOf(), amounts[0] + amounts[1], "Wrong totalDevReward value");
             })
     });
 
