@@ -257,8 +257,8 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(owner);
         let owner_balance_before = balance.toNumber();
 
-        await contract.approve(spender, amount, {'from': owner})
-        await contract.transferFrom(owner, receiver, amount, {'from': spender})
+        await contract.approve(spender, amount, {'from': owner});
+        await contract.transferFrom(owner, receiver, amount, {'from': spender});
 
         balance = await contract.balanceOf.call(receiver);
         let receiver_balance_after = balance.toNumber();
@@ -420,9 +420,8 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let balance = await contract.balanceOf.call(receiver);
         let receiver_balance_before = balance.toNumber();
 
-        await contract.transfer(user, amount, {'from': owner});
+        await contract.transfer(user, amount2, {'from': owner});
         await contract.approve(spender, amount, {'from': user});
-        await contract.transfer(owner, amount2, {'from': user});
 
         balance = await contract.balanceOf.call(user);
         let user_balance_before = balance.toNumber();
@@ -440,6 +439,79 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let user_balance_after = balance.toNumber();
 
         assert.equal(user_balance_before, user_balance_after, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
+        assert.equal(receiver_balance_before, receiver_balance_after, "Balance changed, it isn't correct");
+    });
+
+    /* if the from have not balance and send to address */
+    it("test transferFrom with not balance of from", async function() {
+        let spender = accounts[19];
+        let receiver = accounts[20];
+        let user = accounts[21];
+        let amount = 100;
+
+        let contract = await token.deployed();
+
+        let balance = await contract.balanceOf.call(receiver);
+        let receiver_balance_before = balance.toNumber();
+
+        await contract.approve(spender, amount, {'from': user});
+
+        balance = await contract.balanceOf.call(user);
+        let user_balance_before = balance.toNumber();
+
+        try {
+            await contract.transferFrom(user, receiver, amount, {'from': spender});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
+
+        balance = await contract.balanceOf.call(receiver);
+        let receiver_balance_after = balance.toNumber();
+        balance = await contract.balanceOf.call(user);
+        let user_balance_after = balance.toNumber();
+
+        assert.equal(user_balance_before, user_balance_after, "Balance changed, it isn't correct");
+        assert.equal(receiver_balance_before, receiver_balance_after, "Balance changed, it isn't correct");
+    });
+});
+
+contract('MFC_Token tests aprove', async function(accounts) {
+    /* Task 22 - Create test for MFC_token aprove() with Truffle */
+
+    /* Using Truffle, we check method for _MFC_token aprove()_ and test 2 variants:
+       - if the sender have enough tokens */
+    it("test aprove with enough tokens in balance", async function() {
+        let owner = accounts[0];
+        let spender = accounts[19];
+        let expected_allowance = 100;
+
+        let contract = await token.deployed();
+
+        await contract.approve(spender, expected_allowance, {'from': owner});
+
+        let allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance = allowance.toNumber();
+
+        assert.equal(spender_allowance, expected_allowance, "Allowance wasn't correctly specified for the spender");
+    });
+
+    /* if the sender have not enough tokens */
+    it("test aprove without enough tokens in balance", async function() {
+        let owner = accounts[0];
+        let user = accounts[20];
+        let spender = accounts[21];
+        let expected_allowance = 100;
+        let user_balance = 50;
+
+        let contract = await token.deployed();
+
+        await contract.transfer(user, user_balance, {'from': owner});;
+        await contract.approve(spender, expected_allowance, {'from': user});;
+
+        let allowance = await contract.allowance.call(user, spender);
+        let spender_allowance = allowance.toNumber();
+
+        assert.equal(spender_allowance, expected_allowance, "Allowance wasn't correctly specified for the spender");
     });
 });
