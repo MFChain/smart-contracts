@@ -1,6 +1,7 @@
 var token = artifacts.require("MFC_Token");
 var erc223receiver = artifacts.require("ERC223Receiver");
 var StandardToken = artifacts.require("StandardToken");
+var BigNumber = require('bignumber.js');
 const web3Abi = require('web3-eth-abi');
 
 const overloadedTransferFromAbi = {
@@ -62,28 +63,22 @@ const overloadedTransferAbi = {
     "type": "function"
 };
 
-contract('MFC_Token tests constructor', function(accounts) {
+contract('MFC_Token tests constructor', async function(accounts) {
     /* Task 16 - Create test for MFC_coin constructor() with Truffle */
 
     /* Using Truffle, we check method for MFC_coin constructor and test
        if the totalSupply and owner balance equal to INITIAL_SUPPLY value. */
-    it("should specify totalSupply as 507000000000000000000000000 MFC_Token and put all tokens in the first account", function() {
-        var balance_value;
-        var totalSupply_value;
-        var owner = accounts[0];
-        var token_contract;
-        return token.deployed().then(function(instance) {
-          token_contract = instance;
-          return token_contract.balanceOf.call(owner);
-      }).then(function(balance){
-          balance_value = balance.valueOf();
-          return token_contract.totalSupply.call();
-      }).then(function(totalSupply) {
-          totalSupply_value = totalSupply.valueOf();
-      }).then(function() {
-          assert.equal(balance_value, 507000000000000000000000000, "500000000000000000000000000 wasn't in the first account");
-          assert.equal(totalSupply_value, 507000000000000000000000000, "totalSupply is not 500000000000000000000000000 MFC_Token");
-      });
+    it("should specify totalSupply as 507000000000000000000000000 MFC_Token and put all tokens in the first account", async function() {
+        let owner = accounts[0];
+        let expected_value = BigNumber(507000000000000000000000000);
+
+        let contract = await token.deployed();
+
+        let owner_balance = await contract.balanceOf.call(owner);
+        let totalSupply = await contract.totalSupply.call();
+
+        assert.isTrue(BigNumber(owner_balance).isEqualTo(expected_value), "507000000000000000000000000 wasn't in the first account");
+        assert.isTrue(BigNumber(totalSupply).isEqualTo(expected_value), "totalSupply is not 507000000000000000000000000 MFC_Token");
     });
 });
 
@@ -93,90 +88,79 @@ contract('MFC_Token tests burn', async function(accounts) {
 
     /* Using Truffle, we check method for MFC_coin burn() and test 4 variants:
         regular burning - when the sender have enough tokens */
-    it("test burn method with enough balance", function() {
-        var user_balance_before;
-        var owner = accounts[0];
-        var user = accounts[1];
-        var token_contract;
-        var oldTotalSupply;
-        var newTotalSupply;
-        return token.deployed().then(function(instance) {
-            token_contract = instance;
-            return token_contract.transfer(user, 10, {'from': owner});
-        }).then(function(){
-            return token_contract.totalSupply.call();
-        }).then(function(totalSupply) {
-            return totalSupply.toNumber();
-        }).then(function(totalSupply){
-            oldTotalSupply = totalSupply;
-            return token_contract.balanceOf.call(user);
-        }).then(function(balance) {
-            user_balance_before = balance.toNumber();
-            return token_contract.burn(10, {'from': user});
-        }).then(function(){
-            return token_contract.totalSupply.call();
-        }).then(function(totalSupply) {
-            return totalSupply.toNumber();
-        }).then(function(totalSupply){
-            newTotalSupply = totalSupply;
-            return token_contract.balanceOf.call(user);
-        }).then(function(balance) {
-            return balance.toNumber();
-        }).then(function(user_balance_after) {
-            console.log("user balance changed on wrong number" + (user_balance_before - user_balance_after));
-            assert.equal(user_balance_before - 10, user_balance_after, "user balance changed on wrong number" + user_balance_before - user_balance_after);
-            assert.equal(oldTotalSupply - 10, newTotalSupply, "totalSupply changed on wrong number");
-        });
+    it("test burn method with enough balance", async function() {
+        let owner = accounts[0];
+        let user = accounts[1];
+
+        let contract = await token.deployed();
+
+        await contract.transfer(user, 10, {'from': owner});
+
+        let balance = await contract.balanceOf.call(user);
+        let user_balance_before = balance.toNumber();
+        let totalSupply = await contract.totalSupply.call();
+        let totalSupply_before = BigNumber(totalSupply);
+
+        await contract.burn(10, {'from': user});
+
+        balance = await contract.balanceOf.call(user);
+        let user_balance_after = balance.toNumber();
+        totalSupply = await contract.totalSupply.call();
+        let totalSupply_after = BigNumber(totalSupply);
+
+        let user_balance_change = user_balance_before - user_balance_after;
+        let totalSupply_change = totalSupply_before.minus(totalSupply_after).toNumber();
+        assert.equal(user_balance_change, 10, "user balance changed on wrong number" + user_balance_change);
+        assert.equal(totalSupply_change, 10, "totalSupply changed on wrong number" + totalSupply_change);
     });
 
     /* burning without enough tokens */
-    it("test burn method without enough balance", function() {
-        var owner = accounts[0];
-        var user = accounts[2];
-        var token_contract;
-        return token.deployed().then(function(instance) {
-            token_contract = instance;
-            return token_contract.transfer(user, 1, {'from': owner});
-        }).then(function() {
-            return token_contract.burn(10, {'from': user});
-        }).then(function() {
-            assert.isFalse(true, 'Expect exception. User does not have enough tokens');
-        }).catch(function(e){
-            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "wrong error thrown");
-        });
+    it("test burn method without enough balance", async function() {
+        let owner = accounts[0];
+        let user = accounts[2];
+
+        let contract = await token.deployed();
+
+        await contract.transfer(user, 1, {'from': owner});
+
+        try {
+            await contract.burn(10, {'from': user});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
     });
 
     /* burning without balance */
-    it("test burn method without balance", function() {
-        var user = accounts[3];
-        var token_contract;
-        return token.deployed().then(function(instance) {
-            token_contract = instance;
-            return token_contract.burn(10, {'from': user});
-        }).then(function() {
-            assert.isFalse(true, 'Expect exception. User does not have balance');
-        }).catch(function(e){
-            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "wrong error thrown");
-        });
+    it("test burn method without balance", async function() {
+        let user = accounts[3];
+
+        let contract = await token.deployed();
+
+        try {
+            await contract.burn(10, {'from': user});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
     });
 
     /* balance of burner = 0 */
-    it("test burn method with zero balance", function() {
-        var owner = accounts[0];
-        var user = accounts[4];
-        var token_contract;
-        return token.deployed().then(function(instance) {
-            token_contract = instance;
-            return token_contract.transfer(user, 1, {'from': owner});
-        }).then(function() {
-            return token_contract.burn(1, {'from': user});
-        }).then(function() {
-            return token_contract.burn(10, {'from': user});
-        }).then(function() {
-            assert.isFalse(true, 'Expect exception. The user has a zero balance');
-        }).catch(function(e){
-            assert.equal(e, 'Error: VM Exception while processing transaction: revert', "wrong error thrown");
-        });
+    it("test burn method with zero balance", async function() {
+        let owner = accounts[0];
+        let user = accounts[4];
+
+        let contract = await token.deployed();
+
+        await contract.transfer(user, 1, {'from': owner});
+        await contract.burn(1, {'from': user});
+
+        try {
+            await contract.burn(10, {'from': user});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
     });
 });
 
@@ -186,67 +170,72 @@ contract('MFC_Token tests burnAll', async function(accounts) {
 
     /* Using Truffle, we check method for MFC_coin burnAll() and test 3 variants:
        - burner have balance */
-    it("test burnAll method with nonzero balance", function() {
-        var user_balance_before;
-        var owner = accounts[0];
-        var user = accounts[5];
-        var token_contract;
-        return token.deployed().then(function(instance) {
-            token_contract = instance;
-            return token_contract.transfer(user, 10, {'from': owner});
-        }).then(function() {
-            return token_contract.balanceOf.call(user);
-        }).then(function(balance) {
-            user_balance_before = balance.valueOf();
-            return token_contract.burnAll({'from': user});
-        }).then(function() {
-            return token_contract.balanceOf.call(user);
-        }).then(function(balance) {
-            return balance.valueOf();
-        }).then(function(user_balance_after){
-            assert.equal(user_balance_before, 10, "User have wrong balance befor burning");
-            assert.equal(user_balance_after, 0, "User have wrong balance after burning");
-        });
+    it("test burnAll method with nonzero balance", async function() {
+        let owner = accounts[0];
+        let user = accounts[5];
+
+        let contract = await token.deployed();
+
+        await contract.transfer(user, 10, {'from': owner});
+
+        let totalSupply = await contract.totalSupply.call();
+        let totalSupply_before = BigNumber(totalSupply);
+
+        await contract.burnAll({'from': user});
+
+        balance = await contract.balanceOf.call(user);
+        let user_balance_after = balance.toNumber();
+        totalSupply = await contract.totalSupply.call();
+        let totalSupply_after = BigNumber(totalSupply);
+
+        let totalSupply_change = totalSupply_before.minus(totalSupply_after).toNumber();
+
+        assert.equal(user_balance_after, 0, "user must have zero balance after burning, but it have not");
+        assert.equal(totalSupply_change, 10, "totalSupply changed on wrong number" + totalSupply_change);
     });
 
     /* burner not have balance */
-    it("test burnAll method without balance", function() {
-        var user = accounts[6];
-        var token_contract;
-        var oldTotalSupply;
-        var newTotalSupply;
-        return token.deployed().then(function(instance) {
-            token_contract = instance;
-            oldTotalSupply = token_contract.totalSupply();
-            return token_contract.burnAll({'from': user});
-        }).then(function() {
-            return token_contract.balanceOf.call(user);
-        }).then(function(balance) {
-            newTotalSupply = token_contract.totalSupply();
-            return balance.valueOf();
-        }).then(function(balance) {
-            assert.equal(balance, 0, "User must have zero balance after burning, but it have not");
-            assert.equal(oldTotalSupply, newTotalSupply, "the totalSupply has changed, although it should not");
-        });
+    it("test burnAll method without balance", async function() {
+        let user = accounts[6];
+
+        let contract = await token.deployed();
+
+        let totalSupply = await contract.totalSupply.call();
+        let totalSupply_before = BigNumber(totalSupply);
+
+        await contract.burnAll({'from': user});
+
+        balance = await contract.balanceOf.call(user);
+        let user_balance_after = balance.toNumber();
+        totalSupply = await contract.totalSupply.call();
+        let totalSupply_after = BigNumber(totalSupply);
+
+        assert.equal(user_balance_after, 0, "user must have zero balance after burning, but it have not");
+        assert.isTrue(totalSupply_before.isEqualTo(totalSupply_after), "the totalSupply has changed, although it should not");
     });
 
     /* balance of burner = 0 */
-    it("test burnAll method with zero balance", function() {
-        var owner = accounts[0];
-        var user = accounts[7];
-        var token_contract;
-        return token.deployed().then(function(instance) {
-            token_contract = instance;
-            return token_contract.transfer(user, 10, {'from': owner});
-        }).then(function() {
-            return token_contract.burn(10, {'from': user});
-        }).then(function() {
-            return token_contract.burnAll({'from': user});
-        }).then(function() {
-            return token_contract.balanceOf.call(user);
-        }).then(function(balance) {
-            assert.equal(balance.valueOf(), 0, "User must have zero balance after burning, but it have not");
-        });
+    it("test burnAll method with zero balance", async function() {
+        let owner = accounts[0];
+        let user = accounts[7];
+
+        let contract = await token.deployed();
+
+        await contract.transfer(user, 10, {'from': owner});
+        await contract.burn(10, {'from': user})
+
+        let totalSupply = await contract.totalSupply.call();
+        let totalSupply_before = BigNumber(totalSupply);
+
+        await contract.burnAll({'from': user});
+
+        balance = await contract.balanceOf.call(user);
+        let user_balance_after = balance.toNumber();
+        totalSupply = await contract.totalSupply.call();
+        let totalSupply_after = BigNumber(totalSupply);
+
+        assert.equal(user_balance_after, 0, "user must have zero balance after burning, but it have not");
+        assert.isTrue(totalSupply_before.isEqualTo(totalSupply_after), "the totalSupply has changed, although it should not");
     });
 });
 
@@ -259,7 +248,7 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let owner = accounts[0];
         let spender = accounts[8];
         let receiver = accounts[9];
-        let amount = 100
+        let amount = 100;
 
         let contract = await token.deployed();
 
@@ -360,8 +349,8 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let owner = accounts[0];
         let spender = accounts[12];
         let receiver = accounts[13];
-        let amount = 100
-        let amount2 = 200
+        let amount = 100;
+        let amount2 = 200;
 
         let contract = await token.deployed();
 
@@ -392,7 +381,7 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let owner = accounts[0];
         let spender = accounts[14];
         let receiver = accounts[15];
-        let amount = 100
+        let amount = 100;
 
         let contract = await token.deployed();
 
@@ -423,8 +412,8 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let spender = accounts[16];
         let receiver = accounts[17];
         let user = accounts[18];
-        let amount = 100
-        let amount2 = 50
+        let amount = 100;
+        let amount2 = 50;
 
         let contract = await token.deployed();
 
