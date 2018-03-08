@@ -255,7 +255,7 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let balance = await contract.balanceOf.call(receiver);
         let receiver_balance_before = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_before = balance.toNumber();
+        let owner_balance_before = BigNumber(balance);
 
         await contract.approve(spender, amount, {'from': owner});
         await contract.transferFrom(owner, receiver, amount, {'from': spender});
@@ -263,9 +263,9 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(receiver);
         let receiver_balance_after = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_after = balance.toNumber();
+        let owner_balance_after = BigNumber(balance);
 
-        assert.equal(owner_balance_after, owner_balance_before - amount, "Amount wasn't correctly taken from the sender");
+        assert.equal(owner_balance_before.minus(owner_balance_after), amount, "Amount wasn't correctly taken from the sender");
         assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
     });
 
@@ -281,7 +281,7 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let balance = await contract.balanceOf.call(receiver.contract.address);
         let receiver_balance_before = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_before = balance.toNumber();
+        let owner_balance_before = BigNumber(balance);
 
         await contract.approve(spender, amount, {'from': owner});
         const transferFromMethodTransactionData = web3Abi.encodeFunctionCall(
@@ -298,9 +298,9 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         balance = await contract.balanceOf.call(receiver.address);
         let receiver_balance_after = balance.toNumber();
         balance = await contract.balanceOf.call(owner);
-        let owner_balance_after = balance.toNumber();
+        let owner_balance_after = BigNumber(balance);
 
-        assert.equal(owner_balance_after, owner_balance_before - amount, "Amount wasn't correctly taken from the sender");
+        assert.equal(owner_balance_before.minus(owner_balance_after), amount, "Amount wasn't correctly taken from the sender");
         assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
     });
 
@@ -313,12 +313,8 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         let contract = await token.deployed();
         let receiver = await StandardToken.deployed();
 
-        let balance = await contract.balanceOf.call(receiver.contract.address);
-        let receiver_balance_before = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_before = balance.toNumber();
-
         await contract.approve(spender, amount, {'from': owner});
+
         const transferFromMethodTransactionData = web3Abi.encodeFunctionCall(
             overloadedTransferFromAbi,
             [
@@ -328,20 +324,13 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
             '0x00'
             ]
         );
+
         try {
             await web3.eth.sendTransaction({from: spender, to: contract.address, data: transferFromMethodTransactionData, value: 0});
             assert.ifError('Error, previous code must throw exception');
         } catch (err){
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
         };
-
-        balance = await contract.balanceOf.call(receiver.address);
-        let receiver_balance_after = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_after = balance.toNumber();
-
-        assert.equal(owner_balance_after, owner_balance_before, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
     });
 
     /* if the sender have not enough allowed tokens and send to address */
@@ -354,26 +343,14 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
 
         let contract = await token.deployed();
 
-        let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_before = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_before = balance.toNumber();
-
         await contract.approve(spender, amount, {'from': owner});
+
         try {
             await contract.transferFrom(owner, receiver, amount2, {'from': spender});
             assert.ifError('Error, previous code must throw exception');
         } catch (err){
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
         };
-
-        balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_after = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_after = balance.toNumber();
-
-        assert.equal(owner_balance_after, owner_balance_before, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
     });
 
     /* if the sender have not allowance and send to address */
@@ -385,25 +362,12 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
 
         let contract = await token.deployed();
 
-        let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_before = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_before = balance.toNumber();
-
         try {
             await contract.transferFrom(owner, receiver, amount, {'from': spender});
             assert.ifError('Error, previous code must throw exception');
         } catch (err){
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
         };
-
-        balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_after = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_after = balance.toNumber();
-
-        assert.equal(owner_balance_after, owner_balance_before, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_after, receiver_balance_before, "Balance changed, it isn't correct");
     });
 
     /* if the from have not enough tokens and send to address */
@@ -417,14 +381,8 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
 
         let contract = await token.deployed();
 
-        let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_before = balance.toNumber();
-
         await contract.transfer(user, amount2, {'from': owner});
         await contract.approve(spender, amount, {'from': user});
-
-        balance = await contract.balanceOf.call(user);
-        let user_balance_before = balance.toNumber();
 
         try {
             await contract.transferFrom(user, receiver, amount, {'from': spender});
@@ -432,14 +390,6 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         } catch (err){
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
         };
-
-        balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_after = balance.toNumber();
-        balance = await contract.balanceOf.call(user);
-        let user_balance_after = balance.toNumber();
-
-        assert.equal(user_balance_before, user_balance_after, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_before, receiver_balance_after, "Balance changed, it isn't correct");
     });
 
     /* if the from have not balance and send to address */
@@ -451,13 +401,7 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
 
         let contract = await token.deployed();
 
-        let balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_before = balance.toNumber();
-
         await contract.approve(spender, amount, {'from': user});
-
-        balance = await contract.balanceOf.call(user);
-        let user_balance_before = balance.toNumber();
 
         try {
             await contract.transferFrom(user, receiver, amount, {'from': spender});
@@ -465,25 +409,17 @@ contract('MFC_Token tests transferFrom', async function(accounts) {
         } catch (err){
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
         };
-
-        balance = await contract.balanceOf.call(receiver);
-        let receiver_balance_after = balance.toNumber();
-        balance = await contract.balanceOf.call(user);
-        let user_balance_after = balance.toNumber();
-
-        assert.equal(user_balance_before, user_balance_after, "Balance changed, it isn't correct");
-        assert.equal(receiver_balance_before, receiver_balance_after, "Balance changed, it isn't correct");
     });
 });
 
 contract('MFC_Token tests aprove', async function(accounts) {
     /* Task 22 - Create test for MFC_token aprove() with Truffle */
 
-    /* Using Truffle, we check method for _MFC_token aprove()_ and test 2 variants:
+    /* Using Truffle, we check method for MFC_token aprove() and test 2 variants:
        - if the sender have enough tokens */
     it("test aprove with enough tokens in balance", async function() {
         let owner = accounts[0];
-        let spender = accounts[19];
+        let spender = accounts[22];
         let expected_allowance = 100;
 
         let contract = await token.deployed();
@@ -499,8 +435,8 @@ contract('MFC_Token tests aprove', async function(accounts) {
     /* if the sender have not enough tokens */
     it("test aprove without enough tokens in balance", async function() {
         let owner = accounts[0];
-        let user = accounts[20];
-        let spender = accounts[21];
+        let user = accounts[23];
+        let spender = accounts[24];
         let expected_allowance = 100;
         let user_balance = 50;
 
@@ -513,5 +449,148 @@ contract('MFC_Token tests aprove', async function(accounts) {
         let spender_allowance = allowance.toNumber();
 
         assert.equal(spender_allowance, expected_allowance, "Allowance wasn't correctly specified for the spender");
+    });
+});
+
+contract('MFC_Token tests transfer', async function(accounts) {
+    /* Task 3 - Create test for MFC_token transfer() with Truffle */
+
+    /* Using Truffle, we check method for MFC_token transfer() and test 6 variants:
+       - if the sender have enough tokens and send to address */
+    it("test transfer with enough balance", async function() {
+        let owner = accounts[0];
+        let receiver = accounts[25];
+        let amount = 100;
+
+        let contract = await token.deployed();
+
+        let balance = await contract.balanceOf.call(receiver);
+        let receiver_balance_before = balance.toNumber();
+        balance = await contract.balanceOf.call(owner);
+        let owner_balance_before = BigNumber(balance);
+
+        await contract.transfer(receiver, amount, {'from': owner});
+
+        balance = await contract.balanceOf.call(receiver);
+        let receiver_balance_after = balance.toNumber();
+        balance = await contract.balanceOf.call(owner);
+        let owner_balance_after = BigNumber(balance);
+
+        assert.equal(owner_balance_before.minus(owner_balance_after), amount, "Amount wasn't correctly taken from the sender");
+        assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
+    });
+
+    /* if the sender have enough tokens and send to contract with tokenFallback() */
+    it("test transfer to contract with ERC223Receiver interface", async function() {
+        let owner = accounts[0];
+        let amount = 100;
+
+        let contract = await token.deployed();
+        let receiver = await erc223receiver.deployed();
+
+        let balance = await contract.balanceOf.call(receiver.contract.address);
+        let receiver_balance_before = balance.toNumber();
+        balance = await contract.balanceOf.call(owner);
+        let owner_balance_before = BigNumber(balance);
+
+        const transferMethodTransactionData = web3Abi.encodeFunctionCall(
+            overloadedTransferAbi,
+            [
+            receiver.address,
+            amount,
+            '0x00'
+            ]
+        );
+
+        await web3.eth.sendTransaction({from: owner, to: contract.address, data: transferMethodTransactionData, value: 0});
+
+        balance = await contract.balanceOf.call(receiver.address);
+        let receiver_balance_after = balance.toNumber();
+        balance = await contract.balanceOf.call(owner);
+        let owner_balance_after = BigNumber(balance);
+
+        assert.equal(owner_balance_before.minus(owner_balance_after), amount, "Amount wasn't correctly taken from the sender");
+        assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
+    });
+
+    /* if the sender have enough tokens and send to contract without tokenFallback() */
+    it("test transfer to contract without ERC223Receiver interface", async function() {
+        let owner = accounts[0];
+        let amount = 100;
+
+        let contract = await token.deployed();
+        let receiver = await StandardToken.deployed();
+
+        const transferMethodTransactionData = web3Abi.encodeFunctionCall(
+            overloadedTransferAbi,
+            [
+            receiver.address,
+            amount,
+            '0x00'
+            ]
+        );
+
+        try {
+            await web3.eth.sendTransaction({from: owner, to: contract.address, data: transferMethodTransactionData, value: 0});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
+    });
+
+    /* if the sender have not enough tokens and send to address */
+    it("test transfer with more amount than balance", async function() {
+        let owner = accounts[0];
+        let sender = accounts[26];
+        let receiver = accounts[27];
+        let amount = 100;
+        let amount2 = 200;
+
+        let contract = await token.deployed();
+
+        await contract.transfer(sender, amount, {'from': owner});
+
+        try {
+            await contract.transfer(receiver, amount2, {'from': sender});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
+    });
+
+    /* if the sender have zero balance and send to address */
+    it("test transfer with zero balance", async function() {
+        let owner = accounts[0];
+        let sender = accounts[28];
+        let receiver = accounts[29];
+        let amount = 100;
+
+        let contract = await token.deployed();
+
+        await contract.transfer(sender, amount, {'from': owner});
+        await contract.transfer(owner, amount, {'from': sender});
+
+        try {
+            await contract.transfer(receiver, amount, {'from': sender});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
+    });
+
+    /* if the sender have not balabce and send to address */
+    it("test transfer without balance", async function() {
+        let sender = accounts[30];
+        let receiver = accounts[31];
+        let amount = 100;
+
+        let contract = await token.deployed();
+
+        try {
+            await contract.transfer(receiver, amount, {'from': sender});
+            assert.ifError('Error, previous code must throw exception');
+        } catch (err){
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
+        };
     });
 });
