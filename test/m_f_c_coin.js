@@ -82,7 +82,7 @@ contract('MFC_Token tests constructor', async function(accounts) {
     });
 });
 
-contract('MFC_Token tests burn', async function(accounts) {
+contract('MFC_Token tests burn()', async function(accounts) {
 
     /* Task 17 - Create test for MFC_coin burn() with Truffle */
 
@@ -164,7 +164,7 @@ contract('MFC_Token tests burn', async function(accounts) {
     });
 });
 
-contract('MFC_Token tests burnAll', async function(accounts) {
+contract('MFC_Token tests burnAll()', async function(accounts) {
 
     /* Task 18 - Create test for MFC_coin burnAll() with Truffle */
 
@@ -239,7 +239,7 @@ contract('MFC_Token tests burnAll', async function(accounts) {
     });
 });
 
-contract('MFC_Token tests transferFrom', async function(accounts) {
+contract('MFC_Token tests transferFrom()', async function(accounts) {
     /* Task 21 - Create test for MFC_coin transferFrom() with Truffle */
 
     /* Using Truffle, we check method for MFC_coin transferFrom() and test 7 variants:
@@ -452,7 +452,7 @@ contract('MFC_Token tests aprove', async function(accounts) {
     });
 });
 
-contract('MFC_Token tests transfer', async function(accounts) {
+contract('MFC_Token tests transfer()', async function(accounts) {
     /* Task 3 - Create test for MFC_token transfer() with Truffle */
 
     /* Using Truffle, we check method for MFC_token transfer() and test 6 variants:
@@ -592,5 +592,134 @@ contract('MFC_Token tests transfer', async function(accounts) {
         } catch (err){
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
         };
+    });
+});
+
+contract('MFC_Token test allowance()', async function(accounts) {
+    /* Task 23 - Create tests for MFC_token fubction allowance() */
+
+    /* Using Truffle, we check method for MFC_token allowance() and test if the function return the right answer. */
+    it("test allowance", async function() {
+        let owner = accounts[0];
+        let spender = accounts[32];
+        let expected_allowance = 100;
+
+        let contract = await token.deployed();
+
+        let allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_before = allowance.toNumber();
+
+        await contract.approve(spender, expected_allowance, {'from': owner});
+
+        allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_after = allowance.toNumber();
+
+        assert.equal(spender_allowance_before, 0, "Allowance befor wasn't correct, it must be 0");
+        assert.equal(spender_allowance_after, expected_allowance, "Allowance befor wasn't correct, it must be " + expected_allowance);
+    });
+});
+
+contract('MFC_Token test increaseApproval()', async function(accounts) {
+    /* Task 24 - Create test for MFC_token increaseApproval() */
+
+    /* Using Truffle, we check method for _MFC_token increaseApproval()_ and test 2 variants:
+       - if the spender have allowance from this owner */
+    it("test increaseApproval with previous allowance", async function() {
+        let owner = accounts[0];
+        let spender = accounts[33];
+        let expected_additional_allowance = 100;
+
+        let contract = await token.deployed();
+
+        await contract.approve(spender, 1, {'from': owner});
+
+        let allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_before = allowance.toNumber();
+
+        await contract.increaseApproval(spender, expected_additional_allowance, {'from': owner});
+
+        allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_after = allowance.toNumber();
+
+        assert.equal(spender_allowance_after - spender_allowance_before, expected_additional_allowance, "Allowance was changed on wrong value");
+    });
+
+    /* if the spender don't have allowance from this owner */
+    it("test increaseApproval without previous allowance", async function() {
+        let owner = accounts[0];
+        let spender = accounts[34];
+        let expected_additional_allowance = 100;
+
+        let contract = await token.deployed();
+
+        let allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_before = allowance.toNumber();
+
+        await contract.increaseApproval(spender, expected_additional_allowance, {'from': owner});
+
+        allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_after = allowance.toNumber();
+
+        assert.equal(spender_allowance_after - spender_allowance_before, expected_additional_allowance, "Allowance was changed on wrong value");
+    });
+});
+
+contract('MFC_Token test decreaseApproval()', async function(accounts) {
+    /* Task 25 - Create test for MFC_token decreaseApproval() */
+
+    /* Using Truffle, we check method for _MFC_token decreaseApproval()_ and test 3 variants:
+       - if the allowance more then value */
+    it("test decreaseApproval with previous allowance more then decrease value", async function() {
+        let owner = accounts[0];
+        let spender = accounts[35];
+        let expected_reduction_of_allowance = 100;
+
+        let contract = await token.deployed();
+
+        await contract.approve(spender, expected_reduction_of_allowance + 1, {'from': owner});
+
+        let allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_before = allowance.toNumber();
+
+        await contract.decreaseApproval(spender, expected_reduction_of_allowance, {'from': owner});
+
+        allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_after = allowance.toNumber();
+
+        assert.equal(spender_allowance_before - spender_allowance_after, expected_reduction_of_allowance, "Allowance was changed on wrong value");
+    });
+
+    /* if the allowance less then value */
+    it("test decreaseApproval with previous allowance less then decrease value", async function() {
+        let owner = accounts[0];
+        let spender = accounts[36];
+        let reduction_of_allowance = 100;
+
+        let contract = await token.deployed();
+
+        await contract.approve(spender, reduction_of_allowance - 1, {'from': owner});
+
+        await contract.decreaseApproval(spender, reduction_of_allowance, {'from': owner});
+
+        let allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_after = allowance.toNumber();
+
+        assert.equal(spender_allowance_after, 0, "Allowance should not be more than 0 after reduction");
+    });
+
+    /* if there is no allowance */
+    it("test decreaseApproval without previous allowance", async function() {
+        let owner = accounts[0];
+        let spender = accounts[36];
+        let reduction_of_allowance = 100;
+
+        let contract = await token.deployed();
+
+        await contract.decreaseApproval(spender, reduction_of_allowance, {'from': owner});
+
+        let allowance = await contract.allowance.call(owner, spender);
+        let spender_allowance_after = allowance.toNumber();
+
+        assert.equal(spender_allowance_after, 0, "Allowance should not be more than 0 after reduction");
     });
 });
