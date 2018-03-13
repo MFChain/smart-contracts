@@ -19,7 +19,7 @@
 // some number (specified in constructor) of the set of owners (specified in the constructor, modifiable) before the
 // interior is executed.
 
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.19;
 
 
 /// note: during any ownership changes all pending operations (waiting for more signatures) are cancelled
