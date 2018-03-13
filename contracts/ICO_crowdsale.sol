@@ -43,6 +43,8 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     uint256 public maxPurchase;
     uint256 public minPurchase;
 
+    bool public countPurchaseAmount;
+
     /**
      * event for token purchase logging
      * @param purchaser who paid for the tokens
@@ -53,7 +55,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _minPurchase, uint256 _maxPurchase, address _wallet, MFC_Token _token) public {
+    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _minPurchase, uint256 _maxPurchase, address _wallet, MFC_Token _token, bool _countPurchaseAmount) public {
         startTime = _startTime;
         endTime = _endTime;
         rate = _rate;
@@ -62,6 +64,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         maxPurchase = _maxPurchase;
         minPurchase = _minPurchase;
         controller = ICO_controller(msg.sender);
+        countPurchaseAmount = _countPurchaseAmount;
     }
 
     // fallback function can be used to buy tokens
@@ -91,7 +94,9 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         token.transfer(beneficiary, tokens);
         TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
         forwardFunds(weiAmount);
-        controller.addBuyerSpent(msg.sender, weiAmount);
+        if (countPurchaseAmount) {
+            controller.addBuyerSpent(msg.sender, weiAmount);
+        }        
     }
 
     // @return true if crowdsale event has ended
