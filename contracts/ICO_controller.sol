@@ -42,9 +42,9 @@ contract ICO_controller is Ownable {
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000 * 1 ether;
     uint256 constant public AIRDROP_SUPPLY = 5000 * 1 ether;
 
-    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01  
-    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
-    uint constant public Q2_2020_START_DATE = 1585699200; // 2020 04 01
+    uint constant public Q3_2018_START_DATE = 1521025200 // tomorrow 1pm
+    uint constant public Q2_2019_START_DATE = 1521050400 // tomorrow 8pm
+    uint constant public Q2_2020_START_DATE = 1521054000 // tomorrow 9pm
 
     uint public devRewardReleaseTime;
     uint[2] public unlockMarketingTokensTime;
