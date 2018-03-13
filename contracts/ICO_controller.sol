@@ -116,8 +116,8 @@ contract ICO_controller is Ownable {
 
     // Adds Devs Token Reward
     function addDevReward(address _devAddress, uint256 _amount) public onlyOwner returns (bool success) {
-        assert(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
-        assert(_devAddress != address(0));
+        require(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
+        require(_devAddress != address(0));
         totalDevReward = totalDevReward.add(_amount);
         devRewards[_devAddress] = devRewards[_devAddress].add(_amount);
         return true;
