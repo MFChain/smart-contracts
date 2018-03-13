@@ -222,7 +222,7 @@ contract ICO_controller is Ownable {
         require(address(crowdsale) != address(0));
         require(crowdsale.hasEnded());
         if (totalSold == 0) {
-            totalSold = preSale.getWeiRaised().add(crowdsale.getWeiRaised());
+            totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised()).add(crowdsale.getWeiRaised());
         }
         require(totalSold < SOFTCAP);
         uint256 amount = buyerSpent[msg.sender];
