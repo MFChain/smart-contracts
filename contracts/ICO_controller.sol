@@ -36,7 +36,7 @@ contract ICO_controller is Ownable {
     uint256 constant public PRIVATE_OFFER_SUPPLY = 14000000 * 1 ether;
     uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
     uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
-    uint256 constant public SOFTCUP = 4720 * 1 ether;
+    uint256 constant public SOFTCAP = 4720 * 1 ether;
     uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
@@ -150,22 +150,22 @@ contract ICO_controller is Ownable {
         return true;
     }
 
-    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max) internal returns (WhitelistedCrowdsale){
-        return startIco(_startTime, _endTime, _rate, _min,_max, address(this));
+    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max, bool _countPurchaseAmount) internal returns (WhitelistedCrowdsale){
+        return startIco(_startTime, _endTime, _rate, _min,_max, address(this), _countPurchaseAmount);
     }
 
-    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max, address _escrow) internal returns (WhitelistedCrowdsale){
+    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max, address _escrow, bool _countPurchaseAmount) internal returns (WhitelistedCrowdsale){
         require(_startTime >= now);
         require(_endTime >= _startTime);
         require(_rate > 0);
-        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, _min,_max, _escrow, token);
+        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, _min,_max, _escrow, token, _countPurchaseAmount);
     }
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
     function startPrivateOffer(uint256 _startTime, uint256 _endTime, address _escrow) external onlyOwner {
         require(address(privateOffer) == address(0));
         require(_escrow != address(0));
-        privateOffer = startIco(_startTime, _endTime, 14000, 1 ether, 200 ether, _escrow);
+        privateOffer = startIco(_startTime, _endTime, 14000, 1 ether, 200 ether, _escrow, false);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
@@ -174,7 +174,7 @@ contract ICO_controller is Ownable {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = startIco(_startTime, _endTime, 12000, 5 ether, 200 ether);
+        preSale = startIco(_startTime, _endTime, 12000, 5 ether, 200 ether, true);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
@@ -184,7 +184,7 @@ contract ICO_controller is Ownable {
         require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
-        crowdsale = startIco(_startTime, _endTime, 10000, 0.5 ether, 200 ether);
+        crowdsale = startIco(_startTime, _endTime, 10000, 0.5 ether, 200 ether, true);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
         preSale.burnRemainingTokens();
     }
@@ -196,7 +196,7 @@ contract ICO_controller is Ownable {
         require(incentiveProgram != address(0));
         crowdsale.burnRemainingTokens();
         totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
-        if (totalSold >= SOFTCUP) {
+        if (totalSold >= SOFTCAP) {
             // sends token for support program
             bool success = token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             assert(success==true);
@@ -213,7 +213,7 @@ contract ICO_controller is Ownable {
 
     }
 
-    // Count each buyer spent amount in case ICO wouldn't reach SOFTCUP
+    // Count each buyer spent amount in case ICO wouldn't reach SOFTCAP
     function addBuyerSpent(address _buyer, uint256 _amount) external onlyIco {
         buyerSpent[_buyer] = buyerSpent[_buyer].add(_amount);
     }
@@ -222,9 +222,9 @@ contract ICO_controller is Ownable {
         require(address(crowdsale) != address(0));
         require(crowdsale.hasEnded());
         if (totalSold == 0) {
-            totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
+            totalSold = preSale.getWeiRaised().add(crowdsale.getWeiRaised());
         }
-        require(totalSold < SOFTCUP);
+        require(totalSold < SOFTCAP);
         uint256 amount = buyerSpent[msg.sender];
         buyerSpent[msg.sender] = 0;
         msg.sender.transfer(amount);
