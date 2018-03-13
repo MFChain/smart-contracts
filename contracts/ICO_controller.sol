@@ -196,7 +196,7 @@ contract ICO_controller is Ownable {
         require(incentiveProgram != address(0));
         crowdsale.burnRemainingTokens();
         totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
-        if (totalSold >= SOFTCUP) {
+        if (totalSold >= SOFTCAP) {
             // sends token for support program
             bool success = token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
             assert(success==true);
@@ -213,7 +213,7 @@ contract ICO_controller is Ownable {
 
     }
 
-    // Count each buyer spent amount in case ICO wouldn't reach SOFTCUP
+    // Count each buyer spent amount in case ICO wouldn't reach SOFTCAP
     function addBuyerSpent(address _buyer, uint256 _amount) external onlyIco {
         buyerSpent[_buyer] = buyerSpent[_buyer].add(_amount);
     }
@@ -224,7 +224,7 @@ contract ICO_controller is Ownable {
         if (totalSold == 0) {
             totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
         }
-        require(totalSold < SOFTCUP);
+        require(totalSold < SOFTCAP);
         uint256 amount = buyerSpent[msg.sender];
         buyerSpent[msg.sender] = 0;
         msg.sender.transfer(amount);
