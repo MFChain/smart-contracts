@@ -33,14 +33,14 @@ contract ICO_controller is Ownable {
     WhitelistedCrowdsale public preSale;
     WhitelistedCrowdsale public crowdsale;
 
-    uint256 constant public PRIVATE_OFFER_SUPPLY = 14000000 * 1 ether;
-    uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
-    uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
+    uint256 constant public PRIVATE_OFFER_SUPPLY = 14000 * 1 ether;
+    uint256 constant public PRE_SALE_SUPPLY = 36000 * 1 ether;
+    uint256 constant public CROWDSALE_SUPPLY = 237000 * 1 ether;
     uint256 constant public SOFTCAP = 3 * 1 ether;
-    uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
-    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
-    uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
-    uint256 constant public AIRDROP_SUPPLY = 5000000 * 1 ether;
+    uint256 constant public MAX_DEV_REWARD = 40000 * 1 ether;
+    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000 * 1 ether;
+    uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000 * 1 ether;
+    uint256 constant public AIRDROP_SUPPLY = 5000 * 1 ether;
 
     uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01  
     uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
