@@ -42,7 +42,6 @@ const increaseTime = function (duration) {
 };
 
 contract('ICO Controller', function (accounts) {
-
     it("test addBuyerToWhitelist function", function () {
         var owner = accounts[0];
         var addAccount = accounts[2];
@@ -211,6 +210,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
         var controller_instance;
         var token_instance;
         var airdropTokensSupply;
+        var escrowAddress = accounts[2];
         var expectAirdropTokensSupply = 5000000000000000000000000;
         return Controller.deployed().then(
             function (inst) {
@@ -220,7 +220,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
             function () {
                 // stat ICOs
                 return controller_instance.startPrivateOffer(
-                    Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000));
+                    Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000), escrowAddress);
             }).then(
             function () {
                 wait(2);
@@ -233,7 +233,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
                     Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000));
             }).then(
             function () {
-                wait(20);
+                wait(2);
                 return controller_instance.finishCrowdsale();
             }).then(
             function () {
@@ -313,6 +313,9 @@ contract('ICO Controller dev reward', function (accounts) {
             });
     });
 
+});
+
+contract('ICO Controller dev reward', function (accounts) {
     it("test addRewards", function () {
         var addAccounts = [accounts[3], accounts[4]];
         var amounts = [11, 12];
@@ -342,7 +345,7 @@ contract('ICO Controller dev reward', function (accounts) {
                 return controller_instance.totalDevReward.call();
             }).then(
             function (amount) {
-                assert.equal(amount.valueOf(), 10 + amounts[0] + amounts[1], "Wrong totalDevReward value");
+                assert.equal(amount.valueOf(), amounts[0] + amounts[1], "Wrong totalDevReward value");
             })
     });
 

@@ -40,13 +40,11 @@ ap.add_argument('--accounts', '-a', type=ethereum_accounts,
 ap.add_argument('--require', '-r', type=int, help='Minimum account confirmations needed to run Holder function',
                 default=1)
 ap.add_argument('--escrow', '-e', type=str, help="Escrow account for ICO's", default=w3.eth.accounts[1])
-ap.add_argument('--private_escrow', '-p', type=str, help="Escrow account for ICO's", default=w3.eth.accounts[1])
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
     HOLDERS_ACCOUNTS = args.get('accounts')
     ESCROW_ADDRESS = args.get('escrow')
-    PRIVATE_ESCROW = args.get('private_escrow')
     REQUIRE = args.get('require')
     if REQUIRE > len(HOLDERS_ACCOUNTS):
         raise argparse.ArgumentTypeError('Require more than accounts')

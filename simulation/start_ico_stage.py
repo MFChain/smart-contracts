@@ -44,7 +44,10 @@ def main():
     net_provider = args.get('provider')
 
     w3 = Web3(HTTPProvider(net_provider))
-    w3.personal.unlockAccount(w3.eth.accounts[0], '1')
+    try:
+        w3.personal.unlockAccount(w3.eth.accounts[0], '1')
+    except:
+        pass
 
     if address == '0':
         with open('deploy_info.csv', 'rt') as text_file:
