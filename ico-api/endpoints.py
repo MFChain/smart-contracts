@@ -11,7 +11,7 @@ sys.path.insert(0, '../ico-api')
 
 from utils import wait_for_tx, get_csv_file_row, CSV_ROWS
 
-web3 = Web3(Web3.HTTPProvider('http://simulation_ganache_server_1:8545'))
+web3 = Web3(Web3.IPCProvider("../simulation/blchain_rinkeby/geth.ipc"))
 
 app = Flask(__name__)
 

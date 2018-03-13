@@ -13,5 +13,4 @@ MFC ICO smart-contracts project
 | SafeMath | Standard library |
 | Ownable | Standard implementation |
 | multiowned | Standard implementation |
-| 4tests | The Union of all the contracts in one file for easier testing |
 

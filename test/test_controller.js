@@ -8,7 +8,6 @@ Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.pr
 var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 
-
 contract('ICO_controller tests constructor', async function(accounts) {
     /* Task 43 - Create test for ICO_controller constructor() */
 
