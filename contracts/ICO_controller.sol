@@ -33,18 +33,17 @@ contract ICO_controller is Ownable {
     WhitelistedCrowdsale public preSale;
     WhitelistedCrowdsale public crowdsale;
 
-    uint256 constant public PRIVATE_OFFER_SUPPLY = 14000000 * 1 ether;
-    uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
-    uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
-    uint256 constant public SOFTCAP = 4720 * 1 ether;
-    uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
-    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
-    uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
-    uint256 constant public AIRDROP_SUPPLY = 5000000 * 1 ether;
+    uint256 constant public PRIVATE_OFFER_SUPPLY = 14000 * 1 ether;
+    uint256 constant public PRE_SALE_SUPPLY = 36000 * 1 ether;
+    uint256 constant public CROWDSALE_SUPPLY = 237000 * 1 ether;
+    uint256 constant public SOFTCAP = 3 * 1 ether;
+    uint256 constant public MAX_DEV_REWARD = 40000 * 1 ether;
+    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000 * 1 ether;
+    uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000 * 1 ether;
+    uint256 constant public AIRDROP_SUPPLY = 5000 * 1 ether;
 
-    uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01  
-    uint constant public Q2_2019_START_DATE = 1554076800; // 2019 04 01 
-    uint constant public Q2_2020_START_DATE = 1585699200; // 2020 04 01
+    uint constant public Q2_2019_START_DATE = 1521025200; // tomorrow 1pm
+    uint constant public Q2_2020_START_DATE = 1521054000; // tomorrow 9pm
 
     uint public devRewardReleaseTime;
     uint[2] public unlockMarketingTokensTime;
@@ -61,10 +60,10 @@ contract ICO_controller is Ownable {
     function ICO_controller(address _holder, address _escrowIco) {
         require(_holder!=address(0));
         require(_escrowIco!=address(0));
-        devRewardReleaseTime = Q3_2018_START_DATE + (uint(block.blockhash(block.number - 1)) % 7948800);
+        devRewardReleaseTime = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 1)) % 3600);
 
-        unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 7948800);
-        unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 7948800);
+        unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 3600);
+        unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 3600);
 
         holder = _holder;
         escrowIco = _escrowIco;
@@ -116,8 +115,8 @@ contract ICO_controller is Ownable {
 
     // Adds Devs Token Reward
     function addDevReward(address _devAddress, uint256 _amount) public onlyOwner returns (bool success) {
-        require(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
-        require(_devAddress != address(0));
+        assert(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
+        assert(_devAddress != address(0));
         totalDevReward = totalDevReward.add(_amount);
         devRewards[_devAddress] = devRewards[_devAddress].add(_amount);
         return true;

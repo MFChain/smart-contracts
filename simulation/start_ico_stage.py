@@ -66,15 +66,15 @@ def main():
             escrow_address = ico_controller_instance.call().holder()
         tx_hash = ico_controller_instance.transact(
             {'from': w3.eth.accounts[0]}
-        ).private_offer(start_date, end_date, escrow_address)
+        ).startPrivateOffer(start_date, end_date, escrow_address)
     elif stage == 'presale':
         tx_hash = ico_controller_instance.transact(
             {'from': w3.eth.accounts[0]}
-        ).presale(start_date, end_date)
+        ).startPreSaleIco(start_date, end_date)
     elif stage == 'crowdsale':
         tx_hash = ico_controller_instance.transact(
             {'from': w3.eth.accounts[0]}
-        ).crowdsale(start_date, end_date)
+        ).startCrowdsale(start_date, end_date)
 
     tx_receipt = wait_for_tx\
         (tx_hash,
