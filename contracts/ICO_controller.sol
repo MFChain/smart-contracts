@@ -36,7 +36,7 @@ contract ICO_controller is Ownable {
     uint256 constant public PRIVATE_OFFER_SUPPLY = 14000000 * 1 ether;
     uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
     uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
-    uint256 constant public SOFTCUP = 4720 * 1 ether;
+    uint256 constant public SOFTCUP = 3 * 1 ether;
     uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
