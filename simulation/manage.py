@@ -91,10 +91,17 @@ def finish_ico(controller_instance):
         w3.eth.getBalance(controller_instance.call().holder())))
 
 
+def add_airdrop(address, controller_instance):
+    tx_hash = controller_instance.transact(
+        {'from': w3.eth.accounts[0]}
+    ).addAirdrop([address])
+    wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to airdrop")
+    print("\n\n{} successfully added to airdrop".format(address))
+
 ap = argparse.ArgumentParser()
 
 ap.add_argument('--address', '-a', type=str, help='ICO controller address.')
-ap.add_argument('command', type=str, choices=['balance', 'whitelist', 'stage_info', 'finish'],
+ap.add_argument('command', type=str, choices=['balance', 'whitelist', 'stage_info', 'finish', 'airdrop'],
                 help='Command to do')
 
 if __name__ == '__main__':
@@ -118,3 +125,5 @@ if __name__ == '__main__':
         print_stage_info()
     elif command == 'finish':
         finish_ico(controller_instance)
+    elif command == 'airdrop':
+        add_airdrop(address, controller_instance)
