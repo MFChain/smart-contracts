@@ -180,12 +180,12 @@ contract ICO_controller is Ownable {
 
     // Create Crowdsale
     function startCrowdsale(uint256 _startTime, uint256 _endTime) external onlyOwner {
-        require(address(preSale) != address(0));
+        // require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
-        require(preSale.hasEnded() == true);
+        // require(preSale.hasEnded() == true);
         crowdsale = startIco(_startTime, _endTime, 10000, 0.5 ether, 200 ether, true);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
-        preSale.burnRemainingTokens();
+        // preSale.burnRemainingTokens();
     }
 
     function finishCrowdsale() external onlyOwner {
@@ -194,7 +194,7 @@ contract ICO_controller is Ownable {
         require(crowdsaleFinished == false);
         require(incentiveProgram != address(0));
         crowdsale.burnRemainingTokens();
-        totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
+        totalSold = crowdsale.getWeiRaised();
         if (totalSold >= SOFTCAP) {
             // sends token for support program
             bool success = token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
@@ -202,11 +202,14 @@ contract ICO_controller is Ownable {
             // burn some unspent reward tokens
             token.burn(MAX_DEV_REWARD.sub(totalDevReward));
             // burn after airdrop left tokens
-            token.burn(AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses)));
+            uint256 airdropToBurn = AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
+            if (airdropToBurn != 0){
+                token.burn(airdropToBurn);
+            }
             // send 50% of ico eth to contract onwer
             escrowIco.transfer(this.balance.div(2));
             // send other 50% to multisig holder address
-            address(holder).transfer(this.balance);
+            holder.transfer(this.balance);
         }
         crowdsaleFinished = true;
 
