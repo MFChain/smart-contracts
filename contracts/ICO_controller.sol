@@ -42,7 +42,7 @@ contract ICO_controller is Ownable {
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000 * 1 ether;
     uint256 constant public AIRDROP_SUPPLY = 5000 * 1 ether;
 
-    uint constant public Q2_2019_START_DATE = 1521025200; // tomorrow 1pm
+    uint constant public Q2_2019_START_DATE = 1521030865; // tomorrow 1pm
     uint constant public Q2_2020_START_DATE = 1521054000; // tomorrow 9pm
 
     uint public devRewardReleaseTime;
@@ -173,7 +173,7 @@ contract ICO_controller is Ownable {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = startIco(_startTime, _endTime, 12000, 5 ether, 200 ether, true);
+        preSale = startIco(_startTime, _endTime, 12000, 0.5 ether, 200 ether, true);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
