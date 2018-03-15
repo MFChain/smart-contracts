@@ -180,12 +180,12 @@ contract ICO_controller is Ownable {
 
     // Create Crowdsale
     function startCrowdsale(uint256 _startTime, uint256 _endTime) external onlyOwner {
-        // require(address(preSale) != address(0));
+        require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
-        // require(preSale.hasEnded() == true);
+        require(preSale.hasEnded() == true);
         crowdsale = startIco(_startTime, _endTime, 10000, 0.5 ether, 200 ether, true);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
-        // preSale.burnRemainingTokens();
+        preSale.burnRemainingTokens();
     }
 
     function finishCrowdsale() external onlyOwner {
