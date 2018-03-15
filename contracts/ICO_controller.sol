@@ -115,8 +115,8 @@ contract ICO_controller is Ownable {
 
     // Adds Devs Token Reward
     function addDevReward(address _devAddress, uint256 _amount) public onlyOwner returns (bool success) {
-        assert(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
-        assert(_devAddress != address(0));
+        require(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
+        require(_devAddress != address(0));
         totalDevReward = totalDevReward.add(_amount);
         devRewards[_devAddress] = devRewards[_devAddress].add(_amount);
         return true;
@@ -131,6 +131,7 @@ contract ICO_controller is Ownable {
     }
  
     function addAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
+        require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
             assert(_airdropAddresses[i] != address(0));
             assert(airdropList[_airdropAddresses[i]] == false);
@@ -141,6 +142,7 @@ contract ICO_controller is Ownable {
     }
 
     function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
+        require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
             assert(airdropList[_airdropAddresses[i]] == true);
             airdropList[_airdropAddresses[i]] = false;
@@ -202,9 +204,11 @@ contract ICO_controller is Ownable {
             // burn some unspent reward tokens
             token.burn(MAX_DEV_REWARD.sub(totalDevReward));
             // burn after airdrop left tokens
-            uint256 airdropToBurn = AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
-            if (airdropToBurn != 0){
-                token.burn(airdropToBurn);
+            if (totalAirdropAdrresses != 0) {
+               uint256 airdropToBurn = AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
+                if (airdropToBurn != 0){
+                    token.burn(airdropToBurn);
+                }
             }
             // send 50% of ico eth to contract onwer
             escrowIco.transfer(this.balance.div(2));
