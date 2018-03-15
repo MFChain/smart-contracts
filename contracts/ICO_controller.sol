@@ -132,6 +132,7 @@ contract ICO_controller is Ownable {
     }
  
     function addAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
+        require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
             assert(_airdropAddresses[i] != address(0));
             assert(airdropList[_airdropAddresses[i]] == false);
@@ -142,6 +143,7 @@ contract ICO_controller is Ownable {
     }
 
     function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
+        require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
             assert(airdropList[_airdropAddresses[i]] == true);
             airdropList[_airdropAddresses[i]] = false;
@@ -203,11 +205,16 @@ contract ICO_controller is Ownable {
             // burn some unspent reward tokens
             token.burn(MAX_DEV_REWARD.sub(totalDevReward));
             // burn after airdrop left tokens
-            token.burn(AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses)));
+            if (totalAirdropAdrresses != 0) {
+               uint256 airdropToBurn = AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
+                if (airdropToBurn != 0){
+                    token.burn(airdropToBurn);
+                } 
+            }
             // send 50% of ico eth to contract onwer
             escrowIco.transfer(this.balance.div(2));
             // send other 50% to multisig holder address
-            address(holder).transfer(this.balance);
+            holder.transfer(this.balance);
         }
         crowdsaleFinished = true;
 
