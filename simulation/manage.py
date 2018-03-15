@@ -49,6 +49,9 @@ def add_address_to_whitelist(address, controller_instance):
     ).addBuyerToWhitelist(address)
     wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to whitelist")
     print("\n\n{} successfully added to whitelist".format(address))
+    with open('whitelisted.csv', 'at') as text_file:
+        spamwriter = csv.writer(text_file, quoting=csv.QUOTE_MINIMAL)
+        spamwriter.writerow(([address]))
 
 
 def print_address_balance(address, token_instance):
