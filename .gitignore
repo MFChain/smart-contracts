@@ -6,3 +6,4 @@ ico-api/addresses.csv
 __pycache__
 deploy_info.csv
 build
+venv
