@@ -144,6 +144,11 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         token.burnAll();
     }
 
+    function increaseEndTime(uint256 _endTime) external onlyOwner {
+        require(_endTime > endTime);
+        endTime = _endTime;
+    }
+
     function getWeiRaised() external returns (uint256){
         return weiRaised;
     }
