@@ -264,7 +264,7 @@ contract ICO_controller is Ownable {
         token.transfer(msg.sender, AIRDROP_SUPPLY.div(totalAirdropAdrresses));
     }
 
-    function increasePrivateOfferEndTime(uint256 _endTime) external{
+    function increasePrivateOfferEndTime(uint256 _endTime) external onlyOwner {
         require(privateOffer != address(0));
         privateOffer.increaseEndTime(_endTime);
     }
