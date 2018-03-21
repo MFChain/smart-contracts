@@ -185,7 +185,7 @@ contract('ICO_controller', async function (accounts) {
         };
         try{
             await controller_instance.increasePrivateOfferEndTime(endTime);
-            assert.ifError('New end time should be set more then previous one');
+            assert.ifError('New end time should be greater than previous one');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increasePrivateOfferEndTime with wrong time");
         };
