@@ -23,7 +23,8 @@ cd simulation
 docker-compose up
 ```
 
-Note: alternatively, run `ganache-cli -a 1000 -e 100000`.
+Note: alternatively, run `ganache-cli -a 1000 -e 100000` (1000 accounts and 100000 account balance).
+See ganache cli options here: [ganache-cli](https://github.com/trufflesuite/ganache-cli).
 
 Then run tests with `truffle test`.
 
@@ -38,3 +39,13 @@ Then run tests with `truffle test`.
 | SafeMath | Standard library |
 | Ownable | Standard implementation |
 | multiowned | Standard implementation |
+
+# Code Coverage
+
+Code coverage can be generated using [solidity-coverage](https://www.npmjs.com/package/solidity-coverage), [on github](https://github.com/sc-forks/solidity-coverage):
+
+```
+./node_modules/.bin/solidity-coverage
+```
+
+The configuration options are in the [.solcover.js](./.solcover.js), here we set same options as for ganache cli (1000 accounts, 100000 ether per account).
