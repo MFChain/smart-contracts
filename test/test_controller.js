@@ -1,5 +1,6 @@
 var Token = artifacts.require("MFC_Token");
 var Controller = artifacts.require("ICO_controller");
+var WhitelistedCrowdsale =artifacts.require("WhitelistedCrowdsale");
 var Web3 = require('web3');
 var BigNumber = require('bignumber.js');
 
@@ -158,5 +159,38 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after attempt to add Dev Reward more then available");
         };
+    });
+
+});
+
+contract('ICO_controller', async function (accounts) {
+        it("test increasePrivateOfferEndTime func", async function() {
+
+        let controller_instance = await Controller.deployed();
+        let startTime = Math.ceil(Date.now() / 1000) + 3;
+        let endTime = Math.ceil(Date.now() / 1000) + 5;
+        let newEndTime = endTime + 10;
+        await controller_instance.startPrivateOffer(
+            startTime,
+            endTime,
+            accounts[5]);
+
+        let privateOffer = new WhitelistedCrowdsale(await controller_instance.privateOffer.call());
+
+        try {
+            await controller_instance.increasePrivateOfferEndTime(newEndTime, {'from': accounts[1]});
+            assert.ifError('Only owner should not be able to run increasePrivateOfferEndTime');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increasePrivateOfferEndTime as user");
+        };
+        try{
+            await controller_instance.increasePrivateOfferEndTime(endTime);
+            assert.ifError('New end time should be greater than previous one');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increasePrivateOfferEndTime with wrong time");
+        };
+
+        await controller_instance.increasePrivateOfferEndTime(newEndTime);
+        assert.equal(newEndTime, await privateOffer.endTime.call(), "Wrong value of private offer endtime");
     });
 });
