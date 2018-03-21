@@ -49,3 +49,5 @@ Code coverage can be generated using [solidity-coverage](https://www.npmjs.com/p
 ```
 
 The configuration options are in the [.solcover.js](./.solcover.js), here we set same options as for ganache cli (1000 accounts, 100000 ether per account).
+
+See also [solidity coverage faq](https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md) for additional information.
