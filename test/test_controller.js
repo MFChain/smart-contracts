@@ -15,34 +15,21 @@ function wait(delay) {
     }
 }
 
+//for future proposes
 const increaseTime = function (duration) {
-    const id = Date.now();
-
-    return new Promise((resolve, reject) => {
-        web3.currentProvider.sendAsync({
-            jsonrpc: '2.0',
-            method: 'evm_increaseTime',
-            params: [duration],
-            id: id,
-        }, err1 => {
-            if (err1) return reject(err1);
-
-            web3.currentProvider.sendAsync({
-                jsonrpc: '2.0',
-                method: 'evm_mine',
-                id: id + 1,
-            }, (err2, res) => {
-                return err2 ? reject(err2) : resolve(res)
-            })
-        })
-    })
+    return web3.currentProvider.send({
+        jsonrpc: '2.0',
+        method: 'evm_increaseTime',
+        params: [duration],
+        id: 0,
+    });
 };
 
-contract('ICO_controller tests constructor', async function(accounts) {
+contract('ICO_controller tests constructor', async function (accounts) {
     /* Task 43 - Create test for ICO_controller constructor() */
 
     /* Using Truffle, we check constructor for ICO_controller and test if the all initialSupply is at controller balance. */
-    it("should specify that all initialSupply is at the balance of controller", async function() {
+    it("should specify that all initialSupply is at the balance of controller", async function () {
         let contract = await Controller.deployed();
         let token_addr = await contract.token();
         let token = Token.at(token_addr);
@@ -54,12 +41,12 @@ contract('ICO_controller tests constructor', async function(accounts) {
     });
 });
 
-contract('ICO_controller tests onlyICO', async function(accounts) {
+contract('ICO_controller tests onlyICO', async function (accounts) {
     /* Task 44 - Create test for ICO_controller onlyIco modifier */
 
     /* Using Truffle, we check modifier for _ICO_controller onlyIco_ and test if the functions with this
-       modifier rejected calls of the addresses which is not ICO contracts of this controller. */
-    it("test the onlyIco modifier", async function() {
+     modifier rejected calls of the addresses which is not ICO contracts of this controller. */
+    it("test the onlyIco modifier", async function () {
         let owner = accounts[0];
         let user = accounts[37];
 
@@ -70,23 +57,25 @@ contract('ICO_controller tests onlyICO', async function(accounts) {
             assert.ifError('Error, the owner should not be able to call this method');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after try to use the function from non-Ico address");
-        };
+        }
+        ;
 
         try {
             await contract.addBuyerSpent(owner, 1, {'from': user});
             assert.ifError('Error, the user should not be able to call this method');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "WWrong error after try to use the function from non-Ico address");
-        };
+        }
+        ;
     });
 });
 
-contract('ICO_controller tests addDevReward', async function(accounts) {
+contract('ICO_controller tests addDevReward', async function (accounts) {
     /* Task 47 - Create test for ICO_controller addDevReward */
 
     /* Test 5 variants:
-       - regular1 address not in devRewards, address correct and MAX_DEV_REWARD - totalDevReward >= amount */
-    it("test the addDevReward if it is first reward for address and this reward allowed", async function() {
+     - regular1 address not in devRewards, address correct and MAX_DEV_REWARD - totalDevReward >= amount */
+    it("test the addDevReward if it is first reward for address and this reward allowed", async function () {
         let owner = accounts[0];
         let user = accounts[38];
 
@@ -107,7 +96,7 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
     });
 
     /* regular2 address in devRewards and MAX_DEV_REWARD - totalDevReward >= amount */
-    it("test the addDevReward if it isn't first reward for address and this reward allowed", async function() {
+    it("test the addDevReward if it isn't first reward for address and this reward allowed", async function () {
         let owner = accounts[0];
         let user = accounts[39];
 
@@ -129,7 +118,7 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
     });
 
     /* address is zero */
-    it("test the addDevReward if reward assign to zero address", async function() {
+    it("test the addDevReward if reward assign to zero address", async function () {
         let owner = accounts[0];
         let zero_address = '0x0';
 
@@ -144,11 +133,12 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
             assert.ifError('Error, the owner should not be able to specify reward for zero address');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after attempt to add Dev Reward for zero address");
-        };
+        }
+        ;
     });
 
     /* address is correct, not in devRewards and MAX_DEV_REWARD - totalDevReward < amount */
-    it("test the addDevReward if it is first reward for address and this reward not allowed", async function() {
+    it("test the addDevReward if it is first reward for address and this reward not allowed", async function () {
         let owner = accounts[0];
         let user = accounts[40];
 
@@ -164,11 +154,12 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
             assert.ifError('Error, the owner should not be able to specify reward for zero address');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after attempt to add Dev Reward more then available");
-        };
+        }
+        ;
     });
 
     /* address is correct, in devRewards and MAX_DEV_REWARD - totalDevReward < amount */
-    it("test the addDevReward if it is second reward for address and this reward not allowed", async function() {
+    it("test the addDevReward if it is second reward for address and this reward not allowed", async function () {
         let owner = accounts[0];
         let user = accounts[41];
 
@@ -187,7 +178,8 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
             assert.ifError('Error, the owner should not be able to specify reward for zero address');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after attempt to add Dev Reward more then available");
-        };
+        }
+        ;
     });
 });
 
@@ -230,7 +222,7 @@ contract('ICO Controller', function (accounts) {
                 return controller_instance.addBuyerToWhitelist(addAccount);
             }).then(
             function () {
-                return controller_instance.addBuyerToWhitelist(addAccount, {from: addAccount});
+                return controller_instance.removeBuyerFromWhitelist(addAccount, {from: addAccount});
             }).then(
             function () {
                 assert.isFalse(true, "Expect access exception. The function is only for owner");
@@ -352,8 +344,31 @@ contract('ICO Controller Airdrop', function (accounts) {
                 assert.isFalse(inDroplist.valueOf(), "Excpect Account 1 not to be in airdrop list");
             });
     });
+
+    it("test addAirdrop add one account twice and zero address", async function () {
+        let controller = await Controller.deployed();
+        let addAccounts = [accounts[10]];
+        let zeroAccount = ['0x0000000000000000000000000000000000000000'];
+        let controller_instance;
+
+        try {
+            await controller.addAirdrop(zeroAccount);
+            assert.ifError("Expect exception. The function doesn't allow zero address");
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after attemp to add zero address");
+        };
+        await controller.addAirdrop(addAccounts);
+        try {
+            await controller.addAirdrop(addAccounts);
+            assert.ifError("Expect exception. The function doesn't allow to add one address twice");
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after atempt to add one address twice");
+        };
+
+    });
 });
 
+//The test checks airdrop correct amount of token distribution between aitdrop accounts after all ICOs finished
 contract('ICO Controller Airdrop long', function (accounts) {
     it("test getAirdropTokens", function () {
         var addAccounts = [accounts[3], accounts[4]];
@@ -382,7 +397,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
                     Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000));
             }).then(
             function () {
-                wait(20);
+                wait(2);
                 return controller_instance.finishCrowdsale();
             }).then(
             function () {
