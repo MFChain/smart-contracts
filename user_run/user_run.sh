@@ -50,7 +50,7 @@ function r_Deploy_Contracts(){
 function r_Start_Ico_Stage(){
 	ICO_TYPE=$1;
 	ICO_TSTART=`python3 ${M_PATH}/user_run/unix_time_generate.py | awk '{print $1}'` #+5
-	ICO_TEND=`python3 ${M_PATH}/user_run/unix_time_generate.py | awk '{print $2}'` #+20
+	ICO_TEND=`python3 ${M_PATH}/user_run/unix_time_generate.py | awk '{print $2}'` #+15
 	python3 start_ico_stage.py -e $CSTMR -s $ICO_TSTART -d $ICO_TEND -t $ICO_TYPE
 	cat $INFO_CSV | tail -1 >> $C_PATH/log/$BDDI_LOG
 }
@@ -67,10 +67,15 @@ function r_Add_To_Whitelist(){
 
 if [ -f 'start_ico_stage.py' ];then
 	t_Log "Start of execution."
-	##t_Docker_Compose >> $C_PATH/log/$MLCE_LOG
+	##t_Docker_Compose |& tee $C_PATH/log/$MLCE_LOG
 	r_Deploy_Contracts |& tee $C_PATH/log/$MLCE_LOG
-	r_Start_Ico_Stage private_offer |& tee $C_PATH/log/$MLCE_LOG
-	r_Add_To_Whitelist |& tee $C_PATH/log/$MLCE_LOG
+	for i in "private_offer" "presale" "crowdsale";
+	do
+		r_Start_Ico_Stage $i |& tee $C_PATH/log/$MLCE_LOG
+		#r_Add_To_Whitelist |& tee $C_PATH/log/$MLCE_LOG
+		#python3 ${M_PATH}/user_run/meta_mask_action.py
+		sleep 1200;
+	done
 	t_Log "End of execution"
 else
 	CHECK=`expr $CHECK + 1`
