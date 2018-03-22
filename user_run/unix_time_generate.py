@@ -7,20 +7,13 @@
 
 import datetime
 
-
 def get_correct_unixtime(p_min):
-    #return unixtime + p_min
     c_t = datetime.datetime.now()
-    ut_create = int(datetime.datetime(
-        c_t.year, 
-        c_t.month, 
-        c_t.day, 
-        c_t.hour, 
-        c_t.minute + p_min,
-        c_t.second
-        ).timestamp())
-    return str(ut_create)
+    ct_pm = c_t + datetime.timedelta(minutes = p_min)
+    return int(ct_pm.timestamp())
 
 gcut5 = get_correct_unixtime(5)
 gcut20 = get_correct_unixtime(20)
-print(gcut5 + " " + gcut20)
+print(str(gcut5) + " " + str(gcut20))
+
+
