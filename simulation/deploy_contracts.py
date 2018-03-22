@@ -13,6 +13,11 @@ try:
 except OSError:
     pass
 
+try:
+    os.remove("whitelisted.csv")
+except OSError:
+    pass
+
 # web3.py instance
 w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
 try:

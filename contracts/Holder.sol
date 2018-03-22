@@ -7,7 +7,7 @@ import "./multiowned.sol";
 contract Holder is multiowned {
     using SafeMath for uint256;
 
-    address escrowAddress;
+    address public escrowAddress;
 
 
     function Holder(address[] _owners, uint _required, address _escrowAddress) multiowned(_owners, _required) {
