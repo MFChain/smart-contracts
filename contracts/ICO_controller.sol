@@ -134,8 +134,8 @@ contract ICO_controller is Ownable {
     function addAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
         require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
-            assert(_airdropAddresses[i] != address(0));
-            assert(airdropList[_airdropAddresses[i]] == false);
+            require(_airdropAddresses[i] != address(0));
+            require(airdropList[_airdropAddresses[i]] == false);
             airdropList[_airdropAddresses[i]] = true;
             totalAirdropAdrresses = totalAirdropAdrresses.add(1);
         }
@@ -145,7 +145,7 @@ contract ICO_controller is Ownable {
     function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
         require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
-            assert(airdropList[_airdropAddresses[i]] == true);
+            require(airdropList[_airdropAddresses[i]] == true);
             airdropList[_airdropAddresses[i]] = false;
             totalAirdropAdrresses = totalAirdropAdrresses.sub(1);
         }
