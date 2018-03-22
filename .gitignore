@@ -7,3 +7,5 @@ __pycache__
 deploy_info.csv
 build
 venv
+coverage/
+coverage.json
