@@ -3,28 +3,10 @@ var Controller = artifacts.require("ICO_controller");
 var WhitelistedCrowdsale =artifacts.require("WhitelistedCrowdsale");
 var Web3 = require('web3');
 var BigNumber = require('bignumber.js');
+var wait = require('./utils').wait;
 
-
-Web3.providers.HttpProvider.prototype.sendAsync = Web3.providers.HttpProvider.prototype.send
 var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
-
-function wait(delay) {
-    var stop = new Date().getTime() / 1000 + delay;
-    while (new Date().getTime() / 1000 < stop) {
-        ;
-    }
-}
-
-//for future proposes
-const increaseTime = function (duration) {
-    return web3.currentProvider.send({
-        jsonrpc: '2.0',
-        method: 'evm_increaseTime',
-        params: [duration],
-        id: 0,
-    });
-};
 
 contract('ICO_controller tests constructor', async function (accounts) {
     /* Task 43 - Create test for ICO_controller constructor() */
