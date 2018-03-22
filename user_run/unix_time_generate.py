@@ -21,5 +21,6 @@ def get_correct_unixtime(p_min):
         ).timestamp())
     return str(ut_create)
 
-gcut = get_correct_unixtime(5)
-print(gcut)
+gcut5 = get_correct_unixtime(5)
+gcut20 = get_correct_unixtime(20)
+print(gcut5 + " " + gcut20)
