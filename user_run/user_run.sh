@@ -14,13 +14,17 @@ M_PATH=`pwd`
 cd simulation/
 
 [ ! -d $C_PATH/log/ ] && mkdir $C_PATH/log
-echo -e "\n" > $C_PATH/log/$MLCE_LOG && tail -f $C_PATH/log/$MLCE_LOG &
+echo -e "\n" > $C_PATH/log/$MLCE_LOG
 
 function t_Log(){
 	printf "[+] `date` -> $*\n"
 }
 
 function e_Calc(){
+	echo ""
+}
+
+function e_GetTrace(){
 	echo ""
 }
 
@@ -52,20 +56,20 @@ function r_Start_Ico_Stage(){
 }
 
 function r_Add_To_Whitelist(){
-	ICO_ST=$INFO_CSV | tail -1 | cut -d , -f 2
-	if [ -z ${ICO_ST} ];then
-		python3 manage.py whitelist -a $ICO_ST
-	else
-		CHECK=`expr $CHECK + 1`
-		t_Log "No line in $INFO_CSV"
-	fi
+	ICO_ST=`cat $INFO_CSV | tail -1 | cut -d , -f 2`
+        if [ $ICO_ST != "" ];then
+                python3 manage.py whitelist -a $ICO_ST
+        else
+                CHECK=`expr $CHECK + 1`
+                t_Log "No line in $INFO_CSV"
+        fi
 }
 
 if [ -f 'start_ico_stage.py' ];then
 	##t_Docker_Compose >> $C_PATH/log/$MLCE_LOG
-	r_Deploy_Contracts >> $C_PATH/log/$MLCE_LOG
-	r_Start_Ico_Stage private_offer >> $C_PATH/log/$MLCE_LOG
-	r_Add_To_Whitelist >> $C_PATH/log/$MLCE_LOG
+	r_Deploy_Contracts |& tee $C_PATH/log/$MLCE_LOG
+	r_Start_Ico_Stage private_offer |& tee $C_PATH/log/$MLCE_LOG
+	r_Add_To_Whitelist |& tee $C_PATH/log/$MLCE_LOG
 else
 	CHECK=`expr $CHECK + 1`
 	t_Log "Check the current directory."
