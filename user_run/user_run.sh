@@ -66,13 +66,19 @@ function r_Add_To_Whitelist(){
 }
 
 if [ -f 'start_ico_stage.py' ];then
+	t_Log "Start of execution."
 	##t_Docker_Compose >> $C_PATH/log/$MLCE_LOG
 	r_Deploy_Contracts |& tee $C_PATH/log/$MLCE_LOG
 	r_Start_Ico_Stage private_offer |& tee $C_PATH/log/$MLCE_LOG
 	r_Add_To_Whitelist |& tee $C_PATH/log/$MLCE_LOG
+	t_Log "End of execution"
 else
 	CHECK=`expr $CHECK + 1`
 	t_Log "Check the current directory."
 fi
 
-t_Log $CHECK
+if [ ${CHECK} == 0 ];then
+	t_Log "Result: $CHECK \tPASS";
+else
+	t_Log "Result: $CHECK \tFAIL";
+fi
