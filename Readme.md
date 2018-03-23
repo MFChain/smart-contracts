@@ -51,3 +51,31 @@ Code coverage can be generated using [solidity-coverage](https://www.npmjs.com/p
 The configuration options are in the [.solcover.js](./.solcover.js), here we set same options as for ganache cli (1000 accounts, 100000 ether per account).
 
 See also [solidity coverage faq](https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md) for additional information.
+
+# How to Debug Truffle Tests
+
+Truffle tests can be debugged with `node inspector` (shipped with node since node 6.3).
+In order to do that, we need to run `truffle test` command through the `node` command instead of `truffle`:
+
+```
+node --inspect-brk ./node_modules/truffle-core/cli.js test test/test_to_debug.js
+```
+
+The `truflle-core` package (installed as a part of project dependencies) contains the actual code for truffle commands.
+While the `truffle` package is a wrapper built with webpack that brings everything together.
+
+So here instead of `truffle test` we use `./node_modules/truffle-core/cli.js test`.
+
+And we specify the `--inspect-brk` parameter for node which will pause the execution as long as the first line of the `cli.js` is reached.
+
+Now we can debug the script code in the dev tools of the Chrome browser:
+
+- Open `chrome://inspect` page and click the "Open dedicated DevTools for Node" link.
+- We should see the `cli.js` file with execution paused on the first line.
+- Add the test sources into the inspector: click the "Filesystem" on the left and then "Add folder to workspace".
+- Browse to the folder with tests and add it.
+- Open the file with the test to debug and set the breakpoint, continue the execution until it reaches the breakpoint
+- Step through you test
+
+Now open the file with test to debug and set the breakpoint inside the test, continue the code execution and wait until the breakpoint is reached.
+And now you can step through the code and fix any problems in the test you might have or learn how it works.
