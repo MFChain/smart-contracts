@@ -7,6 +7,7 @@ OWNERS_OF_MULTISIG="0x145CC078183A8A38d03e39086956fA759505C987,0xf5fA1aAC73e2220
 ESCROW="0xb36A2bfB9232048Acf5c229BFc118D2c8FdCaDF3"
 CSTMR="0x87544f8D45A31a317F197189Ffd5e915D2d46E58"
 MLCE_LOG="current_event.txt"
+ERR_KWORD="Traceback Fail"
 
 C_PATH=`pwd`
 cd $C_PATH/..
@@ -20,12 +21,16 @@ function t_Log(){
 	printf "[+] `date` -> $*\n"
 }
 
-function e_Calc(){
-	echo ""
-}
-
-function e_GetTrace(){
-	echo ""
+function e_Read_Line(){
+	while IFS= read -r line;do
+		for i in $ERR_KWORD;do
+			echo $line | grep "${i}" >/dev/null 2>&1
+			if [ $? -eq 0 ];then
+				t_Log "Error: ${i}."
+				CHECK=`expr $CHECK + 1`
+			fi
+		done
+	done
 }
 
 function t_Docker_Compose(){
@@ -68,12 +73,12 @@ function r_Add_To_Whitelist(){
 if [ -f 'start_ico_stage.py' ];then
 	t_Log "Start of execution."
 	##t_Docker_Compose |& tee $C_PATH/log/$MLCE_LOG
-	r_Deploy_Contracts |& tee $C_PATH/log/$MLCE_LOG
 	for i in "private_offer" "presale" "crowdsale";
 	do
-		r_Start_Ico_Stage $i |& tee $C_PATH/log/$MLCE_LOG
-		#r_Add_To_Whitelist |& tee $C_PATH/log/$MLCE_LOG
-		#python3 ${M_PATH}/user_run/meta_mask_action.py
+		r_Deploy_Contracts | e_Read_Line |& tee $C_PATH/log/$MLCE_LOG
+		r_Start_Ico_Stage $i | e_Read_Line |& tee $C_PATH/log/$MLCE_LOG
+		#r_Add_To_Whitelist | e_Read_Line |& tee $C_PATH/log/$MLCE_LOG
+		#python3 ${M_PATH}/user_run/eth_wp_action.py
 		sleep 1200;
 	done
 	t_Log "End of execution"
