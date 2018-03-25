@@ -49,6 +49,9 @@ def add_address_to_whitelist(address, controller_instance):
     ).addBuyerToWhitelist(address)
     wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to whitelist")
     print("\n\n{} successfully added to whitelist".format(address))
+    with open('whitelisted.csv', 'at') as text_file:
+        spamwriter = csv.writer(text_file, quoting=csv.QUOTE_MINIMAL)
+        spamwriter.writerow(([address]))
 
 
 def print_address_balance(address, token_instance):
@@ -98,19 +101,34 @@ def add_airdrop(address, controller_instance):
     wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to airdrop")
     print("\n\n{} successfully added to airdrop".format(address))
 
+def increase_private_offer_endtime(controller_instance, new_endtime):
+    tx_hash = controller_instance.transact(
+        {'from': w3.eth.accounts[0]}
+    ).increasePrivateOfferEndTime(new_endtime)
+    wait_for_tx(tx_hash, w3, wait_message="Wait for Private Offer to increase time")
+    print("Private offer endtime updated: {}".format(
+        datetime.utcfromtimestamp(new_endtime).strftime('%Y-%m-%d %H:%M:%S')
+    ))
+
 ap = argparse.ArgumentParser()
 
-ap.add_argument('--address', '-a', type=str, help='ICO controller address.')
-ap.add_argument('command', type=str, choices=['balance', 'whitelist', 'stage_info', 'finish', 'airdrop'],
+ap.add_argument('--address', '-a', type=str, help='optional address')
+ap.add_argument('--endtime', '-d', type=int, help='Unix endtime for private offer.')
+ap.add_argument('command', type=str, choices=[
+    'balance', 'whitelist', 'stage_info', 'finish', 'airdrop', 'increase_po_endtime'],
                 help='Command to do')
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
     address = args['address']
     command = args['command']
+    endtime = args['endtime']
 
     w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
-    w3.personal.unlockAccount(w3.eth.accounts[0], '1')
+    try:
+        w3.personal.unlockAccount(w3.eth.accounts[0], '1')
+    except ValueError:
+        pass
 
     compiled_source = compile_files(["../contracts/ICO_controller.sol"], optimize=True)
 
@@ -127,3 +145,6 @@ if __name__ == '__main__':
         finish_ico(controller_instance)
     elif command == 'airdrop':
         add_airdrop(address, controller_instance)
+    elif command == 'increase_po_endtime':
+        increase_private_offer_endtime(controller_instance, endtime)
+

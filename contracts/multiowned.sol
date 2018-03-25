@@ -387,7 +387,7 @@ contract multiowned {
     uint constant c_maxOwners = 250;
 
     // the number of owners that must confirm the same operation before it is run.
-    uint public m_multiOwnedRequired;
+    uint256 public m_multiOwnedRequired;
 
 
     // pointer used to find a free slot in m_owners

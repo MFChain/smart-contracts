@@ -75,7 +75,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     // low level token purchase function
     function buyTokens(address beneficiary) public payable {
         require(beneficiary != address(0));
-        require(validPurchase());
+        require(validPurchase(beneficiary));
 
 
         uint256 weiAmount = msg.value;
@@ -131,17 +131,22 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     }
 
     // @return true if the transaction can buy tokens
-    function validPurchase() internal view returns (bool) {
+    function validPurchase(address beneficiary) internal view returns (bool) {
         bool withinPeriod = now >= startTime && now <= endTime;
         bool nonZeroPurchase = msg.value != 0;
         bool lessThenMaximum = msg.value <= maxPurchase;
         bool moreThenMinimum = msg.value >= minPurchase;
-        bool isWhitelisted = controller.isAddressWhitelisted(msg.sender);
+        bool isWhitelisted = controller.isAddressWhitelisted(beneficiary);
         return withinPeriod && nonZeroPurchase && isWhitelisted && lessThenMaximum && moreThenMinimum;
     }
 
     function burnRemainingTokens() external onlyOwner {
         token.burnAll();
+    }
+
+    function increaseEndTime(uint256 _endTime) external onlyOwner {
+        require(_endTime > endTime);
+        endTime = _endTime;
     }
 
     function getWeiRaised() external returns (uint256){
