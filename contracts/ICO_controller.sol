@@ -33,9 +33,9 @@ contract ICO_controller is Ownable {
     WhitelistedCrowdsale public preSale;
     WhitelistedCrowdsale public crowdsale;
 
-    uint256 constant public PRIVATE_OFFER_SUPPLY = 14000 * 1 ether;
-    uint256 constant public PRE_SALE_SUPPLY = 36000 * 1 ether;
-    uint256 constant public CROWDSALE_SUPPLY = 237000 * 1 ether;
+    uint256 constant public PRIVATE_OFFER_SUPPLY = 42000 * 1 ether;
+    uint256 constant public PRE_SALE_SUPPLY = 50750 * 1 ether;
+    uint256 constant public CROWDSALE_SUPPLY = 208250 * 1 ether;
     uint256 constant public SOFTCAP = 3 * 1 ether;
     uint256 constant public MAX_DEV_REWARD = 40000 * 1 ether;
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000 * 1 ether;
@@ -166,7 +166,7 @@ contract ICO_controller is Ownable {
     function startPrivateOffer(uint256 _startTime, uint256 _endTime, address _escrow) external onlyOwner {
         require(address(privateOffer) == address(0));
         require(_escrow != address(0));
-        privateOffer = startIco(_startTime, _endTime, 14000, 1 ether, 200 ether, _escrow, false);
+        privateOffer = startIco(_startTime, _endTime, 12000, 10 ether, 200 ether, _escrow, false);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
@@ -175,7 +175,7 @@ contract ICO_controller is Ownable {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = startIco(_startTime, _endTime, 12000, 0.5 ether, 200 ether, true);
+        preSale = startIco(_startTime, _endTime, 10150, 5 ether, 200 ether, true);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
@@ -185,7 +185,7 @@ contract ICO_controller is Ownable {
         require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
-        crowdsale = startIco(_startTime, _endTime, 10000, 0.5 ether, 200 ether, true);
+        crowdsale = startIco(_startTime, _endTime, 8500, 0.1 ether, 200 ether, true);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
         preSale.burnRemainingTokens();
     }
