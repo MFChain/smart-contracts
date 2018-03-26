@@ -30,7 +30,7 @@ contract('WhitelistedCrowdsale', async (accounts) => {
     token = MFC_Token.at(await controller.token.call());
     await controller.startPrivateOffer.sendTransaction(startTime, endTime, escrowAccount, {from: owner});
     instanceWhitelistedCrowdsale = WhitelistedCrowdsale.at(await controller.privateOffer.call());
-    await controller.addBuyerToWhitelist.sendTransaction(userFromWhitelist);
+    await controller.addBuyerToWhitelist.sendTransaction(userFromWhitelist, {from: owner});
     wait(5);
   });
   
@@ -64,44 +64,51 @@ contract('WhitelistedCrowdsale', async (accounts) => {
       await instanceWhitelistedCrowdsale.countPurchaseAmount.call(), defaultCountPurchaseAmountForPrivateOffer
     );
   });
-
+  
   it("should throw error when the beneficiary not in whitelist", async () => {
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userNotFromWhitelist, {from: owner, value: web3.toWei(2, "ether")});
-      assert.ifError('Error, the owner should not be able to call this method');
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userNotFromWhitelist, {value: web3.toWei(2, "ether")});
+      assert.ifError('Error, the user that is not in whitelist should not be able to buy tokens');
     } catch (err) {
       assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Benefeciary not in whitelist trying to buy tokens");
     }
   });
 
-  it("should throw error when the beneficiary has a zero address", async () => {
+  it("should throw an error when the beneficiary is the contract owner", async () => {
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(0, {from: owner, value: web3.toWei(2, "ether")});
-      assert.ifError('Error, the owner should not be able to call this method');
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(0, {value: web3.toWei(2, "ether")});
+      assert.ifError('Error, the user that is not in whitelist should not be able to buy tokens');
     } catch (err) {
       assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Benefeciary has zero address");
     }
   });
 
-  it("should throw error when tokens not enough", async () => {
+  it("should throw error when tokens are not enough", async () => {
     let tokenBalance = await token.balanceOf(instanceWhitelistedCrowdsale.address);
     let weiAmount = tokenBalance.div(await instanceWhitelistedCrowdsale.rate.call()).add(BigNumber('10'));
 
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userFromWhitelist, {from: owner, value: weiAmount});
-      assert.ifError('Error, the owner should not be able to call this method');
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userFromWhitelist, {value: weiAmount});
+      assert.ifError('Error, tokens are not enough');
     } catch (err) {
-      assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Tokens not enough");
+      assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Tokens are not enough");
     }
   });
 
-  it("should forward funds when tokens were bought", async () => {
+  it("should buy tokens", async () => {
     let weiAmount = web3.toWei(2, "ether");
+    let weiAmountAsBigNumber = BigNumber(weiAmount);
     let walletAddress = await instanceWhitelistedCrowdsale.wallet.call();
     let walletBalance = web3.eth.getBalance(walletAddress);
-    await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userFromWhitelist, {from: owner, value: weiAmount});
+    let currentUserTokens = await token.balanceOf(userFromWhitelist);
+    
+    await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userFromWhitelist, {value: weiAmount});
+    
     assert.isOk(
       walletBalance.add(weiAmount).eq(web3.eth.getBalance(walletAddress))
+    );
+    assert.isOk(
+      weiAmountAsBigNumber.times(defaultRateForPrivateOffer).plus(currentUserTokens).eq(await token.balanceOf(userFromWhitelist))
     );
   });
 
