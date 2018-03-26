@@ -3,8 +3,9 @@ var Controller = artifacts.require("ICO_controller");
 var WhitelistedCrowdsale = artifacts.require("WhitelistedCrowdsale");
 var BigNumber = require('bignumber.js');
 var wait = require('./utils').wait;
-var Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+
+// var Web3 = require('web3');
+// var w3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 contract('Private Offer', async function (accounts) {
 
@@ -21,8 +22,8 @@ contract('Private Offer', async function (accounts) {
             startTime,
             endTime,
             escrowAddress);
-        let privateOffer = new WhitelistedCrowdsale(await controller_instance.privateOffer.call());
-        let token = new Token(await controller_instance.token.call());
+        let privateOffer = await WhitelistedCrowdsale.at(await controller_instance.privateOffer.call());
+        // let token = new Token(await controller_instance.token.call());
         wait(5);
         try {
             await web3.eth.sendTransaction(
@@ -62,14 +63,16 @@ contract('Private Offer', async function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected rever error after sending too big amount of ether");
         }
-
-        await web3.eth.sendTransaction(
-            {
-                from: buyerAddress,
-                to: privateOffer.address,
-                value: web3.toWei(5, 'ether'),
-
-            });
+        console.log(privateOffer.address);
+        console.log(buyerAddress);
+        privateOffer.buyTokens(buyerAddress, {from: buyerAddress, value: web3.toWei(5, 'ether')})
+        // await web3.eth.sendTransaction(
+        //     {
+        //         from: buyerAddress,
+        //         to: privateOffer.address,
+        //         value: web3.toWei(1, 'ether'),
+        //         gasLimit: 6721975, gasPrice: 20000000000
+        //     });
 
 
     });
