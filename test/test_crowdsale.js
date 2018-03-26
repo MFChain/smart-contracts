@@ -1,10 +1,7 @@
 const MFC_Token = artifacts.require("MFC_Token");
 const WhitelistedCrowdsale = artifacts.require("WhitelistedCrowdsale");
 
-contract('ICO_crowdsale test', async (accounts) => {
-    const owner = accounts[0];
-    const user = accounts[1];
-
+contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
     const ether_0 = web3.toWei(0, 'ether');
     const ether_5 = web3.toWei(5, 'ether');
     const ether_10 = web3.toWei(10, 'ether');
@@ -24,16 +21,7 @@ contract('ICO_crowdsale test', async (accounts) => {
 
         let contract = await WhitelistedCrowdsale.deployed();
 
-        let balance = await web3.eth.getBalance(owner);
-        let balance_before = web3.fromWei(balance.toNumber(), 'ether');
-
-        await web3.eth.sendTransaction({from: user, to: owner, value: weiAmount, gasLimit: 6721975, gasPrice: 20000000000});
-
-        balance = await web3.eth.getBalance(owner);
-        let balance_after = web3.fromWei(balance.toNumber(), 'ether');
-
-        let amount = await web3.toWei((balance_after - balance_before), 'ether');
-        let tokenAmount = await contract.getTokenAmount(amount);
+        let tokenAmount = await contract.getTokenAmount(weiAmount);
 
         let res1 = await web3.fromWei(result, 'ether');
         let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
@@ -50,16 +38,7 @@ contract('ICO_crowdsale test', async (accounts) => {
 
         let contract = await WhitelistedCrowdsale.deployed();
 
-        let balance = await web3.eth.getBalance(owner);
-        let balance_before = web3.fromWei(balance.toNumber(), 'ether');
-
-        await web3.eth.sendTransaction({from: user, to: owner, value: weiAmount, gasLimit: 6721975, gasPrice: 20000000000});
-
-        balance = await web3.eth.getBalance(owner);
-        let balance_after = web3.fromWei(balance.toNumber(), 'ether');
-
-        let amount = await web3.toWei((balance_after - balance_before), 'ether');
-        let tokenAmount = await contract.getTokenAmount(amount);
+        let tokenAmount = await contract.getTokenAmount(weiAmount);
 
         let res1 = await web3.fromWei(result, 'ether');
         let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
@@ -76,16 +55,7 @@ contract('ICO_crowdsale test', async (accounts) => {
 
         let contract = await WhitelistedCrowdsale.deployed();
 
-        let balance = await web3.eth.getBalance(owner);
-        let balance_before = web3.fromWei(balance.toNumber(), 'ether');
-
-        await web3.eth.sendTransaction({from: user, to: owner, value: weiAmount, gasLimit: 6721975, gasPrice: 20000000000});
-
-        balance = await web3.eth.getBalance(owner);
-        let balance_after = web3.fromWei(balance.toNumber(), 'ether');
-
-        let amount = await web3.toWei((balance_after - balance_before), 'ether');
-        let tokenAmount = await contract.getTokenAmount(amount);
+        let tokenAmount = await contract.getTokenAmount(weiAmount);
 
         let res1 = await web3.fromWei(result, 'ether');
         let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
@@ -102,16 +72,7 @@ contract('ICO_crowdsale test', async (accounts) => {
 
         let contract = await WhitelistedCrowdsale.deployed();
 
-        let balance = await web3.eth.getBalance(owner);
-        let balance_before = web3.fromWei(balance.toNumber(), 'ether');
-
-        await web3.eth.sendTransaction({from: user, to: owner, value: weiAmount, gasLimit: 6721975, gasPrice: 20000000000});
-
-        balance = await web3.eth.getBalance(owner);
-        let balance_after = web3.fromWei(balance.toNumber(), 'ether');
-
-        let amount = await web3.toWei((balance_after - balance_before), 'ether');
-        let tokenAmount = await contract.getTokenAmount(amount);
+        let tokenAmount = await contract.getTokenAmount(weiAmount);
 
         let res1 = await web3.fromWei(result, 'ether');
         let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
