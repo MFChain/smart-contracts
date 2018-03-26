@@ -126,38 +126,27 @@ contract('WhitelistedCrowdsale', async (accounts) => {
     }
   });
 
+  it("should throw error when tokens not enough", async () => {
+    let tokenBalance = await token.balanceOf(instanceWhitelistedCrowdsale.address);
+    let weiAmount = tokenBalance.div(await instanceWhitelistedCrowdsale.rate.call()).add(BigNumber('10'));
+
+    await controller.addBuyerToWhitelist.sendTransaction(user);
+    try {
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: weiAmount});
+    } catch (err) {
+      assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Tokens not enough");
+    }
+  });
+
   it("should forward funds when buy tokens", async () => {
     let weiAmount = web3.toWei(2, "ether");
     let walletAddress = await instanceWhitelistedCrowdsale.wallet.call();
     let walletBalance = web3.eth.getBalance(walletAddress);
     await controller.addBuyerToWhitelist.sendTransaction(user);
     await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: weiAmount});
-    console.log(walletBalance.add(weiAmount), web3.eth.getBalance(walletAddress));
     assert.isOk(
       walletBalance.add(weiAmount).eq(web3.eth.getBalance(walletAddress))
     );
   });
-
-  // it("should buy tokens 2", async () => {
-  //   let walletBalance = web3.eth.getBalance(await instanceWhitelistedCrowdsale.wallet.call());
-  //   await controller.addBuyerToWhitelist.sendTransaction(user);
-  //   await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: web3.toWei(2, "ether")});
-  //   let expectedBalance = userBalance.mul(defaultRateForPrivateOffer);
-  //   assert.equal(walletBalance)
-  //   assert.equal(expectedBalance, await token.balanceOf.call(user));
-  // });
-
-  // it("should buy tokens 50", async () => {
-  //   await controller.addBuyerToWhitelist.sendTransaction(user);
-  //   await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: web3.toWei(50, "ether")});
-  //   assert.equal(userBalance, web3.eth.getBalance(user));
-    
-  // });
-
-  // it("should buy tokens 100", async () => {
-  //   await controller.addBuyerToWhitelist.sendTransaction(user);
-  //   await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: web3.toWei(100, "ether")});
-  //   assert.equal(userBalance, web3.eth.getBalance(user));
-  // });
 
 });
