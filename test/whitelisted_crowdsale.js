@@ -8,40 +8,30 @@ var wait = require('./utils').wait;
 
 contract('WhitelistedCrowdsale', async (accounts) => {
   let owner = accounts[0];
-  let user = accounts[1];
-
-  let now = Date.now();
-  let twoDays = 1000 * 60 * 60 * 24 * 2;
-
-  let startTime = now - twoDays;
-  let endTime = now + twoDays;
-  let rate = 30;
-  let minPurchase = 1;
-  let maxPurchase = 1000;
-  let wallet = user;
-  let countPurchaseAmount = false;
+  let holder = accounts[1];
+  let escrowAccount = accounts[2];
+  let userFromWhitelist = accounts[3];
+  let userNotFromWhitelist = accounts[4];
   
+  let startTime = Math.ceil(Date.now() / 1000);
+  let endTime = Math.ceil(Date.now() / 1000) + 100;
+
+  let defaultMinPurchaseForPrivateOffer = web3.toWei(1, 'ether');
+  let defaultMaxPurchaseForPrivateOffer = web3.toWei(200, 'ether');
+  let defaultCountPurchaseAmountForPrivateOffer = false;
+  let defaultRateForPrivateOffer = 14000;
+
+  let controller = null;
   let token = null;
   let instanceWhitelistedCrowdsale = null;
 
-  beforeEach("setup contract for each test", async () => {
-    token = await MFC_Token.new({from: owner});
-    instanceWhitelistedCrowdsale = await WhitelistedCrowdsale.new(
-      startTime, 
-      endTime, 
-      rate, 
-      minPurchase, 
-      maxPurchase, 
-      wallet, 
-      token.address,
-      countPurchaseAmount,
-      {from: owner}
-    );
-  });
-
-  afterEach("clean contracts" , async () => {
-    instanceWhitelistedCrowdsale = null;
-    token = null;
+  before("setup contract for each test", async () => {
+    controller = await ICO_controller.new(holder, escrowAccount, {from: owner});
+    token = MFC_Token.at(await controller.token.call());
+    await controller.startPrivateOffer.sendTransaction(startTime, endTime, escrowAccount, {from: owner});
+    instanceWhitelistedCrowdsale = WhitelistedCrowdsale.at(await controller.privateOffer.call());
+    await controller.addBuyerToWhitelist.sendTransaction(userFromWhitelist, {from: owner});
+    wait(5);
   });
   
   it("should be deployed", async () => {
@@ -56,96 +46,69 @@ contract('WhitelistedCrowdsale', async (accounts) => {
       await instanceWhitelistedCrowdsale.endTime.call(), endTime
     );
     assert.equal(
-      await instanceWhitelistedCrowdsale.rate.call(), rate
+      await instanceWhitelistedCrowdsale.rate.call(), defaultRateForPrivateOffer
     );
     assert.equal(
-      await instanceWhitelistedCrowdsale.minPurchase.call(), minPurchase
+      await instanceWhitelistedCrowdsale.minPurchase.call(), defaultMinPurchaseForPrivateOffer
     );
     assert.equal(
-      await instanceWhitelistedCrowdsale.maxPurchase.call(), maxPurchase
+      await instanceWhitelistedCrowdsale.maxPurchase.call(), defaultMaxPurchaseForPrivateOffer
     );
     assert.equal(
-      await instanceWhitelistedCrowdsale.wallet.call(), wallet
+      await instanceWhitelistedCrowdsale.wallet.call(), escrowAccount
     );
     assert.equal(
       await instanceWhitelistedCrowdsale.token.call(), token.address
     );
     assert.equal(
-      await instanceWhitelistedCrowdsale.countPurchaseAmount.call(), countPurchaseAmount
+      await instanceWhitelistedCrowdsale.countPurchaseAmount.call(), defaultCountPurchaseAmountForPrivateOffer
     );
   });
-
-});
-
-contract('WhitelistedCrowdsale', async (accounts) => {
-  let owner = accounts[0];
-  let holder = accounts[1];
-  let escrow_account = accounts[2];
-  let user = accounts[3];
-  let userBalance = web3.eth.getBalance(user);
-  let defaultRateForPrivateOffer = 14000;
-
-  let controller = null;
-  let instanceWhitelistedCrowdsale = null;
-  let token = null;
-
-  beforeEach("setup contract for each test", async () => {
-    let startTime = Math.ceil(Date.now() / 1000);
-    let endTime = Math.ceil(Date.now() / 1000) + 100;
-    
-    controller = await ICO_controller.new(holder, escrow_account, {from: owner});
-    token = MFC_Token.at(await controller.token.call());
-    await controller.startPrivateOffer.sendTransaction(startTime, endTime, escrow_account, {from: owner});
-    instanceWhitelistedCrowdsale = WhitelistedCrowdsale.at(await controller.privateOffer.call());
-    wait(5);
-  });
-
-  afterEach("clean contracts" , async () => {
-    controller = null;
-    instanceWhitelistedCrowdsale = null;
-    token = null;
-  });
   
-  it("should be deployed", async () => {
-    assert.isOk(instanceWhitelistedCrowdsale);
-  });
-
-  it("should throw error when beneficiary not in whitelist", async () => {
+  it("should throw error when the beneficiary not in whitelist", async () => {
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: web3.toWei(2, "ether")});
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userNotFromWhitelist, {value: web3.toWei(2, "ether")});
+      assert.ifError('Error, the user that is not in whitelist should not be able to buy tokens');
     } catch (err) {
       assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Benefeciary not in whitelist trying to buy tokens");
     }
   });
 
-  it("should throw error when beneficiary has a zero address", async () => {
+  it("should throw an error when the beneficiary is the contract owner", async () => {
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(0, {from: owner, value: web3.toWei(2, "ether")});
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(0, {value: web3.toWei(2, "ether")});
+      assert.ifError('Error, the user that is not in whitelist should not be able to buy tokens');
     } catch (err) {
       assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Benefeciary has zero address");
     }
   });
 
-  it("should throw error when tokens not enough", async () => {
+  it("should throw error when tokens are not enough", async () => {
     let tokenBalance = await token.balanceOf(instanceWhitelistedCrowdsale.address);
     let weiAmount = tokenBalance.div(await instanceWhitelistedCrowdsale.rate.call()).add(BigNumber('10'));
 
-    await controller.addBuyerToWhitelist.sendTransaction(user);
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: weiAmount});
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userFromWhitelist, {value: weiAmount});
+      assert.ifError('Error, tokens are not enough');
     } catch (err) {
-      assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Tokens not enough");
+      assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Tokens are not enough");
     }
   });
 
-  it("should forward funds when buy tokens", async () => {
+  it("should buy tokens", async () => {
     let weiAmount = web3.toWei(2, "ether");
+    let weiAmountAsBigNumber = BigNumber(weiAmount);
     let walletAddress = await instanceWhitelistedCrowdsale.wallet.call();
     let walletBalance = web3.eth.getBalance(walletAddress);
-    await controller.addBuyerToWhitelist.sendTransaction(user);
-    await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(user, {from: owner, value: weiAmount});
+    let currentUserTokens = await token.balanceOf(userFromWhitelist);
+    
+    await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userFromWhitelist, {value: weiAmount});
+    
     assert.isOk(
       walletBalance.add(weiAmount).eq(web3.eth.getBalance(walletAddress))
+    );
+    assert.isOk(
+      weiAmountAsBigNumber.times(defaultRateForPrivateOffer).plus(currentUserTokens).eq(await token.balanceOf(userFromWhitelist))
     );
   });
 
