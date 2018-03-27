@@ -1,6 +1,7 @@
 .idea
 .ipynb*
 .json
+.vscode/
 node_modules
 ico-api/addresses.csv
 __pycache__
@@ -9,3 +10,6 @@ build
 venv
 coverage/
 coverage.json
+package-lock.json
+/package-lock.json
+!/package.json
