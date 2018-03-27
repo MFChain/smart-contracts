@@ -3,8 +3,8 @@
 const ICO_controller = artifacts.require("ICO_controller");
 const MFC_Token = artifacts.require("MFC_Token");
 const WhitelistedCrowdsale = artifacts.require("WhitelistedCrowdsale");
-var BigNumber = require('bignumber.js');
-var wait = require('./utils').wait;
+const BigNumber = require('bignumber.js');
+const wait = require('./utils').wait;
 
 contract('WhitelistedCrowdsale', async (accounts) => {
   let owner = accounts[0];
@@ -12,21 +12,22 @@ contract('WhitelistedCrowdsale', async (accounts) => {
   let escrowAccount = accounts[2];
   let userFromWhitelist = accounts[3];
   let userNotFromWhitelist = accounts[4];
-  
-  let startTime = Math.ceil(Date.now() / 1000);
-  let endTime = Math.ceil(Date.now() / 1000) + 100;
 
   let defaultMinPurchaseForPrivateOffer = web3.toWei(10, 'ether');
   let defaultMaxPurchaseForPrivateOffer = web3.toWei(200, 'ether');
   let defaultIsPrivateOfferForPrivateOffer = true;
   let defaultRateForPrivateOffer = 12000;
-
+  
+  let startTime = null;
+  let endTime = null;
   let controller = null;
   let token = null;
   let instanceWhitelistedCrowdsale = null;
 
   before("setup contract for each test", async () => {
     controller = await ICO_controller.new(holder, escrowAccount, {from: owner});
+    startTime = Math.ceil(Date.now() / 1000);
+    endTime = Math.ceil(Date.now() / 1000) + 100;
     token = MFC_Token.at(await controller.token.call());
     await controller.startPrivateOffer.sendTransaction(startTime, endTime, escrowAccount, {from: owner});
     instanceWhitelistedCrowdsale = WhitelistedCrowdsale.at(await controller.privateOffer.call());
