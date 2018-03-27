@@ -352,7 +352,7 @@ contract('ICO success', async function (accounts) {
         await preSale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
         wait(2);
         startTime = Math.ceil(Date.now() / 1000);
-        endTime = Math.ceil(Date.now() / 1000) + 2;
+        endTime = Math.ceil(Date.now() / 1000) + 5;
         await controller_instance.startCrowdsale(
             startTime,
             endTime);
@@ -362,7 +362,7 @@ contract('ICO success', async function (accounts) {
         for (let i = 0; i < 22; i++) {
             await crowdsale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
         }
-        wait(2);
+        wait(5);
         try {
             await controller_instance.refund({from: buyerAddress});
             assert.ifError('Error, it is possible to refund if Softcup reached');
