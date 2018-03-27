@@ -16,10 +16,10 @@ contract('WhitelistedCrowdsale', async (accounts) => {
   let startTime = Math.ceil(Date.now() / 1000);
   let endTime = Math.ceil(Date.now() / 1000) + 100;
 
-  let defaultMinPurchaseForPrivateOffer = web3.toWei(1, 'ether');
+  let defaultMinPurchaseForPrivateOffer = web3.toWei(10, 'ether');
   let defaultMaxPurchaseForPrivateOffer = web3.toWei(200, 'ether');
-  let defaultCountPurchaseAmountForPrivateOffer = false;
-  let defaultRateForPrivateOffer = 14000;
+  let defaultIsPrivateOfferForPrivateOffer = true;
+  let defaultRateForPrivateOffer = 12000;
 
   let controller = null;
   let token = null;
@@ -61,13 +61,15 @@ contract('WhitelistedCrowdsale', async (accounts) => {
       await instanceWhitelistedCrowdsale.token.call(), token.address
     );
     assert.equal(
-      await instanceWhitelistedCrowdsale.countPurchaseAmount.call(), defaultCountPurchaseAmountForPrivateOffer
+      await instanceWhitelistedCrowdsale.isPrivateOffer.call(), defaultIsPrivateOfferForPrivateOffer
     );
   });
   
   it("should throw error when the beneficiary not in whitelist", async () => {
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userNotFromWhitelist, {value: web3.toWei(2, "ether")});
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(
+        userNotFromWhitelist, {value: web3.toWei(12, "ether")}
+      );
       assert.ifError('Error, the user that is not in whitelist should not be able to buy tokens');
     } catch (err) {
       assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Benefeciary not in whitelist trying to buy tokens");
@@ -76,7 +78,9 @@ contract('WhitelistedCrowdsale', async (accounts) => {
 
   it("should throw an error when the beneficiary is the contract owner", async () => {
     try {
-      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(0, {value: web3.toWei(2, "ether")});
+      await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(
+        0, {value: web3.toWei(12, "ether")}
+      );
       assert.ifError('Error, the user that is not in whitelist should not be able to buy tokens');
     } catch (err) {
       assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Benefeciary has zero address");
@@ -96,7 +100,7 @@ contract('WhitelistedCrowdsale', async (accounts) => {
   });
 
   it("should buy tokens", async () => {
-    let weiAmount = web3.toWei(2, "ether");
+    let weiAmount = web3.toWei(12, "ether");
     let weiAmountAsBigNumber = BigNumber(weiAmount);
     let walletAddress = await instanceWhitelistedCrowdsale.wallet.call();
     let walletBalance = web3.eth.getBalance(walletAddress);
