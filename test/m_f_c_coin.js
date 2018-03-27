@@ -70,15 +70,15 @@ contract('MFC_Token tests constructor', async function(accounts) {
        if the totalSupply and owner balance equal to INITIAL_SUPPLY value. */
     it("should specify totalSupply as 507000000000000000000000000 MFC_Token and put all tokens in the first account", async function() {
         let owner = accounts[0];
-        let expected_value = BigNumber(507000000000000000000000000);
+        let expected_value = BigNumber(521000000000000000000000000);
 
         let contract = await token.deployed();
 
         let owner_balance = await contract.balanceOf.call(owner);
         let totalSupply = await contract.totalSupply.call();
 
-        assert.isTrue(BigNumber(owner_balance).isEqualTo(expected_value), "507000000000000000000000000 wasn't in the first account");
-        assert.isTrue(BigNumber(totalSupply).isEqualTo(expected_value), "totalSupply is not 507000000000000000000000000 MFC_Token");
+        assert.isTrue(BigNumber(owner_balance).isEqualTo(expected_value), "521000000000000000000000000 wasn't in the first account");
+        assert.isTrue(BigNumber(totalSupply).isEqualTo(expected_value), "totalSupply is not 521000000000000000000000000 MFC_Token");
     });
 });
 
@@ -267,70 +267,6 @@ contract('MFC_Token tests transferFrom()', async function(accounts) {
 
         assert.equal(owner_balance_before.minus(owner_balance_after), amount, "Amount wasn't correctly taken from the sender");
         assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
-    });
-
-    /* if the sender have enough allowed tokens and send to contract with tokenFallback() */
-    it("test transferFrom to contract with ERC223Receiver interface", async function() {
-        let owner = accounts[0];
-        let spender = accounts[10];
-        let amount = 100;
-
-        let contract = await token.deployed();
-        let receiver = await erc223receiver.deployed();
-
-        let balance = await contract.balanceOf.call(receiver.contract.address);
-        let receiver_balance_before = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_before = BigNumber(balance);
-
-        await contract.approve(spender, amount, {'from': owner});
-        const transferFromMethodTransactionData = web3Abi.encodeFunctionCall(
-            overloadedTransferFromAbi,
-            [
-            owner,
-            receiver.address,
-            amount,
-            '0x00'
-            ]
-        );
-        await web3.eth.sendTransaction({from: spender, to: contract.address, data: transferFromMethodTransactionData, value: 0});
-
-        balance = await contract.balanceOf.call(receiver.address);
-        let receiver_balance_after = balance.toNumber();
-        balance = await contract.balanceOf.call(owner);
-        let owner_balance_after = BigNumber(balance);
-
-        assert.equal(owner_balance_before.minus(owner_balance_after), amount, "Amount wasn't correctly taken from the sender");
-        assert.equal(receiver_balance_after, receiver_balance_before + amount, "Amount wasn't correctly sent to the receiver");
-    });
-
-    /* if the sender have enough allowed tokens and send to contract without tokenFallback() */
-    it("test transferFrom to contract without ERC223Receiver interface", async function() {
-        let owner = accounts[0];
-        let spender = accounts[11];
-        let amount = 100;
-
-        let contract = await token.deployed();
-        let receiver = await StandardToken.deployed();
-
-        await contract.approve(spender, amount, {'from': owner});
-
-        const transferFromMethodTransactionData = web3Abi.encodeFunctionCall(
-            overloadedTransferFromAbi,
-            [
-            owner,
-            receiver.address,
-            amount,
-            '0x00'
-            ]
-        );
-
-        try {
-            await web3.eth.sendTransaction({from: spender, to: contract.address, data: transferFromMethodTransactionData, value: 0});
-            assert.ifError('Error, previous code must throw exception');
-        } catch (err){
-            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error");
-        };
     });
 
     /* if the sender have not enough allowed tokens and send to address */
