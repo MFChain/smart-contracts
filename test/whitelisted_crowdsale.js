@@ -105,10 +105,13 @@ contract('WhitelistedCrowdsale', async (accounts) => {
     await instanceWhitelistedCrowdsale.buyTokens.sendTransaction(userFromWhitelist, {value: weiAmount});
     
     assert.isOk(
-      walletBalance.add(weiAmount).eq(web3.eth.getBalance(walletAddress))
+      walletBalance.add(weiAmount)
+        .eq(web3.eth.getBalance(walletAddress))
     );
     assert.isOk(
-      weiAmountAsBigNumber.times(defaultRateForPrivateOffer).plus(currentUserTokens).eq(await token.balanceOf(userFromWhitelist))
+      weiAmountAsBigNumber.times(defaultRateForPrivateOffer)
+        .plus(currentUserTokens)
+        .eq(await token.balanceOf(userFromWhitelist))
     );
   });
 
