@@ -12,14 +12,40 @@ contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
 
     let weiAmount = ether_0;
 
+    let contract = null;
+
+    beforeEach("setup contract for each test", async () => {
+      let owner = accounts[0];
+      let user = accounts[1];
+      let token = await MFC_Token.new({from: owner});
+
+      let startTime = Date.now();
+      let endTime = startTime + 1000;
+      let rate = 10;
+      let minPurchase = 1;
+      let maxPurchase = 1000;
+      let wallet = user;
+      let countPurchaseAmount = false;
+
+      contract = await WhitelistedCrowdsale.new(
+        startTime,
+        endTime,
+        rate,
+        minPurchase,
+        maxPurchase,
+        wallet,
+        token.address,
+        countPurchaseAmount,
+        {from: owner}
+      );
+    });
+
     it('should add nothing to bonus amount for with 0 <= weiAmount < 10 ', async function () {
         weiAmount = ether_5;
 
         let basicAmount = weiAmount * rate;
         let bonusAmount = 0;
         let result = basicAmount + bonusAmount;
-
-        let contract = await WhitelistedCrowdsale.deployed();
 
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
@@ -36,8 +62,6 @@ contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
         let bonusAmount = basicAmount * 0.1;
         let result = basicAmount + bonusAmount;
 
-        let contract = await WhitelistedCrowdsale.deployed();
-
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
         let res1 = await web3.fromWei(result, 'ether');
@@ -53,8 +77,6 @@ contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
         let bonusAmount = basicAmount * 0.15;
         let result = basicAmount + bonusAmount;
 
-        let contract = await WhitelistedCrowdsale.deployed();
-
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
         let res1 = await web3.fromWei(result, 'ether');
@@ -69,8 +91,6 @@ contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
         let basicAmount = weiAmount * rate;
         let bonusAmount = basicAmount * 0.2;
         let result = basicAmount + bonusAmount;
-
-        let contract = await WhitelistedCrowdsale.deployed();
 
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
