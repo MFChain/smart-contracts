@@ -11,5 +11,3 @@ venv
 coverage/
 coverage.json
 package-lock.json
-/package-lock.json
-!/package.json
