@@ -391,6 +391,13 @@ contract('ICO success', async function (accounts) {
         expectedHalfEscrowAmount = BigNumber(web3.toWei(3776, 'ether'));
         actualEscrowBalance = BigNumber(await web3.eth.getBalance(escrowAddress))
             .minus(escrowAddressInitialBalance);
-        assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow balance after holder first stage escrow");
+        assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow address after holder first stage escrow");
+
+        await holder.escrowSecondStage({from: accounts[1]});
+        await holder.escrowSecondStage({from: accounts[2]});
+        expectedHalfEscrowAmount = BigNumber(web3.toWei(4720, 'ether'));
+        actualEscrowBalance = BigNumber(await web3.eth.getBalance(escrowAddress))
+            .minus(escrowAddressInitialBalance);
+        assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow address after holder second stage escrow");
     });
 });
