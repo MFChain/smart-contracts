@@ -70,15 +70,15 @@ contract('MFC_Token tests constructor', async function(accounts) {
        if the totalSupply and owner balance equal to INITIAL_SUPPLY value. */
     it("should specify totalSupply as 507000000000000000000000000 MFC_Token and put all tokens in the first account", async function() {
         let owner = accounts[0];
-        let expected_value = BigNumber(507000000000000000000000000);
+        let expected_value = BigNumber(521000000000000000000000000);
 
         let contract = await token.deployed();
 
         let owner_balance = await contract.balanceOf.call(owner);
         let totalSupply = await contract.totalSupply.call();
 
-        assert.isTrue(BigNumber(owner_balance).isEqualTo(expected_value), "507000000000000000000000000 wasn't in the first account");
-        assert.isTrue(BigNumber(totalSupply).isEqualTo(expected_value), "totalSupply is not 507000000000000000000000000 MFC_Token");
+        assert.isTrue(BigNumber(owner_balance).isEqualTo(expected_value), "521000000000000000000000000 wasn't in the first account");
+        assert.isTrue(BigNumber(totalSupply).isEqualTo(expected_value), "totalSupply is not 521000000000000000000000000 MFC_Token");
     });
 });
 

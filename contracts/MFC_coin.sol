@@ -242,7 +242,7 @@ contract MFC_Token is BurnableToken {
 
     uint32 public constant decimals = 18;
 
-    uint256 public INITIAL_SUPPLY = 507000000 * 1 ether;
+    uint256 public INITIAL_SUPPLY = 521000000 * 1 ether;
 
     function MFC_Token() {
         totalSupply = INITIAL_SUPPLY;

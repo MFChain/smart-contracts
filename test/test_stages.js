@@ -323,9 +323,10 @@ contract('ICO didn\'t reach Softcup', async function (accounts) {
 
 contract('ICO success', async function (accounts) {
 
-    it("test refund function", async function () {
+    it("test ICO success", async function () {
         let controller_instance = await Controller.deployed();
         let holder = await Holder.deployed();
+        let token = await Token.at(await controller_instance.token.call());
         let tokenHolder = await TokenHolder.deployed();
         let buyerAddress = accounts[2];
         let escrowAddress = accounts[4];
@@ -358,12 +359,12 @@ contract('ICO success', async function (accounts) {
         wait(1);
         let crowdsale = await WhitelistedCrowdsale.at(await controller_instance.crowdsale.call());
 
-        for (let i = 0; i<22; i++){
+        for (let i = 0; i < 22; i++) {
             await crowdsale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
         }
         wait(2);
-        try{
-            await controller_instance.refund({from:buyerAddress});
+        try {
+            await controller_instance.refund({from: buyerAddress});
             assert.ifError('Error, it is possible to refund if Softcup reached');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected revert error after refund");
@@ -375,16 +376,21 @@ contract('ICO success', async function (accounts) {
         let actualEscrowBalance = BigNumber(await web3.eth.getBalance(escrowAddress))
             .minus(escrowAddressInitialBalance);
         assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow balance");
+        assert.isTrue(BigNumber(await web3.eth.getBalance(holder.address)).isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at holder balance");
+        let controllerTokenBalance = BigNumber(await token.balanceOf(controller_instance.address));
+        let marketingSupportTokens = BigNumber(await controller_instance.MARKETING_SUPPORT_SUPPLY.call());
+        assert.isTrue(controllerTokenBalance.isEqualTo(marketingSupportTokens), "Wrong amount of token at controller");
+        assert.isTrue(await controller_instance.crowdsaleFinished.call(), "Wrong value of crowdsaleFinished variable");
+        let expectedTokenHolderBalance = BigNumber(await controller_instance.INCENTIVE_PROGRAM_SUPPORT.call());
+        let actualTokenHolderBalance = BigNumber(await token.balanceOf(tokenHolder.address));
+        assert.isTrue(expectedTokenHolderBalance.isEqualTo(actualTokenHolderBalance), "Wrong token balance of token Holder");
 
 
-
-        // let beforeRefundBalance = BigNumber(await web3.eth.getBalance(buyerAddress));
-        // wait(2);
-        // await controller_instance.refund({from:buyerAddress});
-        // let afterRefundBalance = BigNumber(await web3.eth.getBalance(buyerAddress));
-        // let balanceDiff = afterRefundBalance.minus(beforeRefundBalance);
-        // assert.isTrue(balanceDiff.gt(BigNumber(web3.toWei(0.09, 'ether')))
-        //     && balanceDiff.lt(BigNumber(web3.toWei(0.1, 'ether'))),
-        //     "Wrong refund balance");
+        await holder.escrowFirstStage({from: accounts[1]});
+        await holder.escrowFirstStage({from: accounts[2]});
+        expectedHalfEscrowAmount = BigNumber(web3.toWei(3776, 'ether'));
+        actualEscrowBalance = BigNumber(await web3.eth.getBalance(escrowAddress))
+            .minus(escrowAddressInitialBalance);
+        assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow balance after holder first stage escrow");
     });
 });
