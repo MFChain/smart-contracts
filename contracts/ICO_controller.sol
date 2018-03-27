@@ -63,6 +63,7 @@ contract ICO_controller is Ownable {
         require(_escrowIco!=address(0));
         devRewardReleaseTime = Q3_2018_START_DATE + (uint(block.blockhash(block.number - 1)) % 7948800);
 
+        //sets random date for unlock marketing support tokens during Q2 of 2019 and 2020 years
         unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 7948800);
         unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 7948800);
 

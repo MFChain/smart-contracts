@@ -157,7 +157,6 @@ contract StandardToken is ERC20, BasicToken {
 
 contract ERC223 is ERC20 {
   function transfer(address to, uint value, bytes data) returns (bool ok);
-  function transferFrom(address from, address to, uint value, bytes data) returns (bool ok);
 }
 
 
@@ -171,19 +170,8 @@ contract Standard223Token is ERC223, StandardToken {
         return true;
     }
 
-    function transferFrom(address _from, address _to, uint _value, bytes _data) returns (bool success) {
-        if (!super.transferFrom(_from, _to, _value)) throw;
-        // do a normal token transfer
-        if (isContract(_to)) return contractFallback(_from, _to, _value, _data);
-        return true;
-    }
-
     function transfer(address _to, uint _value) returns (bool success) {
         return transfer(_to, _value, new bytes(0));
-    }
-
-    function transferFrom(address _from, address _to, uint _value) returns (bool success) {
-        return transferFrom(_from, _to, _value, new bytes(0));
     }
 
     //function that is called when transaction target is a contract
