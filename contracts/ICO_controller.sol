@@ -210,6 +210,8 @@ contract ICO_controller is Ownable {
                 if (airdropToBurn != 0){
                     token.burn(airdropToBurn);
                 } 
+            } else {
+                token.burn(AIRDROP_SUPPLY);
             }
             // send 50% of ico eth to contract onwer
             escrowIco.transfer(this.balance.div(2));
@@ -232,6 +234,7 @@ contract ICO_controller is Ownable {
             totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised()).add(crowdsale.getWeiRaised());
         }
         require(totalSold < SOFTCAP);
+        require(buyerSpent[msg.sender] > 0);
         uint256 amount = buyerSpent[msg.sender];
         buyerSpent[msg.sender] = 0;
         msg.sender.transfer(amount);
