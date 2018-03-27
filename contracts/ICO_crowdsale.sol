@@ -109,15 +109,15 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         uint256 basicAmount = weiAmount.mul(rate);
         uint256 bonusAmount = 0;
 
-        if (weiAmount < 10 ether) {
+        if (weiAmount < 1 ether) {
 
-        } else if (weiAmount < 25 ether) {
+        } else if (weiAmount < 2.5 ether) {
             if (!isPrivateOffer){
                 bonusAmount = basicAmount.div(10);
             // 10%
             }
             
-        } else if (weiAmount < 100 ether) {
+        } else if (weiAmount < 5 ether) {
             bonusAmount = basicAmount.mul(15).div(100);
             // 15%
         } else {
