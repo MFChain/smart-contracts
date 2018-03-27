@@ -114,7 +114,7 @@ contract('Holder tests escrowSecondStage()', async function(accounts) {
         escrowAddressBalance = await web3.eth.getBalance(escrowAddress);
         let escrowAddress_balance_after = web3.fromWei(escrowAddressBalance.toNumber(), 'ether');
 
-        holderContract_balance = await web3.eth.getBalance(holder_contract.address);
+        let holderContract_balance = await web3.eth.getBalance(holder_contract.address);
         let holderContract_balance_after = web3.fromWei(holderContract_balance.toNumber(), 'ether');
 
         assert.equal(escrowAddress_balance_intermediate - escrowAddress_balance_befor, 0, "the ether should not have been sent after the first transaction");
