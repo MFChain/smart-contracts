@@ -105,9 +105,10 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     }
 
     // Override this method to have a way to add business logic to your crowdsale when buying
-    function getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
+    function getTokenAmount(uint256 weiAmount) public view returns (uint256) {
         uint256 basicAmount = weiAmount.mul(rate);
         uint256 bonusAmount = 0;
+
         if (weiAmount < 10 ether) {
 
         } else if (weiAmount < 25 ether) {
