@@ -40,19 +40,19 @@ contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
       );
     });
 
-    it('should add nothing to bonus amount for with 0 <= weiAmount < 10 ', async function () {
+    it('should add nothing to bonus amount for 0 <= weiAmount < 10 ', async function () {
         weiAmount = ether_5;
 
         let basicAmount = weiAmount * rate;
         let bonusAmount = 0;
-        let result = basicAmount + bonusAmount;
+        let expectedAmount = basicAmount + bonusAmount;
 
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
-        let res1 = await web3.fromWei(result, 'ether');
-        let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
+        let expectedAmountWei = await web3.fromWei(expectedAmount, 'ether');
+        let actualAmountWei = await web3.fromWei(tokenAmount.toNumber(), 'ether');
 
-        assert.equal(res1, res2);
+        assert.equal(expectedAmountWei, actualAmountWei);
     });
 
     it('should add 10% to bonus amount for 10 <= weiAmount < 25', async function () {
@@ -60,29 +60,29 @@ contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
 
         let basicAmount = weiAmount * rate;
         let bonusAmount = basicAmount * 0.1;
-        let result = basicAmount + bonusAmount;
+        let expectedAmount = basicAmount + bonusAmount;
 
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
-        let res1 = await web3.fromWei(result, 'ether');
-        let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
+        let expectedAmountWei = await web3.fromWei(expectedAmount, 'ether');
+        let actualAmountWei = await web3.fromWei(tokenAmount.toNumber(), 'ether');
 
-        assert.equal(res1, res2);
+        assert.equal(expectedAmountWei, actualAmountWei);
     });
 
-    it('should add 15% to bonus amount for  25 <= weiAmount < 100', async function () {
+    it('should add 15% to bonus amount for 25 <= weiAmount < 100', async function () {
         weiAmount = ether_25;
 
         let basicAmount = weiAmount * rate;
         let bonusAmount = basicAmount * 0.15;
-        let result = basicAmount + bonusAmount;
+        let expectedAmount = basicAmount + bonusAmount;
 
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
-        let res1 = await web3.fromWei(result, 'ether');
-        let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
+        let expectedAmountWei = await web3.fromWei(expectedAmount, 'ether');
+        let actualAmountWei = await web3.fromWei(tokenAmount.toNumber(), 'ether');
 
-        assert.equal(res1, res2);
+        assert.equal(expectedAmountWei, actualAmountWei);
     });
 
     it('should add 20% to bonus amount for weiAmount >= 100  ', async function () {
@@ -90,13 +90,13 @@ contract('ICO_crowdsale test getTokenAmount()', async (accounts) => {
 
         let basicAmount = weiAmount * rate;
         let bonusAmount = basicAmount * 0.2;
-        let result = basicAmount + bonusAmount;
+        let expectedAmount = basicAmount + bonusAmount;
 
         let tokenAmount = await contract.getTokenAmount(weiAmount);
 
-        let res1 = await web3.fromWei(result, 'ether');
-        let res2 = await web3.fromWei(tokenAmount.toNumber(), 'ether');
+        let expectedAmountWei = await web3.fromWei(expectedAmount, 'ether');
+        let actualAmountWei = await web3.fromWei(tokenAmount.toNumber(), 'ether');
 
-        assert.equal(res1, res2);
+        assert.equal(expectedAmountWei, actualAmountWei);
     });
 });
