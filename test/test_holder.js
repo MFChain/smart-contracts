@@ -129,13 +129,12 @@ contract('Holder tests escrowSecondStage()', async function(accounts) {
         assert.equal(holderContract_balance_after, holderBalance, "There should be no ether left on the holder");
     });
 
-    it("should throw an error when escrowFirstStage was not started", async () => {
-        // await web3.eth.sendTransaction({from: accounts[10], to: holder_contract.address, value: web3.toWei(holderBalance, 'ether'), gasLimit: 21000, gasPrice: 2000000000});
+    it("should throw an error when escrowFirstStage not done", async () => {
         try {
             await holder_contract.escrowSecondStage({'from': owner3});
-            assert.ifError('Error, escrowFirstStage was started');
+            assert.ifError('Error, escrowFirstStage done');
         } catch (err) {
-            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "escrowFirstStage was not started");
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "escrowFirstStage not done");
         }
     });
 });
