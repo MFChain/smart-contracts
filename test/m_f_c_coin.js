@@ -1,4 +1,5 @@
 var token = artifacts.require("MFC_Token");
+var ICO_controller_mock = artifacts.require("ICO_controller_mock");
 var erc223receiver = artifacts.require("ERC223Receiver");
 var StandardToken = artifacts.require("StandardToken");
 var BigNumber = require('bignumber.js');
@@ -68,11 +69,11 @@ contract('MFC_Token tests constructor', async function(accounts) {
 
     /* Using Truffle, we check method for MFC_coin constructor and test
        if the totalSupply and owner balance equal to INITIAL_SUPPLY value. */
-    it("should specify totalSupply as 507000000000000000000000000 MFC_Token and put all tokens in the first account", async function() {
+    it("should specify totalSupply as 521000000000000000000000000 MFC_Token and put all tokens in the first account", async function() {
         let owner = accounts[0];
         let expected_value = BigNumber(521000000000000000000000000);
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         let owner_balance = await contract.balanceOf.call(owner);
         let totalSupply = await contract.totalSupply.call();
@@ -92,7 +93,7 @@ contract('MFC_Token tests burn()', async function(accounts) {
         let owner = accounts[0];
         let user = accounts[1];
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(user, 10, {'from': owner});
 
@@ -119,7 +120,7 @@ contract('MFC_Token tests burn()', async function(accounts) {
         let owner = accounts[0];
         let user = accounts[2];
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(user, 1, {'from': owner});
 
@@ -135,7 +136,7 @@ contract('MFC_Token tests burn()', async function(accounts) {
     it("test burn method without balance", async function() {
         let user = accounts[3];
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         try {
             await contract.burn(10, {'from': user});
@@ -150,7 +151,7 @@ contract('MFC_Token tests burn()', async function(accounts) {
         let owner = accounts[0];
         let user = accounts[4];
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(user, 1, {'from': owner});
         await contract.burn(1, {'from': user});
@@ -174,7 +175,7 @@ contract('MFC_Token tests burnAll()', async function(accounts) {
         let owner = accounts[0];
         let user = accounts[5];
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(user, 10, {'from': owner});
 
@@ -198,7 +199,7 @@ contract('MFC_Token tests burnAll()', async function(accounts) {
     it("test burnAll method without balance", async function() {
         let user = accounts[6];
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         let totalSupply = await contract.totalSupply.call();
         let totalSupply_before = BigNumber(totalSupply);
@@ -219,7 +220,7 @@ contract('MFC_Token tests burnAll()', async function(accounts) {
         let owner = accounts[0];
         let user = accounts[7];
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(user, 10, {'from': owner});
         await contract.burn(10, {'from': user})
@@ -250,7 +251,7 @@ contract('MFC_Token tests transferFrom()', async function(accounts) {
         let receiver = accounts[9];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         let balance = await contract.balanceOf.call(receiver);
         let receiver_balance_before = balance.toNumber();
@@ -277,7 +278,7 @@ contract('MFC_Token tests transferFrom()', async function(accounts) {
         let amount = 100;
         let amount2 = 200;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.approve(spender, amount, {'from': owner});
 
@@ -296,7 +297,7 @@ contract('MFC_Token tests transferFrom()', async function(accounts) {
         let receiver = accounts[15];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         try {
             await contract.transferFrom(owner, receiver, amount, {'from': spender});
@@ -315,7 +316,7 @@ contract('MFC_Token tests transferFrom()', async function(accounts) {
         let amount = 100;
         let amount2 = 50;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(user, amount2, {'from': owner});
         await contract.approve(spender, amount, {'from': user});
@@ -335,7 +336,7 @@ contract('MFC_Token tests transferFrom()', async function(accounts) {
         let user = accounts[21];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.approve(spender, amount, {'from': user});
 
@@ -358,7 +359,7 @@ contract('MFC_Token tests aprove', async function(accounts) {
         let spender = accounts[22];
         let expected_allowance = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.approve(spender, expected_allowance, {'from': owner});
 
@@ -376,7 +377,7 @@ contract('MFC_Token tests aprove', async function(accounts) {
         let expected_allowance = 100;
         let user_balance = 50;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(user, user_balance, {'from': owner});;
         await contract.approve(spender, expected_allowance, {'from': user});;
@@ -398,7 +399,7 @@ contract('MFC_Token tests transfer()', async function(accounts) {
         let receiver = accounts[25];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         let balance = await contract.balanceOf.call(receiver);
         let receiver_balance_before = balance.toNumber();
@@ -421,7 +422,7 @@ contract('MFC_Token tests transfer()', async function(accounts) {
         let owner = accounts[0];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
         let receiver = await erc223receiver.deployed();
 
         let balance = await contract.balanceOf.call(receiver.contract.address);
@@ -454,7 +455,7 @@ contract('MFC_Token tests transfer()', async function(accounts) {
         let owner = accounts[0];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
         let receiver = await StandardToken.deployed();
 
         const transferMethodTransactionData = web3Abi.encodeFunctionCall(
@@ -482,7 +483,7 @@ contract('MFC_Token tests transfer()', async function(accounts) {
         let amount = 100;
         let amount2 = 200;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(sender, amount, {'from': owner});
 
@@ -501,7 +502,7 @@ contract('MFC_Token tests transfer()', async function(accounts) {
         let receiver = accounts[29];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.transfer(sender, amount, {'from': owner});
         await contract.transfer(owner, amount, {'from': sender});
@@ -520,7 +521,7 @@ contract('MFC_Token tests transfer()', async function(accounts) {
         let receiver = accounts[31];
         let amount = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         try {
             await contract.transfer(receiver, amount, {'from': sender});
@@ -540,7 +541,7 @@ contract('MFC_Token test allowance()', async function(accounts) {
         let spender = accounts[32];
         let expected_allowance = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         let allowance = await contract.allowance.call(owner, spender);
         let spender_allowance_before = allowance.toNumber();
@@ -565,7 +566,7 @@ contract('MFC_Token test increaseApproval()', async function(accounts) {
         let spender = accounts[33];
         let expected_additional_allowance = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.approve(spender, 1, {'from': owner});
 
@@ -586,7 +587,7 @@ contract('MFC_Token test increaseApproval()', async function(accounts) {
         let spender = accounts[34];
         let expected_additional_allowance = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         let allowance = await contract.allowance.call(owner, spender);
         let spender_allowance_before = allowance.toNumber();
@@ -610,7 +611,7 @@ contract('MFC_Token test decreaseApproval()', async function(accounts) {
         let spender = accounts[35];
         let expected_reduction_of_allowance = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.approve(spender, expected_reduction_of_allowance + 1, {'from': owner});
 
@@ -631,7 +632,7 @@ contract('MFC_Token test decreaseApproval()', async function(accounts) {
         let spender = accounts[36];
         let reduction_of_allowance = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.approve(spender, reduction_of_allowance - 1, {'from': owner});
 
@@ -649,7 +650,7 @@ contract('MFC_Token test decreaseApproval()', async function(accounts) {
         let spender = accounts[36];
         let reduction_of_allowance = 100;
 
-        let contract = await token.deployed();
+        let contract = await token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         await contract.decreaseApproval(spender, reduction_of_allowance, {'from': owner});
 
