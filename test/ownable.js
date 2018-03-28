@@ -16,19 +16,19 @@ contract('Ownable', async (accounts) => {
     assert.isOk(ownable);
   });
 
-  it("should saving the owner", async () => {
+  it("should save the owner", async () => {
     assert.equal(await ownable.owner.call(), owner);
   });
 
-  it("should transferOwnership when sendingd from the owner", async () => {
+  it("should transferOwnership when called by the owner", async () => {
     await ownable.transferOwnership.sendTransaction(other, {from: owner});
     
     assert.equal(await ownable.owner.call(), other);
   });
 
-  it("should transferOwnership when sending not from the owner", async () => {
+  it("should not transferOwnership when called not by the owner", async () => {
     try {
-      await ownable.transferOwnership.sendTransaction(0, {from: other});
+      await ownable.transferOwnership.sendTransaction(other, {from: other});
       
       assert.ifError('Error, Can\'t transferOwnership from not the owner');
     } catch (err) {
