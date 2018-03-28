@@ -5,7 +5,11 @@ import "./Ownable.sol";
 import "./MFC_coin.sol";
 import "./ICO_crowdsale.sol";
 
-contract ICO_controller is Ownable {
+interface TransferableInterface {
+    function isTransferable(address _sender) external returns(bool);
+}
+
+contract ICO_controller is Ownable, TransferableInterface {
 
     using SafeMath for uint256;
     // The token being sold
@@ -63,6 +67,7 @@ contract ICO_controller is Ownable {
         require(_escrowIco!=address(0));
         devRewardReleaseTime = Q3_2018_START_DATE + (uint(block.blockhash(block.number - 1)) % 7948800);
 
+        //sets random date for unlock marketing support tokens during Q2 of 2019 and 2020 years
         unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 7948800);
         unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 7948800);
 
@@ -72,8 +77,12 @@ contract ICO_controller is Ownable {
 
     function () payable {}
 
+    function isICO(address _check) returns (bool) {
+        return _check == address(privateOffer) || _check == address(preSale) || _check == address(crowdsale);
+    }
+
     modifier onlyIco() {
-        require(msg.sender == address(privateOffer) || msg.sender == address(preSale) || msg.sender == address(crowdsale));
+        require(isICO(msg.sender));
         _;
     }
 
@@ -118,6 +127,7 @@ contract ICO_controller is Ownable {
     function addDevReward(address _devAddress, uint256 _amount) public onlyOwner returns (bool success) {
         require(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
         require(_devAddress != address(0));
+        require(crowdsaleFinished == false);
         totalDevReward = totalDevReward.add(_amount);
         devRewards[_devAddress] = devRewards[_devAddress].add(_amount);
         return true;
@@ -135,9 +145,11 @@ contract ICO_controller is Ownable {
         require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
             require(_airdropAddresses[i] != address(0));
-            require(airdropList[_airdropAddresses[i]] == false);
-            airdropList[_airdropAddresses[i]] = true;
-            totalAirdropAdrresses = totalAirdropAdrresses.add(1);
+            if(airdropList[_airdropAddresses[i]] == false){
+                airdropList[_airdropAddresses[i]] = true;
+                totalAirdropAdrresses = totalAirdropAdrresses.add(1);
+            }
+            
         }
         return true;
     }
@@ -145,9 +157,10 @@ contract ICO_controller is Ownable {
     function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
         require(crowdsaleFinished==false);
         for(uint i = 0; i < _airdropAddresses.length; i++) {
-            require(airdropList[_airdropAddresses[i]] == true);
-            airdropList[_airdropAddresses[i]] = false;
-            totalAirdropAdrresses = totalAirdropAdrresses.sub(1);
+            if(airdropList[_airdropAddresses[i]] == true){
+                airdropList[_airdropAddresses[i]] = false;
+                totalAirdropAdrresses = totalAirdropAdrresses.sub(1);
+            }            
         }
         return true;
     }
@@ -210,6 +223,8 @@ contract ICO_controller is Ownable {
                 if (airdropToBurn != 0){
                     token.burn(airdropToBurn);
                 } 
+            } else {
+                token.burn(AIRDROP_SUPPLY);
             }
             // send 50% of ico eth to contract onwer
             escrowIco.transfer(this.balance.div(2));
@@ -232,6 +247,7 @@ contract ICO_controller is Ownable {
             totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised()).add(crowdsale.getWeiRaised());
         }
         require(totalSold < SOFTCAP);
+        require(buyerSpent[msg.sender] > 0);
         uint256 amount = buyerSpent[msg.sender];
         buyerSpent[msg.sender] = 0;
         msg.sender.transfer(amount);
@@ -259,7 +275,6 @@ contract ICO_controller is Ownable {
 
     function getAirdropTokens() external {
         require(airdropList[msg.sender]);
-        require(crowdsaleFinished);
         airdropList[msg.sender] = false;
         token.transfer(msg.sender, AIRDROP_SUPPLY.div(totalAirdropAdrresses));
     }
@@ -267,5 +282,12 @@ contract ICO_controller is Ownable {
     function increasePrivateOfferEndTime(uint256 _endTime) external onlyOwner {
         require(privateOffer != address(0));
         privateOffer.increaseEndTime(_endTime);
+    }
+
+    function isTransferable(address _sender) external returns(bool) {
+        if(crowdsaleFinished || isICO(_sender) || _sender == address(this)){
+            return true;
+        }
+        return false;
     }
 }

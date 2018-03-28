@@ -336,14 +336,6 @@ contract('ICO Controller Airdrop', function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after attemp to add zero address");
         };
-        await controller.addAirdrop(addAccounts);
-        try {
-            await controller.addAirdrop(addAccounts);
-            assert.ifError("Expect exception. The function doesn't allow to add one address twice");
-        } catch (err) {
-            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after atempt to add one address twice");
-        };
-
     });
 
 });

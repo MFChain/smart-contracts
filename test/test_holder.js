@@ -86,15 +86,22 @@ contract('Holder tests escrowSecondStage()', async function(accounts) {
     holded in this contract on the moment of executing this method and
     if this method executed only when the required number of owners are
     call it. */
+    let owner2 = accounts[2];
+    let owner3 = accounts[3];
+    let escrowAddress = accounts[4];
+    
+    let holder_contract = null;
+
+    before("before all", async function() {
+        holder_contract = await holder.deployed();
+    });
+    
+    
     it("test Holder escrowSecondStage()", async function() {
-        let owner2 = accounts[2];
-        let owner3 = accounts[3];
-        let escrowAddress = accounts[4];
+        await holder_contract.escrowFirstStage({'from': owner3});
+
         let holderBalance = 10;
-        let escrowOnSecondStageExpected = holderBalance;
-
-        let holder_contract = await holder.deployed();
-
+        let escrowOnSecondStageExpected = 0;
         let escrowAddressBalance = await web3.eth.getBalance(escrowAddress);
         let escrowAddress_balance_befor = web3.fromWei(escrowAddressBalance.toNumber(), 'ether');
 
@@ -119,7 +126,16 @@ contract('Holder tests escrowSecondStage()', async function(accounts) {
 
         assert.equal(escrowAddress_balance_intermediate - escrowAddress_balance_befor, 0, "the ether should not have been sent after the first transaction");
         assert.equal(escrowAddress_balance_after - escrowAddress_balance_befor, escrowOnSecondStageExpected, "wrong first stage escrow value");
-        assert.equal(holderContract_balance_after, 0, "There should be no ether left on the holder");
+        assert.equal(holderContract_balance_after, holderBalance, "There should be no ether left on the holder");
+    });
+
+    it("should throw an error when escrowFirstStage not done", async () => {
+        try {
+            await holder_contract.escrowSecondStage({'from': owner3});
+            assert.ifError('Error, escrowFirstStage done');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "escrowFirstStage not done");
+        }
     });
 });
 
@@ -331,6 +347,24 @@ contract('Holder', function(accounts) {
         // finally changing owner
         await instance.changeOwner(accounts[1], accounts[3], {from: accounts[0]});
         assert.deepEqual(await getOwners(instance), [accounts[0], accounts[3], accounts[2]]);
+    });
+
+    it("should change escrow address, when enough confirmed by owners", async function() {
+        const instance = await freshInstance();
+        assert.equal(await instance.escrowAddress.call(), accounts[9]);
+        instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
+        instance.changeEscrowAddress(accounts[8], {from: accounts[1]});
+        assert.equal(await instance.escrowAddress.call(), accounts[8]);
+        assert.notEqual(await instance.escrowAddress.call(), accounts[9]);
+    });
+
+    it("should not change escrow address, when not enough confirmed by owners", async () => {
+        const instance = await freshInstance();
+        assert.equal(await instance.escrowAddress.call(), accounts[9]);
+        instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
+        assert.equal(await instance.escrowAddress.call(), accounts[9]);
+        assert.notEqual(await instance.escrowAddress.call(), accounts[8]);
+
     });
 
 });
