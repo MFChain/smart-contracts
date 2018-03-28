@@ -213,10 +213,10 @@ contract MFC_Token is ERC223, BurnableToken {
     //function that is called when a user or another contract wants to transfer funds
     function transfer(address _to, uint _value, bytes _data) returns (bool success) {
         require(controller.isTransferable(msg.sender));
-        //filtering if the target is a contract with bytecode inside it
         if (!super.transfer(_to, _value)) throw;
         // do a normal token transfer
         if (isContract(_to)) return contractFallback(msg.sender, _to, _value, _data);
+        //filtering if the target is a contract with bytecode inside it
         return true;
     }
 
