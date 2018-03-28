@@ -333,4 +333,22 @@ contract('Holder', function(accounts) {
         assert.deepEqual(await getOwners(instance), [accounts[0], accounts[3], accounts[2]]);
     });
 
+    it("should change escrow address, when enough confirmed by owners", async function() {
+        const instance = await freshInstance();
+        assert.equal(await instance.escrowAddress.call(), accounts[9]);
+        instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
+        instance.changeEscrowAddress(accounts[8], {from: accounts[1]});
+        assert.equal(await instance.escrowAddress.call(), accounts[8]);
+        assert.notEqual(await instance.escrowAddress.call(), accounts[9]);
+    });
+
+    it("should not change escrow address, when not enough confirmed by owners", async () => {
+        const instance = await freshInstance();
+        assert.equal(await instance.escrowAddress.call(), accounts[9]);
+        instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
+        assert.equal(await instance.escrowAddress.call(), accounts[9]);
+        assert.notEqual(await instance.escrowAddress.call(), accounts[8]);
+
+    });
+
 });
