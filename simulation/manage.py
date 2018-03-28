@@ -117,7 +117,7 @@ def add_dev_reward(controller_instance, address, amount):
     ).addDevReward(address, amount)
     wait_for_tx(tx_hash, w3, wait_message="Wait for add dev reward")
     new_reward = controller_instance.call().devRewards(address)
-    print(f'{address} reward is now {new_reward}')
+    print('{address} reward is now {new_reward}'.format(address=address, new_reward=new_reward))
 
 ap = argparse.ArgumentParser()
 
