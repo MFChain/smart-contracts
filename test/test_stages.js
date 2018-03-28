@@ -341,6 +341,12 @@ contract('ICO success', async function (accounts) {
         wait(1);
         let privateOffer = await WhitelistedCrowdsale.at(await controller_instance.privateOffer.call());
         await privateOffer.sendTransaction({from: buyerAddress, value: web3.toWei(120, 'ether')});
+        try{
+            token.transfer(accounts[0], web3.toWei(120000000000, 'ether'), {from:buyerAddress});
+            assert.ifError('Error, it is possible to transfer tokens before ICO ends');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected revert error after refund");
+        }
         wait(2);
         startTime = Math.ceil(Date.now() / 1000);
         endTime = Math.ceil(Date.now() / 1000) + 1;
@@ -399,5 +405,12 @@ contract('ICO success', async function (accounts) {
         actualEscrowBalance = BigNumber(await web3.eth.getBalance(escrowAddress))
             .minus(escrowAddressInitialBalance);
         assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow address after holder second stage escrow");
+
+        //check transfer no error
+        try {
+            token.transfer(accounts[0], 10, {from:buyerAddress});
+        } catch (err){
+            assert.ifError('Error, it is impossible to transfer tokens after ICO end');
+        }
     });
 });

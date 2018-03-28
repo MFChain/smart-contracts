@@ -1,11 +1,16 @@
 pragma solidity ^0.4.19;
 
+import "./ICO_controller_interface.sol";
 import "./SafeMath.sol";
 import "./Ownable.sol";
 import "./MFC_coin.sol";
 import "./ICO_crowdsale.sol";
 
-contract ICO_controller is Ownable {
+interface TransferableInterface {
+    function isTransferable(address _sender) external returns(bool);
+}
+
+contract ICO_controller is Ownable, TransferableInterface {
 
     using SafeMath for uint256;
     // The token being sold
@@ -73,8 +78,12 @@ contract ICO_controller is Ownable {
 
     function () payable {}
 
+    function isICO(address _check) returns (bool) {
+        return _check == address(privateOffer) || _check == address(preSale) || _check == address(crowdsale);
+    }
+
     modifier onlyIco() {
-        require(msg.sender == address(privateOffer) || msg.sender == address(preSale) || msg.sender == address(crowdsale));
+        require(isICO(msg.sender));
         _;
     }
 
@@ -264,7 +273,6 @@ contract ICO_controller is Ownable {
 
     function getAirdropTokens() external {
         require(airdropList[msg.sender]);
-        require(crowdsaleFinished);
         airdropList[msg.sender] = false;
         token.transfer(msg.sender, AIRDROP_SUPPLY.div(totalAirdropAdrresses));
     }
@@ -272,5 +280,12 @@ contract ICO_controller is Ownable {
     function increasePrivateOfferEndTime(uint256 _endTime) external onlyOwner {
         require(privateOffer != address(0));
         privateOffer.increaseEndTime(_endTime);
+    }
+
+    function isTransferable(address _sender) external returns(bool) {
+        if(crowdsaleFinished || isICO(_sender) || _sender == address(this)){
+            return true;
+        }
+        return false;
     }
 }

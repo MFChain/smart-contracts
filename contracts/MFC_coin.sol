@@ -2,7 +2,7 @@ pragma solidity ^0.4.19;
 
 import "./SafeMath.sol";
 import "./Receiver_Interface.sol";
-
+import "./ICO_controller.sol";
 /**
  * @title ERC20Basic
  * @dev Simpler version of ERC20 interface
@@ -160,42 +160,7 @@ contract ERC223 is ERC20 {
 }
 
 
-contract Standard223Token is ERC223, StandardToken {
-    //function that is called when a user or another contract wants to transfer funds
-    function transfer(address _to, uint _value, bytes _data) returns (bool success) {
-        //filtering if the target is a contract with bytecode inside it
-        if (!super.transfer(_to, _value)) throw;
-        // do a normal token transfer
-        if (isContract(_to)) return contractFallback(msg.sender, _to, _value, _data);
-        return true;
-    }
-
-    function transfer(address _to, uint _value) returns (bool success) {
-        return transfer(_to, _value, new bytes(0));
-    }
-
-    //function that is called when transaction target is a contract
-    function contractFallback(address _origin, address _to, uint _value, bytes _data) private returns (bool success) {
-        ERC223Receiver reciever = ERC223Receiver(_to);
-        return reciever.tokenFallback(msg.sender, _value, _data);
-    }
-
-    //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
-    function isContract(address _addr) private returns (bool is_contract) {
-        // retrieve the size of the code on target address, this needs assembly
-        uint length;
-        assembly {length := extcodesize(_addr)}
-        return length > 0;
-    }
-
-}
-
-
-/**
- * @title Burnable Token
- * @dev Token that can be irreversibly burned (destroyed).
- */
-contract BurnableToken is Standard223Token {
+contract BurnableToken is StandardToken {
 
     /**
      * @dev Burns a specific amount of tokens.
@@ -221,8 +186,7 @@ contract BurnableToken is Standard223Token {
 
 }
 
-
-contract MFC_Token is BurnableToken {
+contract MFC_Token is ERC223, BurnableToken {
 
     string public constant name = "MFX Coin Token";
 
@@ -232,9 +196,46 @@ contract MFC_Token is BurnableToken {
 
     uint256 public INITIAL_SUPPLY = 521000000 * 1 ether;
 
+    TransferableInterface public controller;
+
     function MFC_Token() {
         totalSupply = INITIAL_SUPPLY;
         balances[msg.sender] = INITIAL_SUPPLY;
+        controller = TransferableInterface(msg.sender);
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+        require(controller.isTransferable(msg.sender));
+        if (!super.transferFrom(_from, _to, _value)) throw;
+        return true;
+    }
+
+    //function that is called when a user or another contract wants to transfer funds
+    function transfer(address _to, uint _value, bytes _data) returns (bool success) {
+        require(controller.isTransferable(msg.sender));
+        //filtering if the target is a contract with bytecode inside it
+        if (!super.transfer(_to, _value)) throw;
+        // do a normal token transfer
+        if (isContract(_to)) return contractFallback(msg.sender, _to, _value, _data);
+        return true;
+    }
+
+    function transfer(address _to, uint _value) returns (bool success) {
+        return transfer(_to, _value, new bytes(0));
+    }
+
+    //function that is called when transaction target is a contract
+    function contractFallback(address _origin, address _to, uint _value, bytes _data) private returns (bool success) {
+        ERC223Receiver reciever = ERC223Receiver(_to);
+        return reciever.tokenFallback(msg.sender, _value, _data);
+    }
+
+    //assemble the given address bytecode. If bytecode exists then the _addr is a contract.
+    function isContract(address _addr) private returns (bool is_contract) {
+        // retrieve the size of the code on target address, this needs assembly
+        uint length;
+        assembly {length := extcodesize(_addr)}
+        return length > 0;
     }
 
 }
