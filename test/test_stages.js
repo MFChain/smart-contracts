@@ -342,7 +342,7 @@ contract('ICO success', async function (accounts) {
         let privateOffer = await WhitelistedCrowdsale.at(await controller_instance.privateOffer.call());
         await privateOffer.sendTransaction({from: buyerAddress, value: web3.toWei(120, 'ether')});
         try{
-            token.transfer(accounts[0], web3.toWei(120000000000, 'ether'), {from:buyerAddress});
+            await token.transfer(accounts[0], 10, {from:buyerAddress});
             assert.ifError('Error, it is possible to transfer tokens before ICO ends');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected revert error after refund");
@@ -408,7 +408,7 @@ contract('ICO success', async function (accounts) {
 
         //check transfer no error
         try {
-            token.transfer(accounts[0], 10, {from:buyerAddress});
+            await token.transfer(accounts[0], 10, {from:buyerAddress});
         } catch (err){
             assert.ifError('Error, it is impossible to transfer tokens after ICO end');
         }
