@@ -160,9 +160,25 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
         }
         ;
     });
+
 });
 
 contract('ICO Controller', function (accounts) {
+    it("should to change the owner of controller", async function () {
+        let owner = accounts[0];
+        let holder = accounts[1];
+        let escrowAccount = accounts[2];
+        let newOwner = accounts[3];
+        let contract = await Controller.new(holder, escrowAccount, {from: owner});
+
+        assert.equal(await contract.owner.call(), owner);
+
+        await contract.transferOwnership.sendTransaction(newOwner, {from: owner});
+
+        assert.equal(await contract.owner.call(), newOwner);
+        assert.notEqual(await contract.owner.call(), owner);
+    });
+    
     it("test addBuyerToWhitelist function", function () {
         var owner = accounts[0];
         var addAccount = accounts[2];
