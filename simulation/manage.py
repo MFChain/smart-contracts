@@ -101,6 +101,7 @@ def add_airdrop(address, controller_instance):
     wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to airdrop")
     print("\n\n{} successfully added to airdrop".format(address))
 
+
 def increase_private_offer_endtime(controller_instance, new_endtime):
     tx_hash = controller_instance.transact(
         {'from': w3.eth.accounts[0]}
@@ -110,12 +111,21 @@ def increase_private_offer_endtime(controller_instance, new_endtime):
         datetime.utcfromtimestamp(new_endtime).strftime('%Y-%m-%d %H:%M:%S')
     ))
 
+def add_dev_reward(controller_instance, address, amount):
+    tx_hash = controller_instance.transact(
+        {'from': w3.eth.accounts[0]}
+    ).addDevReward(address, amount)
+    wait_for_tx(tx_hash, w3, wait_message="Wait for add dev reward")
+    new_reward = controller_instance.call().devRewards(address)
+    print(f'{address} reward is now {new_reward}')
+
 ap = argparse.ArgumentParser()
 
 ap.add_argument('--address', '-a', type=str, help='optional address')
 ap.add_argument('--endtime', '-d', type=int, help='Unix endtime for private offer.')
+ap.add_argument('--amount', '-m', type=int, help='Amount of dev reward')
 ap.add_argument('command', type=str, choices=[
-    'balance', 'whitelist', 'stage_info', 'finish', 'airdrop', 'increase_po_endtime'],
+    'balance', 'whitelist', 'stage_info', 'finish', 'airdrop', 'increase_po_endtime', 'add_dev_reward'],
                 help='Command to do')
 
 if __name__ == '__main__':
@@ -123,6 +133,7 @@ if __name__ == '__main__':
     address = args['address']
     command = args['command']
     endtime = args['endtime']
+    amount = args['amount']
 
     w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
     try:
@@ -147,4 +158,5 @@ if __name__ == '__main__':
         add_airdrop(address, controller_instance)
     elif command == 'increase_po_endtime':
         increase_private_offer_endtime(controller_instance, endtime)
-
+    elif command == 'add_dev_reward':
+        add_dev_reward(controller_instance, address, amount)
