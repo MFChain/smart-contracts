@@ -1,6 +1,5 @@
 pragma solidity ^0.4.19;
 
-import "./ICO_controller_interface.sol";
 import "./SafeMath.sol";
 import "./Ownable.sol";
 import "./MFC_coin.sol";
