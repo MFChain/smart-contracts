@@ -180,7 +180,7 @@ contract ICO_controller is Ownable, TransferableInterface {
     function startPrivateOffer(uint256 _startTime, uint256 _endTime, address _escrow) external onlyOwner {
         require(address(privateOffer) == address(0));
         require(_escrow != address(0));
-        privateOffer = startIco(_startTime, _endTime, 12000, 10 ether, 200 ether, _escrow, true);
+        privateOffer = startIco(_startTime, _endTime, 12000, 0 ether, 200 ether, _escrow, true);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
@@ -189,7 +189,7 @@ contract ICO_controller is Ownable, TransferableInterface {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = startIco(_startTime, _endTime, 10150, 5 ether, 200 ether, false);
+        preSale = startIco(_startTime, _endTime, 10150, 0 ether, 200 ether, false);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
@@ -199,7 +199,7 @@ contract ICO_controller is Ownable, TransferableInterface {
         require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
-        crowdsale = startIco(_startTime, _endTime, 8500, 0.1 ether, 200 ether, false);
+        crowdsale = startIco(_startTime, _endTime, 8500, 0 ether, 200 ether, false);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
         preSale.burnRemainingTokens();
     }
