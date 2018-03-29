@@ -34,6 +34,7 @@ contract Holder is multiowned {
 
     function changeEscrowAddress(address _newAddress) external onlymanyowners(sha3(msg.data)) returns (bool success) {
         escrowAddress = _newAddress;
+        return true;
     }
 
 
