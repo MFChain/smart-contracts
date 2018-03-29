@@ -50,7 +50,30 @@ Code coverage can be generated using [solidity-coverage](https://www.npmjs.com/p
 
 The configuration options are in the [.solcover.js](./.solcover.js), here we set same options as for ganache cli (1000 accounts, 100000 ether per account).
 
+Note: solidity coverage leaves the test rpc process running, so it fails to run second time.
+To stop the process, use the following command:
+
+```
+pkill -f "node ./node_modules/ethereumjs-testrpc-sc/build/cli.node.js"
+```
+
 See also [solidity coverage faq](https://github.com/sc-forks/solidity-coverage/blob/master/docs/faq.md) for additional information.
+
+# Linting
+
+We have [Solium](https://github.com/duaraghav8/Solium/) and [solhint](https://github.com/protofire/solhint) installed as project dependencies.
+
+To run Solium execute this command:
+
+```
+./node_modules/.bin/solium -d contracts/
+```
+
+To run solhint execute this command:
+
+```
+./node_modules/.bin/solhint contracts/**/*.sol
+```
 
 # How to Debug Truffle Tests
 
