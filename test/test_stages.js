@@ -379,6 +379,7 @@ contract('ICO success', async function (accounts) {
 
         let expectedHalfEscrowAmount = BigNumber(web3.toWei(2360, 'ether'));
         await controller_instance.finishCrowdsale();
+        await controller_instance.finishCrowdsaleBurnUnused();
         let actualEscrowBalance = BigNumber(await web3.eth.getBalance(escrowAddress))
             .minus(escrowAddressInitialBalance);
         assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow balance");
@@ -412,5 +413,59 @@ contract('ICO success', async function (accounts) {
         } catch (err){
             assert.ifError('Error, it is impossible to transfer tokens after ICO end');
         }
+    });
+});
+
+contract('ICO success without token burning', async function (accounts) {
+
+    it("test ICO success without token burning", async function () {
+        let controller_instance = await Controller.deployed();
+        let holder = await Holder.deployed();
+        let token = await Token.at(await controller_instance.token.call());
+        let buyerAddress = accounts[2];
+        let escrowAddress = accounts[4];
+        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        let startTime = Math.ceil(Date.now() / 1000);
+        let endTime = Math.ceil(Date.now() / 1000) + 1;
+        await controller_instance.startPrivateOffer(
+            startTime,
+            endTime,
+            controller_instance.address);
+        wait(1);
+        let privateOffer = await WhitelistedCrowdsale.at(await controller_instance.privateOffer.call());
+        await privateOffer.sendTransaction({from: buyerAddress, value: web3.toWei(120, 'ether')});
+        wait(2);
+        startTime = Math.ceil(Date.now() / 1000);
+        endTime = Math.ceil(Date.now() / 1000) + 1;
+        await controller_instance.startPreSaleIco(
+            startTime,
+            endTime);
+        wait(1);
+        let preSale = await WhitelistedCrowdsale.at(await controller_instance.preSale.call());
+        await preSale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
+        wait(2);
+        startTime = Math.ceil(Date.now() / 1000);
+        endTime = Math.ceil(Date.now() / 1000) + 5;
+        await controller_instance.startCrowdsale(
+            startTime,
+            endTime);
+        wait(1);
+        let crowdsale = await WhitelistedCrowdsale.at(await controller_instance.crowdsale.call());
+
+        for (let i = 0; i < 22; i++) {
+            await crowdsale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
+        }
+        wait(5);
+        await controller_instance.finishCrowdsale();
+        let controllerTokenBalance = BigNumber(await token.balanceOf(controller_instance.address));
+        let marketingSupportTokens = BigNumber(await controller_instance.MARKETING_SUPPORT_SUPPLY.call());
+        let totalDevReward = await controller_instance.totalDevReward.call();
+        let maxDevReward = await controller_instance.MAX_DEV_REWARD.call();
+        let airDropSupply = await controller_instance.AIRDROP_SUPPLY.call();
+        assert.isTrue(
+            controllerTokenBalance.isEqualTo(marketingSupportTokens
+                .plus(maxDevReward.minus(totalDevReward).plus(airDropSupply))), 
+            "Wrong amount of token at controller"
+        );
     });
 });
