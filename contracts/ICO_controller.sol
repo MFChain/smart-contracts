@@ -47,9 +47,9 @@ contract ICO_controller is Ownable, TransferableInterface {
     uint256 constant public MAX_DEV_REWARD = 40000 * 1 ether;
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000 * 1 ether;
-    uint256 constant public AIRDROP_SUPPLY = 5000 * 1 ether;
+    uint256 constant public PULL_SUPPLY = 4000 * 1 ether;
 
-    uint256 public airdropSupply = 1000000 * 1 ether;
+    uint256 public airdropSupply = 1000 * 1 ether;
     uint256 public pullSpentSupply;
 
     uint constant public Q3_2018_START_DATE = 1530403200; // 2018 07 01  
