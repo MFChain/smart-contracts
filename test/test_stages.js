@@ -422,10 +422,8 @@ contract('ICO success without token burning', async function (accounts) {
         let controller_instance = await Controller.deployed();
         let holder = await Holder.deployed();
         let token = await Token.at(await controller_instance.token.call());
-        let tokenHolder = await TokenHolder.deployed();
         let buyerAddress = accounts[2];
         let escrowAddress = accounts[4];
-        let escrowAddressInitialBalance = BigNumber(await web3.eth.getBalance(escrowAddress));
         await controller_instance.addBuyerToWhitelist(buyerAddress);
         let startTime = Math.ceil(Date.now() / 1000);
         let endTime = Math.ceil(Date.now() / 1000) + 1;
@@ -467,7 +465,7 @@ contract('ICO success without token burning', async function (accounts) {
         assert.isTrue(
             controllerTokenBalance.isEqualTo(marketingSupportTokens
                 .plus(maxDevReward.minus(totalDevReward).plus(airDropSupply))), 
-            "Wrong amount of token at controller(there are unburned tokens)"
+            "Wrong amount of token at controller"
         );
     });
 });

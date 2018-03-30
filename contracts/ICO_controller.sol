@@ -226,16 +226,23 @@ contract ICO_controller is Ownable, TransferableInterface {
 
     function finishCrowdsaleBurnUnused() external onlyOwner {
         require(crowdsaleFinished);
-        if (totalSold >= SOFTCAP) {
-            // burn some unspent reward tokens
-            token.burn(MAX_DEV_REWARD.sub(totalDevReward));
-            // burn after airdrop left tokens
-            if (totalAirdropAdrresses != 0) {
-               uint256 airdropToBurn = AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
-                if (airdropToBurn != 0){
-                    token.burn(airdropToBurn);
-                }
-            } else {
+        
+        // burn some unspent reward tokens
+        uint256 unspendDevReward = MAX_DEV_REWARD.sub(totalDevReward);
+        uint256 controllerCurrentBalance = token.balanceOf(address(this));
+        
+        if (unspendDevReward != 0 && controllerCurrentBalance >= unspendDevReward) {
+            token.burn(unspendDevReward);
+        }
+        // burn after airdrop left tokens
+        if (totalAirdropAdrresses != 0) {
+            uint256 airdropToBurn = AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
+            
+            if (airdropToBurn != 0 && controllerCurrentBalance >= airdropToBurn){
+                token.burn(airdropToBurn);
+            }
+        } else {
+            if (controllerCurrentBalance >= AIRDROP_SUPPLY) {
                 token.burn(AIRDROP_SUPPLY);
             }
         }
