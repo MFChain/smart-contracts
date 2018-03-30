@@ -239,6 +239,9 @@ contract ICO_controller is Ownable, TransferableInterface {
             escrowIco.transfer(this.balance.div(2));
             // send other 50% to multisig holder address
             holder.transfer(this.balance);
+
+            // increase airdrop supply with unspent pull amounts
+            airdropSupply = airdropSupply.add(PULL_SUPPLY).sub(pullSpentSupply);
         }
         crowdsaleFinished = true;
 
@@ -256,14 +259,14 @@ contract ICO_controller is Ownable, TransferableInterface {
         }
         // burn after airdrop left tokens
         if (totalAirdropAdrresses != 0) {
-            uint256 airdropToBurn = AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
+            uint256 airdropToBurn = airdropSupply.sub(airdropSupply.div(totalAirdropAdrresses).mul(totalAirdropAdrresses));
             
             if (airdropToBurn != 0 && controllerCurrentBalance >= airdropToBurn){
                 token.burn(airdropToBurn);
             }
         } else {
-            if (controllerCurrentBalance >= AIRDROP_SUPPLY) {
-                token.burn(AIRDROP_SUPPLY);
+            if (controllerCurrentBalance >= airdropSupply) {
+                token.burn(airdropSupply);
             }
         }
     }
@@ -326,6 +329,7 @@ contract ICO_controller is Ownable, TransferableInterface {
 
     function sendPullTokensTo(address _to, uint256 _amount) external onlyOwner {
         require(PULL_SUPPLY.sub(pullSpentSupply) >= _amount);
+        require(crowdsaleFinished == false);
         require(_to != address(0));
         pullSpentSupply = pullSpentSupply.add(_amount);
         token.transfer(_to, _amount);
