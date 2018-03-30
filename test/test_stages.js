@@ -456,12 +456,15 @@ contract('ICO success without token burning', async function (accounts) {
             await crowdsale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
         }
         wait(5);
+        let airdropSupplyBefore = BigNumber(await controller_instance.airdropSupply.call());
+        let pullSupply = BigNumber(await controller_instance.PULL_SUPPLY.call());
         await controller_instance.finishCrowdsale();
         let controllerTokenBalance = BigNumber(await token.balanceOf(controller_instance.address));
         let marketingSupportTokens = BigNumber(await controller_instance.MARKETING_SUPPORT_SUPPLY.call());
         let totalDevReward = await controller_instance.totalDevReward.call();
         let maxDevReward = await controller_instance.MAX_DEV_REWARD.call();
-        let airDropSupply = await controller_instance.AIRDROP_SUPPLY.call();
+        let airDropSupply = BigNumber(await controller_instance.airdropSupply.call());
+        assert.isTrue(airDropSupply.isEqualTo(airdropSupplyBefore.plus(pullSupply)), "Wrong Airdrop supply adding");
         assert.isTrue(
             controllerTokenBalance.isEqualTo(marketingSupportTokens
                 .plus(maxDevReward.minus(totalDevReward).plus(airDropSupply))), 
