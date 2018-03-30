@@ -310,6 +310,7 @@ contract ICO_controller is Ownable, TransferableInterface {
     }
 
     function getAirdropTokens() external {
+        require(crowdsaleFinished);
         require(airdropList[msg.sender]);
         airdropList[msg.sender] = false;
         token.transfer(msg.sender, airdropSupply.div(totalAirdropAdrresses));
