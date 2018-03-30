@@ -40,7 +40,7 @@ contract ICO_controller is Ownable, TransferableInterface {
     uint256 constant public PRIVATE_OFFER_SUPPLY = 42000000 * 1 ether;
     uint256 constant public PRE_SALE_SUPPLY = 50750000 * 1 ether;
     uint256 constant public CROWDSALE_SUPPLY = 208250000 * 1 ether;
-    uint256 constant public SOFTCAP = 4720 * 1 ether;
+    uint256 constant public SOFTCAP = 0.001 * 1 ether;
     uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
