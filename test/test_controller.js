@@ -1,18 +1,15 @@
 var Token = artifacts.require("MFC_Token");
 var Controller = artifacts.require("ICO_controller");
-var WhitelistedCrowdsale =artifacts.require("WhitelistedCrowdsale");
-var Web3 = require('web3');
+var WhitelistedCrowdsale = artifacts.require("WhitelistedCrowdsale");
 var BigNumber = require('bignumber.js');
 var wait = require('./utils').wait;
-
-var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 
 contract('ICO_controller tests constructor', async function (accounts) {
     /* Task 43 - Create test for ICO_controller constructor() */
 
     /* Using Truffle, we check constructor for ICO_controller and test if the all initialSupply is at controller balance. */
-    it("should specify that all initialSupply is at the balance of controller", async function() {
+    it("should specify that all initialSupply is at the balance of controller", async function () {
         let contract = await Controller.deployed();
         let token_addr = await contract.token();
         let token = Token.at(token_addr);
@@ -24,12 +21,12 @@ contract('ICO_controller tests constructor', async function (accounts) {
     });
 });
 
-contract('ICO_controller tests onlyICO', async function(accounts) {
+contract('ICO_controller tests onlyICO', async function (accounts) {
     /* Task 44 - Create test for ICO_controller onlyIco modifier */
 
     /* Using Truffle, we check modifier for _ICO_controller onlyIco_ and test if the functions with this
-       modifier rejected calls of the addresses which is not ICO contracts of this controller. */
-    it("test the onlyIco modifier", async function() {
+     modifier rejected calls of the addresses which is not ICO contracts of this controller. */
+    it("test the onlyIco modifier", async function () {
         let owner = accounts[0];
         let user = accounts[37];
 
@@ -40,23 +37,23 @@ contract('ICO_controller tests onlyICO', async function(accounts) {
             assert.ifError('Error, the owner should not be able to call this method');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after try to use the function from non-Ico address");
-        };
+        }
 
         try {
             await contract.addBuyerSpent(owner, 1, {'from': user});
             assert.ifError('Error, the user should not be able to call this method');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "WWrong error after try to use the function from non-Ico address");
-        };
+        }
     });
 });
 
-contract('ICO_controller tests addDevReward', async function(accounts) {
+contract('ICO_controller tests addDevReward', async function (accounts) {
     /* Task 47 - Create test for ICO_controller addDevReward */
 
     /* Test 5 variants:
-       - regular1 address not in devRewards, address correct and MAX_DEV_REWARD - totalDevReward >= amount */
-    it("test the addDevReward if it is first reward for address and this reward allowed", async function() {
+     - regular1 address not in devRewards, address correct and MAX_DEV_REWARD - totalDevReward >= amount */
+    it("test the addDevReward if it is first reward for address and this reward allowed", async function () {
         let owner = accounts[0];
         let user = accounts[38];
 
@@ -77,7 +74,7 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
     });
 
     /* regular2 address in devRewards and MAX_DEV_REWARD - totalDevReward >= amount */
-    it("test the addDevReward if it isn't first reward for address and this reward allowed", async function() {
+    it("test the addDevReward if it isn't first reward for address and this reward allowed", async function () {
         let owner = accounts[0];
         let user = accounts[39];
 
@@ -99,7 +96,7 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
     });
 
     /* address is zero */
-    it("test the addDevReward if reward assign to zero address", async function() {
+    it("test the addDevReward if reward assign to zero address", async function () {
         let owner = accounts[0];
         let zero_address = '0x0';
 
@@ -114,11 +111,11 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
             assert.ifError('Error, the owner should not be able to specify reward for zero address');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after attempt to add Dev Reward for zero address");
-        };
+        }
     });
 
     /* address is correct, not in devRewards and MAX_DEV_REWARD - totalDevReward < amount */
-    it("test the addDevReward if it is first reward for address and this reward not allowed", async function() {
+    it("test the addDevReward if it is first reward for address and this reward not allowed", async function () {
         let owner = accounts[0];
         let user = accounts[40];
 
@@ -134,11 +131,11 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
             assert.ifError('Error, the owner should not be able to specify reward for zero address');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after attempt to add Dev Reward more then available");
-        };
+        }
     });
 
     /* address is correct, in devRewards and MAX_DEV_REWARD - totalDevReward < amount */
-    it("test the addDevReward if it is second reward for address and this reward not allowed", async function() {
+    it("test the addDevReward if it is second reward for address and this reward not allowed", async function () {
         let owner = accounts[0];
         let user = accounts[41];
 
@@ -158,7 +155,6 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after attempt to add Dev Reward more then available");
         }
-        ;
     });
 
 });
@@ -178,7 +174,7 @@ contract('ICO Controller', function (accounts) {
         assert.equal(await contract.owner.call(), newOwner);
         assert.notEqual(await contract.owner.call(), owner);
     });
-    
+
     it("test addBuyerToWhitelist function", function () {
         var owner = accounts[0];
         var addAccount = accounts[2];
@@ -351,13 +347,14 @@ contract('ICO Controller Airdrop', function (accounts) {
             assert.ifError("Expect exception. The function doesn't allow zero address");
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after attemp to add zero address");
-        };
+        }
+        ;
     });
 
 });
 
 contract('ICO_controller', async function (accounts) {
-        it("test increasePrivateOfferEndTime func", async function() {
+    it("test increasePrivateOfferEndTime func", async function () {
 
         let controller_instance = await Controller.deployed();
         let startTime = Math.ceil(Date.now() / 1000) + 3;
@@ -375,13 +372,13 @@ contract('ICO_controller', async function (accounts) {
             assert.ifError('Only owner should not be able to run increasePrivateOfferEndTime');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increasePrivateOfferEndTime as user");
-        };
-        try{
+        }
+        try {
             await controller_instance.increasePrivateOfferEndTime(endTime);
             assert.ifError('New end time should be greater than previous one');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increasePrivateOfferEndTime with wrong time");
-        };
+        }
 
         await controller_instance.increasePrivateOfferEndTime(newEndTime);
         assert.equal(newEndTime, await privateOffer.endTime.call(), "Wrong value of private offer endtime");
@@ -395,11 +392,20 @@ contract('ICO Controller Airdrop long', function (accounts) {
         var controller_instance;
         var token_instance;
         var airdropTokensSupply;
-        var expectAirdropTokensSupply = 5000000000000000000000000;
+        var expectAirdropTokensSupply = 1000000000000000000000000;
         return Controller.deployed().then(
             function (inst) {
                 controller_instance = inst;
                 return controller_instance.addAirdrop(addAccounts);
+            }).then(
+            function () {
+                return controller_instance.getAirdropTokens({from: addAccounts[0]});
+            }).then(
+            function () {
+                assert.isFalse(true, "Expect access exception. The function is allowed only after all ICO finish")
+            }).catch(
+            function (error) {
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after getAirdropTokens before ICO finish");
             }).then(
             function () {
                 // stat ICOs
@@ -435,7 +441,7 @@ contract('ICO Controller Airdrop long', function (accounts) {
             }).then(
             function (token_addr) {
                 token_instance = Token.at(token_addr);
-                return controller_instance.AIRDROP_SUPPLY.call();
+                return controller_instance.airdropSupply.call();
             }).then(
             function (amount) {
                 airdropTokensSupply = amount.valueOf();
@@ -445,6 +451,65 @@ contract('ICO Controller Airdrop long', function (accounts) {
             function (balance) {
                 assert.equal(balance.valueOf(), expectAirdropTokensSupply / addAccounts.length, "Wrong amount of account token balance");
             });
+    });
+
+});
+
+contract("Controller ICO Bounty Pull", async function (accounts) {
+    it('test sendPullTokensTo', async function () {
+        let controller = await Controller.deployed();
+        let token = await Token.at(await controller.token.call());
+        let pullAccount = accounts[6];
+        try {
+            await controller.sendPullTokensTo(pullAccount, 100, {from: pullAccount});
+            assert.ifError('Error, only owner should be able to use the function');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert',
+                "Only owner should be able to use the function");
+        }
+        try {
+            await controller.sendPullTokensTo(pullAccount, web3.toWei(4000001, 'ether'));
+            assert.ifError('Error, too big amount of tokens to send allowed');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert',
+                "It is shouldn't be able to transfer more tokens then pull supply");
+        }
+        let expectedTokenAmount = web3.toWei(3999999, 'ether');
+        await controller.sendPullTokensTo(pullAccount, expectedTokenAmount);
+        let actualTokenAmount = BigNumber(await token.balanceOf(pullAccount));
+        assert.isTrue(actualTokenAmount.isEqualTo(actualTokenAmount), "Wrong token balance");
+    });
+
+    it("test sender's whitelist", async function () {
+        let controller = await Controller.deployed();
+        let token = await Token.at(await controller.token.call());
+        let pullAccount = accounts[6];
+        let receiverAccount = accounts[7];
+        let tokenAmount = 100;
+
+        await controller.sendPullTokensTo(pullAccount, tokenAmount);
+        try {
+            await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
+            assert.ifError('Error, pull account is not whitelisted to send tokens, but it does');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert',
+                "Error, pull account is not whitelisted to send tokens, but it does");
+        }
+
+        await controller.addToSendersWhitelist([pullAccount]);
+        await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
+        let receiverBalance = BigNumber(await token.balanceOf(receiverAccount));
+        assert.isTrue(receiverBalance.isEqualTo(tokenAmount), "Wrong amount of tokens at receiver's account");
+
+        await controller.sendPullTokensTo(pullAccount, tokenAmount);
+        await controller.removeFromSendersWhitelist([pullAccount]);
+        try {
+            await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
+            assert.ifError('Error, pull account is not whitelisted to send tokens, but it does');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert',
+                "Error, pull account is not whitelisted to send tokens, but it does");
+        }
     });
 
 });

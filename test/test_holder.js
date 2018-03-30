@@ -352,8 +352,8 @@ contract('Holder', function(accounts) {
     it("should change escrow address, when enough confirmed by owners", async function() {
         const instance = await freshInstance();
         assert.equal(await instance.escrowAddress.call(), accounts[9]);
-        instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
-        instance.changeEscrowAddress(accounts[8], {from: accounts[1]});
+        await instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
+        await instance.changeEscrowAddress(accounts[8], {from: accounts[1]});
         assert.equal(await instance.escrowAddress.call(), accounts[8]);
         assert.notEqual(await instance.escrowAddress.call(), accounts[9]);
     });
@@ -361,7 +361,7 @@ contract('Holder', function(accounts) {
     it("should not change escrow address, when not enough confirmed by owners", async () => {
         const instance = await freshInstance();
         assert.equal(await instance.escrowAddress.call(), accounts[9]);
-        instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
+        await instance.changeEscrowAddress(accounts[8], {from: accounts[0]});
         assert.equal(await instance.escrowAddress.call(), accounts[9]);
         assert.notEqual(await instance.escrowAddress.call(), accounts[8]);
 
