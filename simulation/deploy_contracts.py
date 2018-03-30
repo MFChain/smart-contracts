@@ -45,14 +45,24 @@ ap.add_argument('--accounts', '-a', type=ethereum_accounts,
 ap.add_argument('--require', '-r', type=int, help='Minimum account confirmations needed to run Holder function',
                 default=1)
 ap.add_argument('--escrow', '-e', type=str, help="Escrow account for ICO's", default=w3.eth.accounts[1])
+ap.add_argument('--wallet', '-w', type=str, help="Deploy account", default=w3.eth.accounts[0])
+ap.add_argument('--password', '-p', type=str, help='Deploy account password')
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
     HOLDERS_ACCOUNTS = args.get('accounts')
     ESCROW_ADDRESS = args.get('escrow')
     REQUIRE = args.get('require')
+    DEPLOY_ACCOUNT = args.get('wallet')
+    ACCOUNT_PASSWORD = args.get('password')
     if REQUIRE > len(HOLDERS_ACCOUNTS):
         raise argparse.ArgumentTypeError('Require more than accounts')
+
+    if DEPLOY_ACCOUNT and ACCOUNT_PASSWORD:
+        try:
+            w3.personal.unlockAccount(DEPLOY_ACCOUNT, ACCOUNT_PASSWORD)
+        except ValueError:
+            pass
 
     compiled_source = compile_files([
         "../contracts/Holder.sol",
@@ -74,7 +84,7 @@ if __name__ == '__main__':
         bytecode=token_holder_interface['bin'])
 
     holder_tx_hash = holder_contract.deploy(
-        transaction={'from': w3.eth.accounts[0]},
+        transaction={'from': DEPLOY_ACCOUNT},
         args=(HOLDERS_ACCOUNTS,  # List of accounts that control holder account
               REQUIRE,  # Number of accounts needed to confirm changes
               ESCROW_ADDRESS)  # Escrow account
@@ -86,7 +96,7 @@ if __name__ == '__main__':
     holder_contract_address = holder_receipt['contractAddress']
 
     controller_tx_hash = ico_controller_contract.deploy(
-        transaction={'from': w3.eth.accounts[0]},
+        transaction={'from': DEPLOY_ACCOUNT},
         args=(holder_contract_address,
               ESCROW_ADDRESS)  # Escrow account
     )
@@ -98,7 +108,7 @@ if __name__ == '__main__':
     token_contract_address = controller_instance.call().token()
 
     token_holder_tx_hash = token_holder_contract.deploy(
-        transaction={'from': w3.eth.accounts[0]},
+        transaction={'from': DEPLOY_ACCOUNT},
         args=(HOLDERS_ACCOUNTS,  # List of accounts that control holder account
               REQUIRE,
               token_contract_address)  # Number of accounts needed to confirm changes
@@ -108,7 +118,7 @@ if __name__ == '__main__':
                                        wait_message="Wait for Token holder contract to be deployed")
     token_holder_address = token_holder_receipt['contractAddress']
     tx_hash = controller_instance.transact(
-        {'from': w3.eth.accounts[0]}
+        {'from': DEPLOY_ACCOUNT}
     ).setIncentiveProgram(token_holder_address)
     wait_for_tx(tx_hash,
                 w3,
@@ -130,3 +140,10 @@ if __name__ == '__main__':
                               ['Controller', controller_contract_address],
                               ['Token Holder', token_holder_address],
                               ['Token', token_contract_address]])
+
+
+    try:
+        w3.personal.lockAccount(DEPLOY_ACCOUNT)
+    except ValueError:
+        pass
+
