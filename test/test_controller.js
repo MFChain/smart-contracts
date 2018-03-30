@@ -163,6 +163,41 @@ contract('ICO_controller tests addDevReward', async function(accounts) {
 
 });
 
+contract('ICO_controller tests getDevReward', async function(accounts) {
+    let owner = accounts[0];
+    let holder = accounts[1];
+    let escrowAccount = accounts[2];
+    let user = accounts[3];
+
+    let controllerInstance = null;
+    let max_reward = null;
+    let total_reward = null;
+    let total_reward_bn = null;
+    let reward = null;
+
+    beforeEach(async function() {
+        controllerInstance = await await Controller.new(holder, escrowAccount, {from: owner});
+        max_reward = await controllerInstance.MAX_DEV_REWARD.call();
+        total_reward = await controllerInstance.totalDevReward.call();
+        total_reward_bn = BigNumber(total_reward);
+        reward = BigNumber(max_reward).minus(total_reward_bn).dividedBy(1000000000000).toNumber();
+
+        await controllerInstance.addDevReward(user, reward, {'from': owner});
+    });
+    
+    it("should throw error when devRewardReleaseTime >= now", async function() {
+        let now = Math.ceil(Date.now() / 1000);
+        // TODO: change time to past
+        // await controllerInstance.devRewardReleaseTime.call(now - 100);
+        try {
+            await controllerInstance.getDevReward.sendTransaction({from: user});
+            assert.ifError('Error, devRewardReleaseTime < now');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "devRewardReleaseTime >= now");
+        }
+    });
+});
+
 contract('ICO Controller', function (accounts) {
     it("should to change the owner of controller", async function () {
         let owner = accounts[0];
