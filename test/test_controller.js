@@ -399,6 +399,15 @@ contract('ICO Controller Airdrop long', function (accounts) {
                 return controller_instance.addAirdrop(addAccounts);
             }).then(
             function () {
+                return controller_instance.getAirdropTokens({from: addAccounts[0]});
+            }).then(
+            function () {
+                assert.isFalse(true, "Expect access exception. The function is allowed only after all ICO finish")
+            }).catch(
+            function (error) {
+                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after getAirdropTokens before ICO finish");
+            }).then(
+            function () {
                 // stat ICOs
                 return controller_instance.startPrivateOffer(
                     Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000), accounts[5]);
@@ -491,6 +500,16 @@ contract("Controller ICO Bounty Pull", async function (accounts) {
         await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
         let receiverBalance = BigNumber(await token.balanceOf(receiverAccount));
         assert.isTrue(receiverBalance.isEqualTo(tokenAmount), "Wrong amount of tokens at receiver's account");
+
+        await controller.sendPullTokensTo(pullAccount, tokenAmount);
+        await controller.removeFromSendersWhitelist([pullAccount]);
+        try {
+            await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
+            assert.ifError('Error, pull account is not whitelisted to send tokens, but it does');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert',
+                "Error, pull account is not whitelisted to send tokens, but it does");
+        }
     });
 
 });
