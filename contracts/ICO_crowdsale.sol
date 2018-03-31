@@ -43,6 +43,8 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     uint256 public maxPurchase;
     uint256 public minPurchase;
 
+    bool public isPrivateOffer;
+
     /**
      * event for token purchase logging
      * @param purchaser who paid for the tokens
@@ -53,7 +55,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
 
-    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _minPurchase, uint256 _maxPurchase, address _wallet, MFC_Token _token) public {
+    function WhitelistedCrowdsale(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _minPurchase, uint256 _maxPurchase, address _wallet, MFC_Token _token, bool _isPrivateOffer) public {
         startTime = _startTime;
         endTime = _endTime;
         rate = _rate;
@@ -62,6 +64,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         maxPurchase = _maxPurchase;
         minPurchase = _minPurchase;
         controller = ICO_controller(msg.sender);
+        isPrivateOffer = _isPrivateOffer;
     }
 
     // fallback function can be used to buy tokens
@@ -72,7 +75,7 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     // low level token purchase function
     function buyTokens(address beneficiary) public payable {
         require(beneficiary != address(0));
-        require(validPurchase());
+        require(validPurchase(beneficiary));
 
 
         uint256 weiAmount = msg.value;
@@ -91,7 +94,9 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
         token.transfer(beneficiary, tokens);
         TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
         forwardFunds(weiAmount);
-        controller.addBuyerSpent(msg.sender, weiAmount);
+        if (!isPrivateOffer) {
+            controller.addBuyerSpent(msg.sender, weiAmount);
+        }        
     }
 
     // @return true if crowdsale event has ended
@@ -100,14 +105,18 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     }
 
     // Override this method to have a way to add business logic to your crowdsale when buying
-    function getTokenAmount(uint256 weiAmount) internal view returns (uint256) {
+    function getTokenAmount(uint256 weiAmount) public view returns (uint256) {
         uint256 basicAmount = weiAmount.mul(rate);
         uint256 bonusAmount = 0;
+
         if (weiAmount < 10 ether) {
 
         } else if (weiAmount < 25 ether) {
-            bonusAmount = basicAmount.div(10);
+            if (!isPrivateOffer){
+                bonusAmount = basicAmount.div(10);
             // 10%
+            }
+            
         } else if (weiAmount < 100 ether) {
             bonusAmount = basicAmount.mul(15).div(100);
             // 15%
@@ -126,17 +135,22 @@ contract WhitelistedCrowdsale is Ownable, ERC223Receiver {
     }
 
     // @return true if the transaction can buy tokens
-    function validPurchase() internal view returns (bool) {
+    function validPurchase(address beneficiary) internal view returns (bool) {
         bool withinPeriod = now >= startTime && now <= endTime;
         bool nonZeroPurchase = msg.value != 0;
         bool lessThenMaximum = msg.value <= maxPurchase;
         bool moreThenMinimum = msg.value >= minPurchase;
-        bool isWhitelisted = controller.isAddressWhitelisted(msg.sender);
+        bool isWhitelisted = controller.isAddressWhitelisted(beneficiary);
         return withinPeriod && nonZeroPurchase && isWhitelisted && lessThenMaximum && moreThenMinimum;
     }
 
     function burnRemainingTokens() external onlyOwner {
         token.burnAll();
+    }
+
+    function increaseEndTime(uint256 _endTime) external onlyOwner {
+        require(_endTime > endTime);
+        endTime = _endTime;
     }
 
     function getWeiRaised() external returns (uint256){

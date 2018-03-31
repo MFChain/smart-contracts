@@ -4,9 +4,12 @@ import "./SafeMath.sol";
 import "./Ownable.sol";
 import "./MFC_coin.sol";
 import "./ICO_crowdsale.sol";
-import "./Holder.sol";
 
-contract ICO_controller is Ownable {
+interface TransferableInterface {
+    function isTransferable(address _sender) external returns(bool);
+}
+
+contract ICO_controller is Ownable, TransferableInterface {
 
     using SafeMath for uint256;
     // The token being sold
@@ -18,6 +21,9 @@ contract ICO_controller is Ownable {
     // list of buyer are able to participate in ICOs
     mapping(address => bool) public buyersWhitelist;
 
+    // list of addresses that could send tokens
+    mapping(address => bool) public sendersWhitelist;
+
     // list of addresses accepted to airdrop
     mapping(address => bool) public airdropList;
 
@@ -27,18 +33,19 @@ contract ICO_controller is Ownable {
     // devs&advisors reward
     mapping(address => uint256) public devRewards;
 
-    address incentiveProgram;
+    address public incentiveProgram;
+    address public escrowIco;
 
     WhitelistedCrowdsale public privateOffer;
     WhitelistedCrowdsale public preSale;
     WhitelistedCrowdsale public crowdsale;
 
-    uint256 constant public PRIVATE_OFFER_SUPPLY = 7000000 * 1 ether;
-    uint256 constant public PRE_SALE_SUPPLY = 36000000 * 1 ether;
-    uint256 constant public CROWDSALE_SUPPLY = 237000000 * 1 ether;
-    uint256 constant public SOFTCUP = 4720 * 1 ether;
+    uint256 constant public PRIVATE_OFFER_SUPPLY = 42000000 * 1 ether;
+    uint256 constant public PRE_SALE_SUPPLY = 50750000 * 1 ether;
+    uint256 constant public CROWDSALE_SUPPLY = 208250000 * 1 ether;
+    uint256 constant public SOFTCAP = 0.001 * 1 ether;
     uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
-    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 80000000 * 1 ether;
+    uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
     uint256 constant public AIRDROP_SUPPLY = 5000000 * 1 ether;
 
@@ -54,53 +61,61 @@ contract ICO_controller is Ownable {
 
     uint256 public totalDevReward;
     uint256 public totalSold;
-    uint256 public totalAirdropAdrresses;
+    uint256 public airdropSpent;
 
     bool public crowdsaleFinished;
 
-    function ICO_controller(address _holder, address _incentive_program) {
+    function ICO_controller(address _holder, address _escrowIco) {
         devRewardReleaseTime = now;
 
         unlockMarketingTokensTime[0] = now;
         unlockMarketingTokensTime[1] = now;
 
         holder = _holder;
-        incentiveProgram = _incentive_program;
+        escrowIco = _escrowIco;
     }
 
     function () payable {}
 
+    function isICO(address _check) returns (bool) {
+        return _check == address(privateOffer) || _check == address(preSale) || _check == address(crowdsale);
+    }
+
     modifier onlyIco() {
-        require(msg.sender == address(privateOffer) || msg.sender == address(preSale) || msg.sender == address(crowdsale));
+        require(isICO(msg.sender));
         _;
     }
 
-    function addBuyerToWhitelist(address _buyer) public onlyOwner returns (bool success) {
-        require(_buyer != address(0));
-        buyersWhitelist[_buyer] = true;
-        return true;
+    function setIncentiveProgram(address _incentive_program) public onlyOwner {
+        require(incentiveProgram==address(0));
+        incentiveProgram = _incentive_program;
     }
 
-    function removeBuyerFromWhitelist(address _buyer) public onlyOwner returns (bool success) {
-        if (buyersWhitelist[_buyer] == true) {
-        buyersWhitelist[_buyer] = false;
-        return true;
+    function addToSendersWhitelist(address[] _senders) public onlyOwner {
+        for(uint i = 0; i < _senders.length; i++){
+            require(_senders[i] != address(0));
+            sendersWhitelist[_senders[i]] = true;
         }
-        return false;
     }
 
-    function addBuyers(address[] _buyers) external onlyOwner returns (bool success) {
+    function removeFromSendersWhitelist(address[] _senders) public onlyOwner {
+        for(uint i = 0; i < _senders.length; i++){
+            require(_senders[i] != address(0));
+            delete sendersWhitelist[_senders[i]];
+        }
+    }
+
+    function addBuyers(address[] _buyers) external onlyOwner {
         for (uint i = 0; i < _buyers.length; i++) {
-            addBuyerToWhitelist(_buyers[i]);
+            require(_buyers[i] != address(0));
+            buyersWhitelist[_buyers[i]] = true;
         }
-        return true;
     }
 
-    function removeBuyers(address[] _buyers) external onlyOwner returns (bool success) {
+    function removeBuyers(address[] _buyers) external onlyOwner {
         for (uint i = 0; i < _buyers.length; i++) {
-            removeBuyerFromWhitelist(_buyers[i]);
+            delete buyersWhitelist[_buyers[i]];
         }
-        return true;
     }
 
     function isAddressWhitelisted(address buyer) external returns (bool isWhitelisted) {
@@ -111,6 +126,7 @@ contract ICO_controller is Ownable {
     function addDevReward(address _devAddress, uint256 _amount) public onlyOwner returns (bool success) {
         require(MAX_DEV_REWARD.sub(totalDevReward) >= _amount);
         require(_devAddress != address(0));
+        require(crowdsaleFinished == false);
         totalDevReward = totalDevReward.add(_amount);
         devRewards[_devAddress] = devRewards[_devAddress].add(_amount);
         return true;
@@ -123,37 +139,23 @@ contract ICO_controller is Ownable {
         }
         return true;
     }
- 
-    function addAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
-        for(uint i = 0; i < _airdropAddresses.length; i++) {
-            require(_airdropAddresses[i] != address(0));
-            require(airdropList[_airdropAddresses[i]] == false);
-            airdropList[_airdropAddresses[i]] = true;
-            totalAirdropAdrresses = totalAirdropAdrresses.add(1);
-        }
-        return true;
+
+    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max, bool _countPurchaseAmount) internal returns (WhitelistedCrowdsale){
+        return startIco(_startTime, _endTime, _rate, _min,_max, address(this), _countPurchaseAmount);
     }
 
-    function removeAirdrop(address[] _airdropAddresses) external onlyOwner returns (bool success) {
-        for(uint i = 0; i < _airdropAddresses.length; i++) {
-            require(airdropList[_airdropAddresses[i]] == true);
-            airdropList[_airdropAddresses[i]] = false;
-            totalAirdropAdrresses = totalAirdropAdrresses.sub(1);
-        }
-        return true;
-    }
-
-    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max) internal returns (WhitelistedCrowdsale){
+    function startIco(uint256 _startTime, uint256 _endTime, uint256 _rate, uint256 _min, uint256 _max, address _escrow, bool _countPurchaseAmount) internal returns (WhitelistedCrowdsale){
         require(_startTime >= now);
         require(_endTime >= _startTime);
         require(_rate > 0);
-        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, _min,_max, address(this), token);
+        return new WhitelistedCrowdsale(_startTime, _endTime, _rate, _min,_max, _escrow, token, _countPurchaseAmount);
     }
 
     // Create Privaet Offer Sale NOTE: should think about hardwritten rate or parametrized!!!!
-    function startPrivateOffer(uint256 _startTime, uint256 _endTime) external onlyOwner {
+    function startPrivateOffer(uint256 _startTime, uint256 _endTime, address _escrow) external onlyOwner {
         require(address(privateOffer) == address(0));
-        privateOffer = startIco(_startTime, _endTime, 14000, 1 ether, 200 ether);
+        require(_escrow != address(0));
+        privateOffer = startIco(_startTime, _endTime, 12000, 0 ether, 200 ether, _escrow, true);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
@@ -162,7 +164,7 @@ contract ICO_controller is Ownable {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = startIco(_startTime, _endTime, 12000, 5 ether, 200 ether);
+        preSale = startIco(_startTime, _endTime, 10150, 0 ether, 200 ether, false);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
@@ -172,7 +174,7 @@ contract ICO_controller is Ownable {
         require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
-        crowdsale = startIco(_startTime, _endTime, 10000, 0.5 ether, 200 ether);
+        crowdsale = startIco(_startTime, _endTime, 8500, 0 ether, 200 ether, false);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
         preSale.burnRemainingTokens();
     }
@@ -181,25 +183,42 @@ contract ICO_controller is Ownable {
         require(address(crowdsale) != address(0));
         require(crowdsale.hasEnded() == true);
         require(crowdsaleFinished == false);
+        require(incentiveProgram != address(0));
         crowdsale.burnRemainingTokens();
         totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
-        if (totalSold >= SOFTCUP) {
+        if (totalSold >= SOFTCAP) {
             // sends token for support program
-            token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
-            // burn some unspent reward tokens
-            token.burn(MAX_DEV_REWARD.sub(totalDevReward));
-            // burn after airdrop left tokens
-            token.burn(AIRDROP_SUPPLY.sub(AIRDROP_SUPPLY.div(totalAirdropAdrresses).mul(totalAirdropAdrresses)));
+            bool success = token.transfer(incentiveProgram, INCENTIVE_PROGRAM_SUPPORT);
+            assert(success==true);
             // send 50% of ico eth to contract onwer
-            owner.transfer(this.balance.div(2));
+            escrowIco.transfer(this.balance.div(2));
             // send other 50% to multisig holder address
-            address(holder).transfer(this.balance);
+            holder.transfer(this.balance);
         }
         crowdsaleFinished = true;
 
     }
 
-    // Count each buyer spent amount in case ICO wouldn't reach SOFTCUP
+    function finishCrowdsaleBurnUnused() external onlyOwner {
+        require(crowdsaleFinished == true);
+
+        // // burn some unspent reward tokens
+        uint256 unspendDevReward = MAX_DEV_REWARD.sub(totalDevReward);
+        uint256 controllerAvaibleBalance = token.balanceOf(address(this));
+        controllerAvaibleBalance = controllerAvaibleBalance.sub(MARKETING_SUPPORT_SUPPLY);
+
+        if (unspendDevReward != 0 && controllerAvaibleBalance >= unspendDevReward) {
+            token.burn(unspendDevReward);
+            controllerAvaibleBalance = controllerAvaibleBalance.sub(unspendDevReward);
+        }
+        // burn after airdrop left tokens
+        uint256 airdropToBurn = AIRDROP_SUPPLY.sub(airdropSpent);
+        if (airdropToBurn != 0 && controllerAvaibleBalance >= airdropToBurn){
+            token.burn(airdropToBurn);
+        }
+    }
+
+    // Count each buyer spent amount in case ICO wouldn't reach SOFTCAP
     function addBuyerSpent(address _buyer, uint256 _amount) external onlyIco {
         buyerSpent[_buyer] = buyerSpent[_buyer].add(_amount);
     }
@@ -208,9 +227,10 @@ contract ICO_controller is Ownable {
         require(address(crowdsale) != address(0));
         require(crowdsale.hasEnded());
         if (totalSold == 0) {
-            totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised().add(crowdsale.getWeiRaised()));
+            totalSold = privateOffer.getWeiRaised().add(preSale.getWeiRaised()).add(crowdsale.getWeiRaised());
         }
-        require(totalSold < SOFTCUP);
+        require(totalSold < SOFTCAP);
+        require(buyerSpent[msg.sender] > 0);
         uint256 amount = buyerSpent[msg.sender];
         buyerSpent[msg.sender] = 0;
         msg.sender.transfer(amount);
@@ -236,10 +256,25 @@ contract ICO_controller is Ownable {
         unlockIndex++;
     }
 
-    function getAirdropTokens() external {
-        require(airdropList[msg.sender]);
-        require(crowdsaleFinished);
-        airdropList[msg.sender] = false;
-        token.transfer(msg.sender, AIRDROP_SUPPLY.div(totalAirdropAdrresses));
+    function increasePrivateOfferEndTime(uint256 _endTime) external onlyOwner {
+        require(privateOffer != address(0));
+        privateOffer.increaseEndTime(_endTime);
+    }
+
+    function isTransferable(address _sender) external returns(bool) {
+        if(crowdsaleFinished || isICO(_sender) || sendersWhitelist[_sender] || _sender == address(this)){
+            return true;
+        }
+        return false;
+    }
+
+    function sendAirdrop(address[] _addresses, uint256[] _amounts) external onlyOwner {
+        require(_addresses.length == _amounts.length);
+        for(uint i = 0; i < _addresses.length; i++){
+            airdropSpent = airdropSpent.add(_amounts[i]);
+            require(AIRDROP_SUPPLY >= airdropSpent);
+            require(_addresses[i] != address(0));
+            token.transfer(_addresses[i], _amounts[i]);
+        }
     }
 }
