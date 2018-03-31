@@ -98,7 +98,7 @@ contract ICO_controller is Ownable, TransferableInterface {
         for(uint i = 0; i < _senders.length; i++){
             require(_senders[i] != address(0));
             sendersWhitelist[_senders[i]] = true;
-        }
+        }        
     }
 
     function removeFromSendersWhitelist(address[] _senders) public onlyOwner {
