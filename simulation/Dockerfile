@@ -17,6 +17,3 @@ ADD drequirements.txt .
 RUN pip3 install -r drequirements.txt
 RUN mkdir workspace
 WORKDIR workspace
-
-RUN useradd -ms /bin/bash newuser
-USER newuser

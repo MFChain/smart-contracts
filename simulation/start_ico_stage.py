@@ -2,11 +2,14 @@ import time
 import csv
 import argparse
 import urllib
+import getpass
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 
 from utils import wait_for_tx, get_csv_file_row, CSV_ROWS
+
+w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
 
 stage_member_map = {
     'private_offer': 'privateOffer',
@@ -31,7 +34,8 @@ ap.add_argument('--end_date', '-d', type=int, help='ICO end unit datetime delta'
 ap.add_argument('--stage', '-t', type=str, help='ICO stage (private_offer, presale, crowdsale)',
                 choices=['private_offer', 'presale', 'crowdsale'])
 
-ap.add_argument('--provider', '-p', type=url_type, help='http url to provider', default='http://127.0.0.1:8545')
+ap.add_argument('--wallet', '-w', type=str, help="Owner account", default=w3.eth.accounts[0])
+ap.add_argument('--password', '-p', help='Ask input password to unlock account', action='store_true')
 
 
 def main():
@@ -41,11 +45,14 @@ def main():
     start_date = args.get('start_date')
     end_date = args.get('end_date')
     stage = args.get('stage')
-    net_provider = args.get('provider')
+    owner_account = args.get('wallet')
+    request_password = args.get('password')
+    owner_password = '1'
 
-    w3 = Web3(HTTPProvider(net_provider))
+    if request_password:
+        owner_password = getpass.getpass()
     try:
-        w3.personal.unlockAccount(w3.eth.accounts[0], '1')
+        w3.personal.unlockAccount(owner_account, owner_password)
     except:
         pass
 
@@ -65,18 +72,18 @@ def main():
         if escrow_address == '0':
             escrow_address = ico_controller_instance.call().holder()
         tx_hash = ico_controller_instance.transact(
-            {'from': w3.eth.accounts[0]}
+            {'from': owner_account}
         ).startPrivateOffer(start_date, end_date, escrow_address)
     elif stage == 'presale':
         tx_hash = ico_controller_instance.transact(
-            {'from': w3.eth.accounts[0]}
+            {'from': owner_account}
         ).startPreSaleIco(start_date, end_date)
     elif stage == 'crowdsale':
         tx_hash = ico_controller_instance.transact(
-            {'from': w3.eth.accounts[0]}
+            {'from': owner_account}
         ).startCrowdsale(start_date, end_date)
 
-    tx_receipt = wait_for_tx\
+    tx_receipt = wait_for_tx \
         (tx_hash,
          w3,
          wait_message="Wait for start {} transaction to be confirmed".format(stage))
@@ -91,6 +98,11 @@ def main():
         spamwriter.writerow((stage, ico_address))
 
     print("Gas used: {}".format(tx_receipt['gasUsed']))
+
+    try:
+        w3.personal.lockAccount(owner_account)
+    except ValueError:
+        pass
 
 
 if __name__ == '__main__':

@@ -2,11 +2,14 @@ import csv
 import argparse
 import time
 from datetime import datetime
+import getpass
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
 
 from utils import CSV_ROWS, get_csv_file_row, wait_for_tx
+
+w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
 
 
 def get_token_instance(compiled_source):
@@ -45,7 +48,7 @@ def get_ico_instance(address, compiled_source):
 
 def add_address_to_whitelist(address, controller_instance):
     tx_hash = controller_instance.transact(
-        {'from': w3.eth.accounts[0]}
+        {'from': owner_account}
     ).addBuyerToWhitelist(address)
     wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to whitelist")
     print("\n\n{} successfully added to whitelist".format(address))
@@ -85,7 +88,7 @@ def print_stage_info():
 
 def finish_ico(controller_instance):
     tx_hash = controller_instance.transact(
-        {'from': w3.eth.accounts[0]}
+        {'from': owner_account}
     ).finishCrowdsale()
     wait_for_tx(tx_hash, w3, wait_message="Wait for finish function")
     print("Balance of escrow ICO is: {}".format(
@@ -96,7 +99,7 @@ def finish_ico(controller_instance):
 
 def add_airdrop(address, controller_instance):
     tx_hash = controller_instance.transact(
-        {'from': w3.eth.accounts[0]}
+        {'from': owner_account}
     ).addAirdrop([address])
     wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to airdrop")
     print("\n\n{} successfully added to airdrop".format(address))
@@ -104,20 +107,22 @@ def add_airdrop(address, controller_instance):
 
 def increase_private_offer_endtime(controller_instance, new_endtime):
     tx_hash = controller_instance.transact(
-        {'from': w3.eth.accounts[0]}
+        {'from': owner_account}
     ).increasePrivateOfferEndTime(new_endtime)
     wait_for_tx(tx_hash, w3, wait_message="Wait for Private Offer to increase time")
     print("Private offer endtime updated: {}".format(
         datetime.utcfromtimestamp(new_endtime).strftime('%Y-%m-%d %H:%M:%S')
     ))
 
+
 def add_dev_reward(controller_instance, address, amount):
     tx_hash = controller_instance.transact(
-        {'from': w3.eth.accounts[0]}
+        {'from': owner_account}
     ).addDevReward(address, amount)
     wait_for_tx(tx_hash, w3, wait_message="Wait for add dev reward")
     new_reward = controller_instance.call().devRewards(address)
     print(f'{address} reward is now {new_reward}')
+
 
 ap = argparse.ArgumentParser()
 
@@ -127,6 +132,8 @@ ap.add_argument('--amount', '-m', type=int, help='Amount of dev reward')
 ap.add_argument('command', type=str, choices=[
     'balance', 'whitelist', 'stage_info', 'finish', 'airdrop', 'increase_po_endtime', 'add_dev_reward'],
                 help='Command to do')
+ap.add_argument('--wallet', '-w', type=str, help="Owner account", default=w3.eth.accounts[0])
+ap.add_argument('--password', '-p', help='Ask input password to unlock account', action='store_true')
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
@@ -134,10 +141,15 @@ if __name__ == '__main__':
     command = args['command']
     endtime = args['endtime']
     amount = args['amount']
+    owner_account = args['wallet']
+    request_password = args['password']
+    owner_password = '1'
 
-    w3 = Web3(HTTPProvider('http://127.0.0.1:8545'))
+    if request_password:
+        owner_password = getpass.getpass()
+
     try:
-        w3.personal.unlockAccount(w3.eth.accounts[0], '1')
+        w3.personal.unlockAccount(owner_account, owner_password)
     except ValueError:
         pass
 
@@ -160,3 +172,8 @@ if __name__ == '__main__':
         increase_private_offer_endtime(controller_instance, endtime)
     elif command == 'add_dev_reward':
         add_dev_reward(controller_instance, address, amount)
+
+    try:
+        w3.personal.lockAccount(owner_account)
+    except ValueError:
+        pass
