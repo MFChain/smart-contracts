@@ -3,6 +3,7 @@ import argparse
 import time
 from datetime import datetime
 import getpass
+import math
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
@@ -117,7 +118,18 @@ def add_dev_reward(controller_instance, address, amount):
 
 
 def send_airdrop(controller_instance, drop_file_path):
-    pass
+    with open(drop_file_path, 'r') as csv_file:
+        addresses, amounts = list(zip(*csv.reader(csv_file)))
+        addresses, amounts = list(addresses), list(amounts)
+        amounts = [int(am) for am in amounts]
+
+
+    number_of_iterarions = math.ceil(len(addresses) / 125)
+    for i in range(number_of_iterarions):
+        tx_hash = controller_instance.transact(
+            {'from': owner_account}
+        ).sendAirdrop(addresses[i * 125:(i + 1) * 125], amounts[i * 125:(i + 1) * 125])
+        wait_for_tx(tx_hash, w3, wait_message="Wait for airdrop send {}".format(i))
 
 
 ap = argparse.ArgumentParser()
