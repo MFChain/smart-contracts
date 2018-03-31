@@ -31,7 +31,7 @@ contract('ICO Private Offer', async function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected rever error after buying tokens as not KYC");
         }
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
 
         try {
             await privateOffer.sendTransaction({
@@ -111,7 +111,7 @@ contract('ICO Presale', async function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected rever error after buying tokens as not KYC");
         }
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
 
         try {
             await preSale.sendTransaction({
@@ -202,7 +202,7 @@ contract('ICO Crowdsale', async function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected revert error after buying tokens as not KYC");
         }
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
 
         try {
             await crowdsale.sendTransaction({
@@ -262,8 +262,8 @@ contract('ICO didn\'t reach Softcup', async function (accounts) {
         let buyerAddress = accounts[2];
         let buyerAddress2 = accounts[3];
         let holder =
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
-        await controller_instance.addBuyerToWhitelist(buyerAddress2);
+        await controller_instance.addBuyers([buyerAddress]);
+        await controller_instance.addBuyers([buyerAddress2]);
 
         let startTime = Math.ceil(Date.now() / 1000);
         let endTime = Math.ceil(Date.now() / 1000);
@@ -331,7 +331,7 @@ contract('ICO success', async function (accounts) {
         let buyerAddress = accounts[2];
         let escrowAddress = accounts[4];
         let escrowAddressInitialBalance = BigNumber(await web3.eth.getBalance(escrowAddress));
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
         let startTime = Math.ceil(Date.now() / 1000);
         let endTime = Math.ceil(Date.now() / 1000) + 1;
         await controller_instance.startPrivateOffer(
@@ -384,6 +384,7 @@ contract('ICO success', async function (accounts) {
             .minus(escrowAddressInitialBalance);
         assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow balance");
         assert.isTrue(BigNumber(await web3.eth.getBalance(holder.address)).isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at holder balance");
+
         let controllerTokenBalance = BigNumber(await token.balanceOf(controller_instance.address));
         let marketingSupportTokens = BigNumber(await controller_instance.MARKETING_SUPPORT_SUPPLY.call());
         assert.isTrue(controllerTokenBalance.isEqualTo(marketingSupportTokens), "Wrong amount of token at controller");
@@ -413,62 +414,5 @@ contract('ICO success', async function (accounts) {
         } catch (err){
             assert.ifError('Error, it is impossible to transfer tokens after ICO end');
         }
-    });
-});
-
-contract('ICO success without token burning', async function (accounts) {
-
-    it("test ICO success without token burning", async function () {
-        let controller_instance = await Controller.deployed();
-        let holder = await Holder.deployed();
-        let token = await Token.at(await controller_instance.token.call());
-        let buyerAddress = accounts[2];
-        let escrowAddress = accounts[4];
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
-        let startTime = Math.ceil(Date.now() / 1000);
-        let endTime = Math.ceil(Date.now() / 1000) + 1;
-        await controller_instance.startPrivateOffer(
-            startTime,
-            endTime,
-            controller_instance.address);
-        wait(1);
-        let privateOffer = await WhitelistedCrowdsale.at(await controller_instance.privateOffer.call());
-        await privateOffer.sendTransaction({from: buyerAddress, value: web3.toWei(120, 'ether')});
-        wait(2);
-        startTime = Math.ceil(Date.now() / 1000);
-        endTime = Math.ceil(Date.now() / 1000) + 1;
-        await controller_instance.startPreSaleIco(
-            startTime,
-            endTime);
-        wait(1);
-        let preSale = await WhitelistedCrowdsale.at(await controller_instance.preSale.call());
-        await preSale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
-        wait(2);
-        startTime = Math.ceil(Date.now() / 1000);
-        endTime = Math.ceil(Date.now() / 1000) + 5;
-        await controller_instance.startCrowdsale(
-            startTime,
-            endTime);
-        wait(1);
-        let crowdsale = await WhitelistedCrowdsale.at(await controller_instance.crowdsale.call());
-
-        for (let i = 0; i < 22; i++) {
-            await crowdsale.sendTransaction({from: buyerAddress, value: web3.toWei(200, 'ether')});
-        }
-        wait(5);
-        let airdropSupplyBefore = BigNumber(await controller_instance.airdropSupply.call());
-        let pullSupply = BigNumber(await controller_instance.PULL_SUPPLY.call());
-        await controller_instance.finishCrowdsale();
-        let controllerTokenBalance = BigNumber(await token.balanceOf(controller_instance.address));
-        let marketingSupportTokens = BigNumber(await controller_instance.MARKETING_SUPPORT_SUPPLY.call());
-        let totalDevReward = await controller_instance.totalDevReward.call();
-        let maxDevReward = await controller_instance.MAX_DEV_REWARD.call();
-        let airDropSupply = BigNumber(await controller_instance.airdropSupply.call());
-        assert.isTrue(airDropSupply.isEqualTo(airdropSupplyBefore.plus(pullSupply)), "Wrong Airdrop supply adding");
-        assert.isTrue(
-            controllerTokenBalance.isEqualTo(marketingSupportTokens
-                .plus(maxDevReward.minus(totalDevReward).plus(airDropSupply))), 
-            "Wrong amount of token at controller"
-        );
     });
 });
