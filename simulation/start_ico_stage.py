@@ -2,6 +2,7 @@ import time
 import csv
 import argparse
 import urllib
+import getpass
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
@@ -34,7 +35,7 @@ ap.add_argument('--stage', '-t', type=str, help='ICO stage (private_offer, presa
                 choices=['private_offer', 'presale', 'crowdsale'])
 
 ap.add_argument('--wallet', '-w', type=str, help="Owner account", default=w3.eth.accounts[0])
-ap.add_argument('--password', '-p', type=str, help='Deploy account password', default='1')
+ap.add_argument('--password', '-p', help='Ask input password to unlock account', action='store_true')
 
 
 def main():
@@ -45,8 +46,11 @@ def main():
     end_date = args.get('end_date')
     stage = args.get('stage')
     owner_account = args.get('wallet')
-    owner_password = args.get('password')
+    request_password = args.get('password')
+    owner_password = '1'
 
+    if request_password:
+        owner_password = getpass.getpass()
     try:
         w3.personal.unlockAccount(owner_account, owner_password)
     except:

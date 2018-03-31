@@ -2,6 +2,7 @@ import csv
 import os
 import re
 import argparse
+import getpass
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
@@ -46,7 +47,7 @@ ap.add_argument('--require', '-r', type=int, help='Minimum account confirmations
                 default=1)
 ap.add_argument('--escrow', '-e', type=str, help="Escrow account for ICO's", default=w3.eth.accounts[1])
 ap.add_argument('--wallet', '-w', type=str, help="Deploy account", default=w3.eth.accounts[0])
-ap.add_argument('--password', '-p', type=str, help='Deploy account password')
+ap.add_argument('--password', '-p', help='Ask input password to unlock account', action='store_true')
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
@@ -54,10 +55,13 @@ if __name__ == '__main__':
     ESCROW_ADDRESS = args.get('escrow')
     REQUIRE = args.get('require')
     DEPLOY_ACCOUNT = args.get('wallet')
-    ACCOUNT_PASSWORD = args.get('password')
+    REQUEST_PASSWORD = args.get('password')
+    ACCOUNT_PASSWORD = '1'
     if REQUIRE > len(HOLDERS_ACCOUNTS):
         raise argparse.ArgumentTypeError('Require more than accounts')
 
+    if REQUEST_PASSWORD:
+        ACCOUNT_PASSWORD = getpass.getpass()
     if DEPLOY_ACCOUNT and ACCOUNT_PASSWORD:
         try:
             w3.personal.unlockAccount(DEPLOY_ACCOUNT, ACCOUNT_PASSWORD)
