@@ -59,10 +59,10 @@ contract ICO_controller is Ownable {
     bool public crowdsaleFinished;
 
     function ICO_controller(address _holder, address _incentive_program) {
-        devRewardReleaseTime = Q3_2018_START_DATE + (uint(block.blockhash(block.number - 1)) % 7948800);
+        devRewardReleaseTime = now;
 
-        unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 7948800);
-        unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 7948800);
+        unlockMarketingTokensTime[0] = now;
+        unlockMarketingTokensTime[1] = now;
 
         holder = _holder;
         incentiveProgram = _incentive_program;
