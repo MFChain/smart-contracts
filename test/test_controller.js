@@ -175,60 +175,6 @@ contract('ICO Controller', function (accounts) {
         assert.notEqual(await contract.owner.call(), owner);
     });
 
-    it("test addBuyerToWhitelist function", function () {
-        var owner = accounts[0];
-        var addAccount = accounts[2];
-        var controller_instance;
-        return Controller.deployed().then(
-            function (inst) {
-                controller_instance = inst;
-                return controller_instance.isAddressWhitelisted.call(addAccount);
-            }).then(
-            function (isAddrWhite) {
-                assert.isFalse(isAddrWhite, "Address was whitelisted by default");
-                return controller_instance.addBuyerToWhitelist(addAccount, {from: addAccount});
-            }).then(
-            function () {
-                assert.isFalse(true, "Expected access exception. The function is only for owner");
-            }).catch(
-            function (error) {
-                return controller_instance.addBuyerToWhitelist(addAccount);
-            }).then(
-            function () {
-                return controller_instance.isAddressWhitelisted.call(addAccount);
-            }).then(
-            function (isAddrWhite) {
-                assert.isTrue(isAddrWhite.valueOf(), "Address is not whitelisted");
-            }
-        );
-    });
-
-    it("test removeBuyerFromWhitelist function", function () {
-        var owner = accounts[0];
-        var addAccount = accounts[3];
-        var controller_instance;
-        return Controller.deployed().then(
-            function (inst) {
-                controller_instance = inst;
-                return controller_instance.addBuyerToWhitelist(addAccount);
-            }).then(
-            function () {
-                return controller_instance.removeBuyerFromWhitelist(addAccount, {from: addAccount});
-            }).then(
-            function () {
-                assert.isFalse(true, "Expect access exception. The function is only for owner");
-            }).catch(
-            function (error) {
-                return controller_instance.removeBuyerFromWhitelist(addAccount);
-            }).then(
-            function () {
-                return controller_instance.isAddressWhitelisted.call(addAccount);
-            }).then(
-            function (isAddrWhite) {
-                assert.isFalse(isAddrWhite.valueOf(), "Address is whitelisted");
-            });
-    });
-
     it("test addBuyers function", function () {
         var addAccounts = [accounts[4], accounts[5]];
         var controller_instance;
@@ -280,79 +226,6 @@ contract('ICO Controller', function (accounts) {
     });
 });
 
-contract('ICO Controller Airdrop', function (accounts) {
-    it("test addAirdrop", function () {
-        var addAccounts = [accounts[1], accounts[2]];
-        var controller_instance;
-        return Controller.deployed().then(
-            function (inst) {
-                controller_instance = inst;
-                return controller_instance.airdropList.call(addAccounts[0]);
-            }).then(
-            function (inDroplist) {
-                assert.isFalse(inDroplist.valueOf(), "account in airdrop list by default");
-                return controller_instance.totalAirdropAdrresses.call();
-            }).then(
-            function (totalAdrresses) {
-                assert.equal(totalAdrresses.valueOf(), 0, "account total number is not 0 by default");
-                return controller_instance.addAirdrop(addAccounts);
-            }).then(
-            function () {
-                return controller_instance.totalAirdropAdrresses.call();
-            }).then(
-            function (total_addr) {
-                assert.equal(total_addr.valueOf(), addAccounts.length, "Expect totalAirdropAdrresses become: " + addAccounts.length);
-                return controller_instance.airdropList.call(addAccounts[0]);
-            }).then(
-            function (inDroplist) {
-                assert.isTrue(inDroplist.valueOf(), "Excpect Account 0 to be in airdrop list");
-                return controller_instance.airdropList.call(addAccounts[1]);
-            }).then(
-            function (inDroplist) {
-                assert.isTrue(inDroplist.valueOf(), "Excpect Account 1 to be in airdrop list");
-            });
-    });
-
-    it("test removeAirdrop", function () {
-        var addAccounts = [accounts[3], accounts[4]];
-        var controller_instance;
-        return Controller.deployed().then(
-            function (inst) {
-                controller_instance = inst;
-                return controller_instance.addAirdrop(addAccounts);
-            }).then(
-            function () {
-                return controller_instance.removeAirdrop(addAccounts);
-            }).then(
-            function () {
-                return controller_instance.airdropList.call(addAccounts[0]);
-            }).then(
-            function (inDroplist) {
-                assert.isFalse(inDroplist.valueOf(), "Excpect Account 0 not to be in airdrop list");
-                return controller_instance.airdropList.call(addAccounts[1]);
-            }).then(
-            function (inDroplist) {
-                assert.isFalse(inDroplist.valueOf(), "Excpect Account 1 not to be in airdrop list");
-            });
-    });
-
-    it("test addAirdrop add one account twice and zero address", async function () {
-        let controller = await Controller.deployed();
-        let addAccounts = [accounts[10]];
-        let zeroAccount = ['0x0000000000000000000000000000000000000000'];
-        let controller_instance;
-
-        try {
-            await controller.addAirdrop(zeroAccount);
-            assert.ifError("Expect exception. The function doesn't allow zero address");
-        } catch (err) {
-            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after attemp to add zero address");
-        }
-        ;
-    });
-
-});
-
 contract('ICO_controller', async function (accounts) {
     it("test increasePrivateOfferEndTime func", async function () {
 
@@ -385,130 +258,64 @@ contract('ICO_controller', async function (accounts) {
     });
 });
 
-//The test checks airdrop correct amount of token distribution between aitdrop accounts after all ICOs finished
-contract('ICO Controller Airdrop long', function (accounts) {
-    it("test getAirdropTokens", function () {
-        var addAccounts = [accounts[3], accounts[4]];
-        var controller_instance;
-        var token_instance;
-        var airdropTokensSupply;
-        var expectAirdropTokensSupply = 1000000000000000000000000;
-        return Controller.deployed().then(
-            function (inst) {
-                controller_instance = inst;
-                return controller_instance.addAirdrop(addAccounts);
-            }).then(
-            function () {
-                return controller_instance.getAirdropTokens({from: addAccounts[0]});
-            }).then(
-            function () {
-                assert.isFalse(true, "Expect access exception. The function is allowed only after all ICO finish")
-            }).catch(
-            function (error) {
-                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception after getAirdropTokens before ICO finish");
-            }).then(
-            function () {
-                // stat ICOs
-                return controller_instance.startPrivateOffer(
-                    Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000), accounts[5]);
-            }).then(
-            function () {
-                wait(2);
-                return controller_instance.startPreSaleIco(
-                    Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000));
-            }).then(
-            function () {
-                wait(2);
-                return controller_instance.startCrowdsale(
-                    Math.ceil(Date.now() / 1000), Math.ceil(Date.now() / 1000));
-            }).then(
-            function () {
-                wait(2);
-                return controller_instance.finishCrowdsale();
-            }).then(
-            function () {
-                return controller_instance.getAirdropTokens();
-            }).then(
-            function () {
-                assert.isFalse(true, "Expect access exception. The function is only for airdrop accounts")
-            }).catch(
-            function (error) {
-                assert.equal(error, 'Error: VM Exception while processing transaction: revert', "Excpected revert exception");
-                return controller_instance.getAirdropTokens({from: addAccounts[0]});
-            }).then(
-            function () {
-                return controller_instance.token();
-            }).then(
-            function (token_addr) {
-                token_instance = Token.at(token_addr);
-                return controller_instance.airdropSupply.call();
-            }).then(
-            function (amount) {
-                airdropTokensSupply = amount.valueOf();
-                assert.equal(airdropTokensSupply, expectAirdropTokensSupply, "Wrong amount of airdrop tokens");
-                return token_instance.balanceOf(addAccounts[0]);
-            }).then(
-            function (balance) {
-                assert.equal(balance.valueOf(), expectAirdropTokensSupply / addAccounts.length, "Wrong amount of account token balance");
-            });
-    });
-
-});
-
-contract("Controller ICO Bounty Pull", async function (accounts) {
-    it('test sendPullTokensTo', async function () {
+contract("ICO Controller Airdrop", async function (accounts) {
+    it('test sendAirdrop', async function () {
         let controller = await Controller.deployed();
         let token = await Token.at(await controller.token.call());
-        let pullAccount = accounts[6];
+        let airdropAccounts = [accounts[6], accounts[7]];
         try {
-            await controller.sendPullTokensTo(pullAccount, 100, {from: pullAccount});
+            await controller.sendAirdrop(airdropAccounts, [100, 110], {from: airdropAccounts[0]});
             assert.ifError('Error, only owner should be able to use the function');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert',
                 "Only owner should be able to use the function");
         }
         try {
-            await controller.sendPullTokensTo(pullAccount, web3.toWei(4000001, 'ether'));
-            assert.ifError('Error, too big amount of tokens to send allowed');
+            await controller.sendAirdrop(airdropAccounts, [web3.toWei(5000000, 'ether'), 1]);
+            assert.ifError('Error, too big amount of tokens to send is allowed');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert',
-                "It is shouldn't be able to transfer more tokens then pull supply");
+                "It is shouldn't be able to transfer more tokens then airdrop supply");
         }
-        let expectedTokenAmount = web3.toWei(3999999, 'ether');
-        await controller.sendPullTokensTo(pullAccount, expectedTokenAmount);
-        let actualTokenAmount = BigNumber(await token.balanceOf(pullAccount));
-        assert.isTrue(actualTokenAmount.isEqualTo(actualTokenAmount), "Wrong token balance");
+        let expectedTokenAmountAccount1 = web3.toWei(4999999, 'ether');
+        let expectedTokenAmountAccount2 = 100;
+        await controller.sendAirdrop(airdropAccounts, [expectedTokenAmountAccount1, expectedTokenAmountAccount2]);
+
+        let actualTokenAmount1 = BigNumber(await token.balanceOf(airdropAccounts[0]));
+        assert.isTrue(actualTokenAmount1.isEqualTo(expectedTokenAmountAccount1), "Wrong token balance account1");
+        let actualTokenAmount2 = BigNumber(await token.balanceOf(airdropAccounts[1]));
+        assert.isTrue(actualTokenAmount2.isEqualTo(expectedTokenAmountAccount2), "Wrong token balance account2");
     });
 
     it("test sender's whitelist", async function () {
         let controller = await Controller.deployed();
         let token = await Token.at(await controller.token.call());
-        let pullAccount = accounts[6];
-        let receiverAccount = accounts[7];
+        let airdropAccount = [accounts[6]];
+        let receiverAccount = accounts[8];
         let tokenAmount = 100;
 
-        await controller.sendPullTokensTo(pullAccount, tokenAmount);
+        await controller.sendAirdrop(airdropAccount, [tokenAmount]);
         try {
-            await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
-            assert.ifError('Error, pull account is not whitelisted to send tokens, but it does');
+            await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount[0]});
+            assert.ifError('Error, account is not whitelisted to send tokens, but it does');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert',
-                "Error, pull account is not whitelisted to send tokens, but it does");
+                "Error, account is not whitelisted to send tokens, but it does");
         }
 
-        await controller.addToSendersWhitelist([pullAccount]);
-        await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
+        await controller.addToSendersWhitelist(airdropAccount);
+        await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount[0]});
         let receiverBalance = BigNumber(await token.balanceOf(receiverAccount));
         assert.isTrue(receiverBalance.isEqualTo(tokenAmount), "Wrong amount of tokens at receiver's account");
 
-        await controller.sendPullTokensTo(pullAccount, tokenAmount);
-        await controller.removeFromSendersWhitelist([pullAccount]);
+        await controller.sendAirdrop([receiverAccount], [tokenAmount]);
+        await controller.removeFromSendersWhitelist(airdropAccount);
         try {
-            await token.transfer(receiverAccount, tokenAmount, {from: pullAccount});
-            assert.ifError('Error, pull account is not whitelisted to send tokens, but it does');
+            await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount[0]});
+            assert.ifError('Error, account is not whitelisted to send tokens, but it does');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert',
-                "Error, pull account is not whitelisted to send tokens, but it does");
+                "Error, account is not whitelisted to send tokens, but it does");
         }
     });
 
