@@ -2,6 +2,7 @@ import csv
 import argparse
 import time
 from datetime import datetime
+import getpass
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
@@ -132,7 +133,7 @@ ap.add_argument('command', type=str, choices=[
     'balance', 'whitelist', 'stage_info', 'finish', 'airdrop', 'increase_po_endtime', 'add_dev_reward'],
                 help='Command to do')
 ap.add_argument('--wallet', '-w', type=str, help="Owner account", default=w3.eth.accounts[0])
-ap.add_argument('--password', '-p', type=str, help='Deploy account password', default='1')
+ap.add_argument('--password', '-p', help='Ask input password to unlock account', action='store_true')
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
@@ -141,7 +142,11 @@ if __name__ == '__main__':
     endtime = args['endtime']
     amount = args['amount']
     owner_account = args['wallet']
-    owner_password = args['password']
+    request_password = args['password']
+    owner_password = '1'
+
+    if request_password:
+        owner_password = getpass.getpass()
 
     try:
         w3.personal.unlockAccount(owner_account, owner_password)
