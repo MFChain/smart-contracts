@@ -91,6 +91,10 @@ def finish_ico(controller_instance):
         {'from': owner_account}
     ).finishCrowdsale()
     wait_for_tx(tx_hash, w3, wait_message="Wait for finish function")
+    tx_hash = controller_instance.transact(
+        {'from': owner_account}
+    ).finishCrowdsaleBurnUnused()
+    wait_for_tx(tx_hash, w3, wait_message="Wait for burn function")
     print("Balance of escrow ICO is: {}".format(
         w3.eth.getBalance(controller_instance.call().escrowIco())))
     print("Balance of holder ICO is: {}".format(
