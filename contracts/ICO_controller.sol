@@ -203,13 +203,13 @@ contract ICO_controller is Ownable, TransferableInterface {
     }
 
     function finishCrowdsaleBurnUnused() external onlyOwner {
-        // require(crowdsaleFinished == true);
-
+        require(crowdsaleFinished == true);
+        
         // // burn some unspent reward tokens
         uint256 unspendDevReward = MAX_DEV_REWARD.sub(totalDevReward);
         uint256 controllerAvaibleBalance = token.balanceOf(address(this));
         controllerAvaibleBalance = controllerAvaibleBalance.sub(MARKETING_SUPPORT_SUPPLY);
-
+        
         if (unspendDevReward != 0 && controllerAvaibleBalance >= unspendDevReward) {
             token.burn(unspendDevReward);
             controllerAvaibleBalance = controllerAvaibleBalance.sub(unspendDevReward);

@@ -290,28 +290,28 @@ contract("ICO Controller Airdrop", async function (accounts) {
     it("test sender's whitelist", async function () {
         let controller = await Controller.deployed();
         let token = await Token.at(await controller.token.call());
-        let airdropAccount = [accounts[6]];
+        let airdropAccount = accounts[6];
         let receiverAccount = accounts[8];
         let tokenAmount = 100;
 
-        await controller.sendAirdrop(airdropAccount, [tokenAmount]);
+        await controller.sendAirdrop([airdropAccount], [tokenAmount]);
         try {
-            await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount[0]});
+            await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount});
             assert.ifError('Error, account is not whitelisted to send tokens, but it does');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert',
                 "Error, account is not whitelisted to send tokens, but it does");
         }
 
-        await controller.addToSendersWhitelist(airdropAccount);
-        await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount[0]});
+        await controller.addToSendersWhitelist([airdropAccount]);
+        await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount});
         let receiverBalance = BigNumber(await token.balanceOf(receiverAccount));
         assert.isTrue(receiverBalance.isEqualTo(tokenAmount), "Wrong amount of tokens at receiver's account");
 
         await controller.sendAirdrop([receiverAccount], [tokenAmount]);
-        await controller.removeFromSendersWhitelist(airdropAccount);
+        await controller.removeFromSendersWhitelist([airdropAccount]);
         try {
-            await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount[0]});
+            await token.transfer(receiverAccount, tokenAmount, {from: airdropAccount});
             assert.ifError('Error, account is not whitelisted to send tokens, but it does');
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert',
