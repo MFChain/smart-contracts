@@ -272,6 +272,7 @@ contract ICO_controller is Ownable, TransferableInterface {
     }
 
     function sendAirdrop(address[] _addresses, uint256[] _amounts) external onlyOwner {
+        require(crowdsaleFinished == false);
         require(_addresses.length == _amounts.length);
         for(uint i = 0; i < _addresses.length; i++){
             airdropSpent = airdropSpent.add(_amounts[i]);
