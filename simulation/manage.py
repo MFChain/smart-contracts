@@ -3,6 +3,7 @@ import argparse
 import time
 from datetime import datetime
 import getpass
+import math
 
 from web3 import Web3, HTTPProvider
 from solc import compile_files
@@ -49,7 +50,7 @@ def get_ico_instance(address, compiled_source):
 def add_address_to_whitelist(address, controller_instance):
     tx_hash = controller_instance.transact(
         {'from': owner_account}
-    ).addBuyerToWhitelist(address)
+    ).addBuyers([address])
     wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to whitelist")
     print("\n\n{} successfully added to whitelist".format(address))
     with open('whitelisted.csv', 'at') as text_file:
@@ -101,14 +102,6 @@ def finish_ico(controller_instance):
         w3.eth.getBalance(controller_instance.call().holder())))
 
 
-def add_airdrop(address, controller_instance):
-    tx_hash = controller_instance.transact(
-        {'from': owner_account}
-    ).addAirdrop([address])
-    wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to airdrop")
-    print("\n\n{} successfully added to airdrop".format(address))
-
-
 def increase_private_offer_endtime(controller_instance, new_endtime):
     tx_hash = controller_instance.transact(
         {'from': owner_account}
@@ -128,16 +121,33 @@ def add_dev_reward(controller_instance, address, amount):
     print(f'{address} reward is now {new_reward}')
 
 
+def send_airdrop(controller_instance, drop_file_path):
+    with open(drop_file_path, 'r') as csv_file:
+        addresses, amounts = list(zip(*csv.reader(csv_file)))
+        addresses, amounts = list(addresses), list(amounts)
+        amounts = [int(am) for am in amounts]
+
+
+    number_of_iterarions = math.ceil(len(addresses) / 125)
+    for i in range(number_of_iterarions):
+        tx_hash = controller_instance.transact(
+            {'from': owner_account}
+        ).sendAirdrop(addresses[i * 125:(i + 1) * 125], amounts[i * 125:(i + 1) * 125])
+        wait_for_tx(tx_hash, w3, wait_message="Wait for airdrop send {}".format(i))
+
+
 ap = argparse.ArgumentParser()
 
 ap.add_argument('--address', '-a', type=str, help='optional address')
 ap.add_argument('--endtime', '-d', type=int, help='Unix endtime for private offer.')
 ap.add_argument('--amount', '-m', type=int, help='Amount of dev reward')
 ap.add_argument('command', type=str, choices=[
-    'balance', 'whitelist', 'stage_info', 'finish', 'airdrop', 'increase_po_endtime', 'add_dev_reward'],
+    'balance', 'whitelist', 'stage_info', 'finish', 'increase_po_endtime', 'add_dev_reward',
+    'send_airdrop'],
                 help='Command to do')
 ap.add_argument('--wallet', '-w', type=str, help="Owner account", default=w3.eth.accounts[0])
 ap.add_argument('--password', '-p', help='Ask input password to unlock account', action='store_true')
+ap.add_argument('--file', '-f', type=str, help='optional path to file')
 
 if __name__ == '__main__':
     args = vars(ap.parse_args())
@@ -145,6 +155,7 @@ if __name__ == '__main__':
     command = args['command']
     endtime = args['endtime']
     amount = args['amount']
+    file_path = args['file']
     owner_account = args['wallet']
     request_password = args['password']
     owner_password = '1'
@@ -170,12 +181,12 @@ if __name__ == '__main__':
         print_stage_info()
     elif command == 'finish':
         finish_ico(controller_instance)
-    elif command == 'airdrop':
-        add_airdrop(address, controller_instance)
     elif command == 'increase_po_endtime':
         increase_private_offer_endtime(controller_instance, endtime)
     elif command == 'add_dev_reward':
         add_dev_reward(controller_instance, address, amount)
+    elif command == 'send_airdrop':
+        send_airdrop(controller_instance, file_path)
 
     try:
         w3.personal.lockAccount(owner_account)
