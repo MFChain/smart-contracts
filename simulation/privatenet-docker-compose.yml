@@ -4,7 +4,6 @@ services:
   eth_net:
     build: .
     ports:
-      - "8545:8545"
     volumes:
       - ../:/workspace
     command: /bin/bash -c "cd /workspace/simulation && exec invoke run"
