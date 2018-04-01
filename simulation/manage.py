@@ -102,12 +102,12 @@ def finish_ico(controller_instance):
         w3.eth.getBalance(controller_instance.call().holder())))
 
 
-def increase_private_offer_endtime(controller_instance, new_endtime):
+def increase_ico_endtime(controller_instance, new_endtime):
     tx_hash = controller_instance.transact(
         {'from': owner_account}
-    ).increasePrivateOfferEndTime(new_endtime)
-    wait_for_tx(tx_hash, w3, wait_message="Wait for Private Offer to increase time")
-    print("Private offer endtime updated: {}".format(
+    ).increaseCurrentIcoEndTime(new_endtime)
+    wait_for_tx(tx_hash, w3, wait_message="Wait for ico to increase time")
+    print("Ico offer endtime updated: {}".format(
         datetime.utcfromtimestamp(new_endtime).strftime('%Y-%m-%d %H:%M:%S')
     ))
 
@@ -142,7 +142,7 @@ ap.add_argument('--address', '-a', type=str, help='optional address')
 ap.add_argument('--endtime', '-d', type=int, help='Unix endtime for private offer.')
 ap.add_argument('--amount', '-m', type=int, help='Amount of dev reward')
 ap.add_argument('command', type=str, choices=[
-    'balance', 'whitelist', 'stage_info', 'finish', 'increase_po_endtime', 'add_dev_reward',
+    'balance', 'whitelist', 'stage_info', 'finish', 'increase_ico_endtime', 'add_dev_reward',
     'send_airdrop'],
                 help='Command to do')
 ap.add_argument('--wallet', '-w', type=str, help="Owner account", default=w3.eth.accounts[0])
@@ -181,8 +181,8 @@ if __name__ == '__main__':
         print_stage_info()
     elif command == 'finish':
         finish_ico(controller_instance)
-    elif command == 'increase_po_endtime':
-        increase_private_offer_endtime(controller_instance, endtime)
+    elif command == 'increase_ico_endtime':
+        increase_ico_endtime(controller_instance, endtime)
     elif command == 'add_dev_reward':
         add_dev_reward(controller_instance, address, amount)
     elif command == 'send_airdrop':

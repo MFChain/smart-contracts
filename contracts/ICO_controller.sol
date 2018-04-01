@@ -259,9 +259,14 @@ contract ICO_controller is Ownable, TransferableInterface {
         unlockIndex++;
     }
 
-    function increasePrivateOfferEndTime(uint256 _endTime) external onlyOwner {
-        require(privateOffer != address(0));
-        privateOffer.increaseEndTime(_endTime);
+    function increaseCurrentIcoEndTime(uint256 _endTime) external onlyOwner {
+        if (address(crowdsale) != address(0)){
+            crowdsale.increaseEndTime(_endTime);
+        } else if (address(preSale) != address(0)){
+            preSale.increaseEndTime(_endTime);
+        } else if (address(privateOffer) != address(0)) {
+            privateOffer.increaseEndTime(_endTime);
+        }
     }
 
     function isTransferable(address _sender) external returns(bool) {
@@ -272,6 +277,7 @@ contract ICO_controller is Ownable, TransferableInterface {
     }
 
     function sendAirdrop(address[] _addresses, uint256[] _amounts) external onlyOwner {
+        require(crowdsaleFinished == false);
         require(_addresses.length == _amounts.length);
         for(uint i = 0; i < _addresses.length; i++){
             airdropSpent = airdropSpent.add(_amounts[i]);
