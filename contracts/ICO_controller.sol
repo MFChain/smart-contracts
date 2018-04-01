@@ -43,7 +43,7 @@ contract ICO_controller is Ownable, TransferableInterface {
     uint256 constant public PRIVATE_OFFER_SUPPLY = 42000000 * 1 ether;
     uint256 constant public PRE_SALE_SUPPLY = 50750000 * 1 ether;
     uint256 constant public CROWDSALE_SUPPLY = 208250000 * 1 ether;
-    uint256 constant public SOFTCAP = 4720 * 1 ether;
+    uint256 constant public SOFTCAP = 0.001 * 1 ether;
     uint256 constant public MAX_DEV_REWARD = 40000000 * 1 ether;
     uint256 constant public INCENTIVE_PROGRAM_SUPPORT = 75000000 * 1 ether;
     uint256 constant public MARKETING_SUPPORT_SUPPLY = 100000000 * 1 ether;
@@ -66,13 +66,10 @@ contract ICO_controller is Ownable, TransferableInterface {
     bool public crowdsaleFinished;
 
     function ICO_controller(address _holder, address _escrowIco) {
-        require(_holder!=address(0));
-        require(_escrowIco!=address(0));
-        devRewardReleaseTime = Q3_2018_START_DATE + (uint(block.blockhash(block.number - 1)) % 7948800);
+        devRewardReleaseTime = now;
 
-        //sets random date for unlock marketing support tokens during Q2 of 2019 and 2020 years
-        unlockMarketingTokensTime[0] = Q2_2019_START_DATE + (uint(block.blockhash(block.number - 2)) % 7948800);
-        unlockMarketingTokensTime[1] = Q2_2020_START_DATE + (uint(block.blockhash(block.number - 3)) % 7948800);
+        unlockMarketingTokensTime[0] = now;
+        unlockMarketingTokensTime[1] = now;
 
         holder = _holder;
         escrowIco = _escrowIco;
@@ -98,7 +95,7 @@ contract ICO_controller is Ownable, TransferableInterface {
         for(uint i = 0; i < _senders.length; i++){
             require(_senders[i] != address(0));
             sendersWhitelist[_senders[i]] = true;
-        }        
+        }
     }
 
     function removeFromSendersWhitelist(address[] _senders) public onlyOwner {
@@ -158,7 +155,7 @@ contract ICO_controller is Ownable, TransferableInterface {
     function startPrivateOffer(uint256 _startTime, uint256 _endTime, address _escrow) external onlyOwner {
         require(address(privateOffer) == address(0));
         require(_escrow != address(0));
-        privateOffer = startIco(_startTime, _endTime, 12000, 10 ether, 200 ether, _escrow, true);
+        privateOffer = startIco(_startTime, _endTime, 12000, 0 ether, 200 ether, _escrow, true);
         token.transfer(address(privateOffer), PRIVATE_OFFER_SUPPLY);
     }
 
@@ -167,7 +164,7 @@ contract ICO_controller is Ownable, TransferableInterface {
         require(address(privateOffer) != address(0));
         require(address(preSale)== address(0));
         require(privateOffer.hasEnded() == true);
-        preSale = startIco(_startTime, _endTime, 10150, 5 ether, 200 ether, false);
+        preSale = startIco(_startTime, _endTime, 10150, 0 ether, 200 ether, false);
         token.transfer(address(preSale), PRE_SALE_SUPPLY);
         privateOffer.burnRemainingTokens();
     }
@@ -177,7 +174,7 @@ contract ICO_controller is Ownable, TransferableInterface {
         require(address(preSale) != address(0));
         require(address(crowdsale) == address(0));
         require(preSale.hasEnded() == true);
-        crowdsale = startIco(_startTime, _endTime, 8500, 0.1 ether, 200 ether, false);
+        crowdsale = startIco(_startTime, _endTime, 8500, 0 ether, 200 ether, false);
         token.transfer(address(crowdsale), CROWDSALE_SUPPLY);
         preSale.burnRemainingTokens();
     }
@@ -204,12 +201,12 @@ contract ICO_controller is Ownable, TransferableInterface {
 
     function finishCrowdsaleBurnUnused() external onlyOwner {
         require(crowdsaleFinished == true);
-        
+
         // // burn some unspent reward tokens
         uint256 unspendDevReward = MAX_DEV_REWARD.sub(totalDevReward);
         uint256 controllerAvaibleBalance = token.balanceOf(address(this));
         controllerAvaibleBalance = controllerAvaibleBalance.sub(MARKETING_SUPPORT_SUPPLY);
-        
+
         if (unspendDevReward != 0 && controllerAvaibleBalance >= unspendDevReward) {
             token.burn(unspendDevReward);
             controllerAvaibleBalance = controllerAvaibleBalance.sub(unspendDevReward);
