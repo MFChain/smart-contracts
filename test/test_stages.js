@@ -416,3 +416,50 @@ contract('ICO success', async function (accounts) {
         }
     });
 });
+
+contract("ICO Increase time", async function () {
+    it('test increaseCurrentIcoEndTime functions', async function () {
+        let controller_instance = await Controller.deployed();
+        let startTime = Math.ceil(Date.now() / 1000);
+        let endTime = Math.ceil(Date.now() / 1000);
+        await controller_instance.startPrivateOffer(
+            startTime,
+            endTime,
+            controller_instance.address);
+        let privateOffer = await WhitelistedCrowdsale.at(await controller_instance.privateOffer.call());
+        try {
+            await controller_instance.increaseCurrentIcoEndTime(endTime);
+            assert.ifError('Error, it is possible to increase time that not greater then current');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "it is possible to increase time that not greater then current");
+        }
+        let endTimeUpdated = endTime + 1;
+        await controller_instance.increaseCurrentIcoEndTime(endTimeUpdated);
+        let actualEndTime = await privateOffer.endTime.call();
+        assert.equal(endTimeUpdated, actualEndTime, "Wrong updated endtime for private offer");
+        wait(3);
+
+        startTime = Math.ceil(Date.now() / 1000);
+        endTime = Math.ceil(Date.now() / 1000);
+        await controller_instance.startPreSaleIco(
+            startTime,
+            endTime);
+        let preSale = await WhitelistedCrowdsale.at(await controller_instance.preSale.call());
+        endTimeUpdated = endTime + 1;
+        await controller_instance.increaseCurrentIcoEndTime(endTimeUpdated);
+        actualEndTime = await preSale.endTime.call();
+        assert.equal(endTimeUpdated, actualEndTime, "Wrong updated endtime for presale");
+        wait(3);
+
+        startTime = Math.ceil(Date.now() / 1000);
+        endTime = Math.ceil(Date.now() / 1000);
+        await controller_instance.startCrowdsale(
+            startTime,
+            endTime);
+        let crowdsale = await WhitelistedCrowdsale.at(await controller_instance.crowdsale.call());
+        endTimeUpdated = endTime + 1;
+        await controller_instance.increaseCurrentIcoEndTime(endTimeUpdated);
+        actualEndTime = await crowdsale.endTime.call();
+        assert.equal(endTimeUpdated, actualEndTime, "Wrong updated endtime for crowdsale");
+    });
+});
