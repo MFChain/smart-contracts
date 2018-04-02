@@ -1,4 +1,4 @@
-var ICO_controller_mock = artifacts.require("ICO_controller_mock");
+var ICO_controller_mock = artifacts.require("TransferableControllerMock");
 
 module.exports = async function(deployer, network, accounts) {
     await deployer.deploy(ICO_controller_mock);
