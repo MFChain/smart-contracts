@@ -178,7 +178,7 @@ contract('ICO_controller tests getDevReward', async function(accounts) {
 
     beforeEach(async function() {
         controllerInstance = await IcoControllerMock.new(
-            holder, escrowAccount, 
+            holder, escrowAccount,
             {from: owner}
         );
         token = Token.at(await controllerInstance.token.call());
@@ -188,12 +188,12 @@ contract('ICO_controller tests getDevReward', async function(accounts) {
         rewardBn = BigNumber(maxReward).minus(totalRewardBn).dividedBy(1000000000000)
         reward = rewardBn.toNumber();
     });
-    
+
     it("should throw error when devRewardReleaseTime >= now", async function() {
         await controllerInstance.addDevReward(user, reward, {'from': owner});
-        
+
         let now = Math.ceil(Date.now() / 1000);
-        
+
         await controllerInstance.setDevRewardReleaseTime.sendTransaction(now + 100);
         try {
             await controllerInstance.getDevReward.sendTransaction({from: user});
@@ -205,13 +205,13 @@ contract('ICO_controller tests getDevReward', async function(accounts) {
 
     it("test when msg.sender in mapping and amount > 0", async function() {
         await controllerInstance.addDevReward(user, reward, {'from': owner});
-        
+
         let now = Math.ceil(Date.now() / 1000);
         let currentUserBalance = await token.balanceOf(user);
-        
+
         await controllerInstance.setDevRewardReleaseTime.sendTransaction(now - 100);
         await controllerInstance.getDevReward.sendTransaction({from: user});
-        
+
         let newUserBalance = await token.balanceOf(user);
         assert.isOk(newUserBalance.eq(currentUserBalance.plus(rewardBn)));
     });
@@ -219,28 +219,28 @@ contract('ICO_controller tests getDevReward', async function(accounts) {
     it("test when msg.sender in mapping and amount = 0", async function() {
         rewardBn = BigNumber(0);
         reward = rewardBn.toNumber();
-        
+
         await controllerInstance.addDevReward(user, reward, {'from': owner});
-        
+
         let now = Math.ceil(Date.now() / 1000);
         let currentUserBalance = await token.balanceOf(user);
-        
+
         await controllerInstance.setDevRewardReleaseTime.sendTransaction(now - 100);
         await controllerInstance.getDevReward.sendTransaction({from: user});
-        
+
         let newUserBalance = await token.balanceOf(user);
         assert.isOk(newUserBalance.eq(currentUserBalance.plus(rewardBn)));
     });
 
     it("test when msg.sender not in mapping", async function() {
         await controllerInstance.addDevReward(user, reward, {'from': owner});
-        
+
         let now = Math.ceil(Date.now() / 1000);
         let currentOtherUserBalance = await token.balanceOf(otherUser);
-        
+
         await controllerInstance.setDevRewardReleaseTime.sendTransaction(now - 100);
         await controllerInstance.getDevReward.sendTransaction({from: otherUser});
-        
+
         let newOtherUserBalance = await token.balanceOf(otherUser);
         assert.isOk(newOtherUserBalance.eq(currentOtherUserBalance));
     });
@@ -328,19 +328,19 @@ contract('ICO_controller', async function (accounts) {
         let privateOffer = new WhitelistedCrowdsale(await controller_instance.privateOffer.call());
 
         try {
-            await controller_instance.increasePrivateOfferEndTime(newEndTime, {'from': accounts[1]});
-            assert.ifError('Only owner should not be able to run increasePrivateOfferEndTime');
+            await controller_instance.increaseCurrentIcoEndTime(newEndTime, {'from': accounts[1]});
+            assert.ifError('Only owner should not be able to run increaseCurrentIcoEndTime');
         } catch (err) {
-            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increasePrivateOfferEndTime as user");
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increaseCurrentIcoEndTime as user");
         }
         try {
-            await controller_instance.increasePrivateOfferEndTime(endTime);
+            await controller_instance.increaseCurrentIcoEndTime(endTime);
             assert.ifError('New end time should be greater than previous one');
         } catch (err) {
-            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increasePrivateOfferEndTime with wrong time");
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Wrong error after run increaseCurrentIcoEndTime with wrong time");
         }
 
-        await controller_instance.increasePrivateOfferEndTime(newEndTime);
+        await controller_instance.increaseCurrentIcoEndTime(newEndTime);
         assert.equal(newEndTime, await privateOffer.endTime.call(), "Wrong value of private offer endtime");
     });
 });
