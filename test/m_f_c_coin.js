@@ -1,5 +1,5 @@
 var token = artifacts.require("MFC_Token");
-var ICO_controller_mock = artifacts.require("ICO_controller_mock");
+var ICO_controller_mock = artifacts.require("TransferableControllerMock");
 var erc223receiver = artifacts.require("ERC223Receiver");
 var StandardToken = artifacts.require("StandardToken");
 var BigNumber = require('bignumber.js');

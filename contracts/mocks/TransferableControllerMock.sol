@@ -1,9 +1,9 @@
 pragma solidity ^0.4.19;
 
-import "./MFC_coin.sol";
-import "./ICO_controller.sol";
+import "./../MFC_coin.sol";
+import "./../ICO_controller.sol";
 
-contract ICO_controller_mock is TransferableInterface {
+contract TransferableControllerMock is TransferableInterface {
 
     MFC_Token public token = new MFC_Token();
 

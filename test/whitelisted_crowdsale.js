@@ -24,14 +24,14 @@ contract('WhitelistedCrowdsale', async (accounts) => {
   let token = null;
   let instanceWhitelistedCrowdsale = null;
 
-  before("setup contract for each test", async () => {
+  before("setup contract for all test", async () => {
     controller = await ICO_controller.new(holder, escrowAccount, {from: owner});
     startTime = Math.ceil(Date.now() / 1000);
     endTime = Math.ceil(Date.now() / 1000) + 100;
     token = MFC_Token.at(await controller.token.call());
     await controller.startPrivateOffer.sendTransaction(startTime, endTime, escrowAccount, {from: owner});
     instanceWhitelistedCrowdsale = WhitelistedCrowdsale.at(await controller.privateOffer.call());
-    await controller.addBuyerToWhitelist.sendTransaction(userFromWhitelist, {from: owner});
+    await controller.addBuyers.sendTransaction([userFromWhitelist], {from: owner});
     wait(5);
   });
   
