@@ -1,6 +1,8 @@
 var Token = artifacts.require("MFC_Token");
 var Controller = artifacts.require("ICO_controller");
-var WhitelistedCrowdsale = artifacts.require("WhitelistedCrowdsale");
+var IcoControllerMock = artifacts.require("IcoControllerMock");
+var WhitelistedCrowdsale =artifacts.require("WhitelistedCrowdsale");
+var Web3 = require('web3');
 var BigNumber = require('bignumber.js');
 var wait = require('./utils').wait;
 
@@ -157,6 +159,91 @@ contract('ICO_controller tests addDevReward', async function (accounts) {
         }
     });
 
+});
+
+contract('ICO_controller tests getDevReward', async function(accounts) {
+    let owner = accounts[0];
+    let holder = accounts[1];
+    let escrowAccount = accounts[2];
+    let user = accounts[3];
+    let otherUser = accounts[4];
+
+    let controllerInstance = null;
+    let maxReward = null;
+    let token = null;
+    let totalReward = null;
+    let totalRewardBn = null;
+    let rewardBn = null;
+    let reward = null;
+
+    beforeEach(async function() {
+        controllerInstance = await IcoControllerMock.new(
+            holder, escrowAccount, 
+            {from: owner}
+        );
+        token = Token.at(await controllerInstance.token.call());
+        maxReward = await controllerInstance.MAX_DEV_REWARD.call();
+        totalReward = await controllerInstance.totalDevReward.call();
+        totalRewardBn = BigNumber(totalReward);
+        rewardBn = BigNumber(maxReward).minus(totalRewardBn).dividedBy(1000000000000)
+        reward = rewardBn.toNumber();
+    });
+    
+    it("should throw error when devRewardReleaseTime >= now", async function() {
+        await controllerInstance.addDevReward(user, reward, {'from': owner});
+        
+        let now = Math.ceil(Date.now() / 1000);
+        
+        await controllerInstance.setDevRewardReleaseTime.sendTransaction(now + 100);
+        try {
+            await controllerInstance.getDevReward.sendTransaction({from: user});
+            assert.ifError('Error, devRewardReleaseTime < now');
+        } catch (err) {
+            assert.equal(err, 'Error: VM Exception while processing transaction: revert', "devRewardReleaseTime >= now");
+        }
+    });
+
+    it("test when msg.sender in mapping and amount > 0", async function() {
+        await controllerInstance.addDevReward(user, reward, {'from': owner});
+        
+        let now = Math.ceil(Date.now() / 1000);
+        let currentUserBalance = await token.balanceOf(user);
+        
+        await controllerInstance.setDevRewardReleaseTime.sendTransaction(now - 100);
+        await controllerInstance.getDevReward.sendTransaction({from: user});
+        
+        let newUserBalance = await token.balanceOf(user);
+        assert.isOk(newUserBalance.eq(currentUserBalance.plus(rewardBn)));
+    });
+
+    it("test when msg.sender in mapping and amount = 0", async function() {
+        rewardBn = BigNumber(0);
+        reward = rewardBn.toNumber();
+        
+        await controllerInstance.addDevReward(user, reward, {'from': owner});
+        
+        let now = Math.ceil(Date.now() / 1000);
+        let currentUserBalance = await token.balanceOf(user);
+        
+        await controllerInstance.setDevRewardReleaseTime.sendTransaction(now - 100);
+        await controllerInstance.getDevReward.sendTransaction({from: user});
+        
+        let newUserBalance = await token.balanceOf(user);
+        assert.isOk(newUserBalance.eq(currentUserBalance.plus(rewardBn)));
+    });
+
+    it("test when msg.sender not in mapping", async function() {
+        await controllerInstance.addDevReward(user, reward, {'from': owner});
+        
+        let now = Math.ceil(Date.now() / 1000);
+        let currentOtherUserBalance = await token.balanceOf(otherUser);
+        
+        await controllerInstance.setDevRewardReleaseTime.sendTransaction(now - 100);
+        await controllerInstance.getDevReward.sendTransaction({from: otherUser});
+        
+        let newOtherUserBalance = await token.balanceOf(otherUser);
+        assert.isOk(newOtherUserBalance.eq(currentOtherUserBalance));
+    });
 });
 
 contract('ICO Controller', function (accounts) {
