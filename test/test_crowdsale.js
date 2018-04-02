@@ -196,7 +196,7 @@ contract('ICO_crowdsale test validPurchase() time', async (accounts) => {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "now < startTime");
         }
 
-        wait(4); // waiting for 4 seconds to go to beyond endTime
+        wait(5); // waiting for current time to go beyond the endTime
 
         try {
             await instanceWhitelistedCrowdsale.buyTokens(
