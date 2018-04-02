@@ -1,6 +1,6 @@
 const Token = artifacts.require("MFC_Token");
 const tokenHolder = artifacts.require("TokenHolder");
-const ICO_controller = artifacts.require("ICO_controller");
+var ICO_controller_mock = artifacts.require("ICO_controller_mock");
 
 contract('Token_Holder tests escrowTokensTo()', async function(accounts) {
     /* Task 126 - Create test for Token_Holder escrowTokensTo() */
@@ -11,7 +11,7 @@ contract('Token_Holder tests escrowTokensTo()', async function(accounts) {
         let owner3 = accounts[3];
         let escrowAddress = accounts[4];
 
-        let token = await Token.new();
+        let token = await Token.at(await ((await ICO_controller_mock.deployed()).token.call()));
 
         let tokenHolderContract = await tokenHolder.new(
             [owner1,owner2,owner3], 3, token.address
