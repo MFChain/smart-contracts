@@ -47,15 +47,23 @@ def get_ico_instance(address, compiled_source):
     return ico_instance
 
 
-def add_address_to_whitelist(address, controller_instance):
-    tx_hash = controller_instance.transact(
-        {'from': owner_account}
-    ).addBuyers([address])
-    wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to whitelist")
-    print("\n\n{} successfully added to whitelist".format(address))
+def add_addresses_to_whitelist(address, file_path, controller_instance):
+    if file_path:
+        with open(file_path, 'r') as csv_file:
+            addresses = list((addr[0] for addr in csv.reader(csv_file)))
+    else:
+        addresses = [address]
+
+    number_of_iterarions = math.ceil(len(addresses) / 125)
+    for i in range(number_of_iterarions):
+        tx_hash = controller_instance.transact(
+            {'from': owner_account}
+        ).addBuyers(addresses[i * 125:(i + 1) * 125])
+        wait_for_tx(tx_hash, w3, wait_message="Wait for account to be added to whitelist {}".format(i))
+    print("\n\n successfully added to whitelist")
     with open('whitelisted.csv', 'at') as text_file:
         spamwriter = csv.writer(text_file, quoting=csv.QUOTE_MINIMAL)
-        spamwriter.writerow(([address]))
+        spamwriter.writerows(([address] for address in addresses))
 
 
 def print_address_balance(address, token_instance):
@@ -127,7 +135,6 @@ def send_airdrop(controller_instance, drop_file_path):
         addresses, amounts = list(addresses), list(amounts)
         amounts = [int(am) for am in amounts]
 
-
     number_of_iterarions = math.ceil(len(addresses) / 125)
     for i in range(number_of_iterarions):
         tx_hash = controller_instance.transact(
@@ -176,7 +183,7 @@ if __name__ == '__main__':
     if command == 'balance':
         print_address_balance(address, token_instance)
     elif command == 'whitelist':
-        add_address_to_whitelist(address, controller_instance)
+        add_addresses_to_whitelist(address, file_path, controller_instance)
     elif command == 'stage_info':
         print_stage_info()
     elif command == 'finish':
