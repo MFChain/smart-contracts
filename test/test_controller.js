@@ -86,8 +86,7 @@ contract('ICO_controller tests addDevReward', async function (accounts) {
         let total_reward_bn = BigNumber(total_reward);
         let reward = BigNumber(max_reward).minus(total_reward_bn).dividedBy(1000000000000).toNumber();
 
-        await contract.addDevReward(user, reward, {'from': owner});
-        await contract.addDevReward(user, reward, {'from': owner});
+        await contract.addRewards([user, user], [reward, reward], {'from': owner});
 
         let total_reward_after = await contract.totalDevReward.call();
         let total_reward_after_bn = BigNumber(total_reward_after);
