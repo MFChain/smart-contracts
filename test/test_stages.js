@@ -31,7 +31,7 @@ contract('ICO Private Offer', async function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected rever error after buying tokens as not KYC");
         }
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
 
         try {
             await privateOffer.sendTransaction({
@@ -111,7 +111,7 @@ contract('ICO Presale', async function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected rever error after buying tokens as not KYC");
         }
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
 
         try {
             await preSale.sendTransaction({
@@ -202,7 +202,7 @@ contract('ICO Crowdsale', async function (accounts) {
         } catch (err) {
             assert.equal(err, 'Error: VM Exception while processing transaction: revert', "Expected revert error after buying tokens as not KYC");
         }
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
 
         try {
             await crowdsale.sendTransaction({
@@ -262,8 +262,8 @@ contract('ICO didn\'t reach Softcup', async function (accounts) {
         let buyerAddress = accounts[2];
         let buyerAddress2 = accounts[3];
         let holder =
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
-        await controller_instance.addBuyerToWhitelist(buyerAddress2);
+        await controller_instance.addBuyers([buyerAddress]);
+        await controller_instance.addBuyers([buyerAddress2]);
 
         let startTime = Math.ceil(Date.now() / 1000);
         let endTime = Math.ceil(Date.now() / 1000);
@@ -331,7 +331,7 @@ contract('ICO success', async function (accounts) {
         let buyerAddress = accounts[2];
         let escrowAddress = accounts[4];
         let escrowAddressInitialBalance = BigNumber(await web3.eth.getBalance(escrowAddress));
-        await controller_instance.addBuyerToWhitelist(buyerAddress);
+        await controller_instance.addBuyers([buyerAddress]);
         let startTime = Math.ceil(Date.now() / 1000);
         let endTime = Math.ceil(Date.now() / 1000) + 1;
         await controller_instance.startPrivateOffer(
@@ -379,10 +379,12 @@ contract('ICO success', async function (accounts) {
 
         let expectedHalfEscrowAmount = BigNumber(web3.toWei(2360, 'ether'));
         await controller_instance.finishCrowdsale();
+        await controller_instance.finishCrowdsaleBurnUnused();
         let actualEscrowBalance = BigNumber(await web3.eth.getBalance(escrowAddress))
             .minus(escrowAddressInitialBalance);
         assert.isTrue(actualEscrowBalance.isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at escrow balance");
         assert.isTrue(BigNumber(await web3.eth.getBalance(holder.address)).isEqualTo(expectedHalfEscrowAmount), "Wrong amount of ether at holder balance");
+
         let controllerTokenBalance = BigNumber(await token.balanceOf(controller_instance.address));
         let marketingSupportTokens = BigNumber(await controller_instance.MARKETING_SUPPORT_SUPPLY.call());
         assert.isTrue(controllerTokenBalance.isEqualTo(marketingSupportTokens), "Wrong amount of token at controller");

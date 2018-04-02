@@ -16,6 +16,3 @@ ADD requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN mkdir workspace
 WORKDIR workspace/ico-api
-
-RUN useradd -ms /bin/bash newuser
-USER newuser
