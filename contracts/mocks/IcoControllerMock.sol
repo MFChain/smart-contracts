@@ -10,4 +10,9 @@ contract IcoControllerMock is ICO_controller {
     function setDevRewardReleaseTime(uint time) external {
         devRewardReleaseTime = time;
     }
+
+    function setUnlockMarketingTokensTime(uint time1, uint time2) external {
+        unlockMarketingTokensTime[0] = time1;
+        unlockMarketingTokensTime[1] = time2;
+    }
 }
