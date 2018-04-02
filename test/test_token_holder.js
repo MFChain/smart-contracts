@@ -19,8 +19,8 @@ contract('Token_Holder tests escrowTokensTo()', async function(accounts) {
 
         token.transfer(tokenHolderContract.address, 10);
 
-        let balance = await token.balanceOf(tokenHolderContract.address);
-        assert.equal(10, balance.toNumber());
+        let tokenHolderContractBalance = await token.balanceOf(tokenHolderContract.address);
+        assert.equal(10, tokenHolderContractBalance.toNumber());
 
         assert.equal(0, await token.balanceOf(escrowAddress));
 
@@ -32,10 +32,10 @@ contract('Token_Holder tests escrowTokensTo()', async function(accounts) {
 
         await tokenHolderContract.escrowTokensTo(escrowAddress, {'from': owner3});
 
-        let value = await token.balanceOf(escrowAddress);
+        let escrowAddressBalance = await token.balanceOf(escrowAddress);
 
         assert.equal(0, await token.balanceOf(tokenHolderContract.address));
-        assert.equal(10, value.toNumber());
+        assert.equal(10, escrowAddressBalance.toNumber());
 
     });
 });
