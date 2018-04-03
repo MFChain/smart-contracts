@@ -10,8 +10,8 @@ def run(ctx):
 
 @task
 def run_rinkeby(ctx):
-    ctx.run('geth --syncmode "fast" --cache 512 --datadir "blchain_rinkeby" --rpcaddr "127.0.0.1" --rpc --rpccorsdomain "*" --rpcapi "db,eth,net,web3,personal" --rinkeby')
+    ctx.run('geth --syncmode "light" --cache 512 --datadir "blchain_rinkeby" --rpcaddr "127.0.0.1" --rpc --rpccorsdomain "*" --rpcapi "db,eth,net,web3,personal" --rinkeby')
 
 @task
 def run_mainnet(ctx):
-    ctx.run('geth --syncmode "fast" --cache 512 --datadir "blchain_mainnet" --rpcaddr "127.0.0.1" --rpc --rpccorsdomain "*" --rpcapi "db,eth,net,web3,personal"')
+    ctx.run('geth --syncmode "light" --cache 512 --datadir "blchain_mainnet" --rpcaddr "127.0.0.1" --rpc --rpccorsdomain "*" --rpcapi "db,eth,net,web3,personal"')
