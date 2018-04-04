@@ -66,6 +66,9 @@ contract ICO_controller is Ownable, TransferableInterface {
     bool public crowdsaleFinished;
 
     function ICO_controller(address _holder, address _escrowIco) {
+        require(_holder!=address(0));
+        require(_escrowIco!=address(0));
+
         devRewardReleaseTime = now;
 
         unlockMarketingTokensTime[0] = now;
