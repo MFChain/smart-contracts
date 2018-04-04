@@ -42,8 +42,7 @@ ap = argparse.ArgumentParser()
 
 ap.add_argument('--accounts', '-a', type=ethereum_accounts,
                 help='Accounts for multisig controll type like those: "<address1>,<address2>"')
-ap.add_argument('--require', '-r', type=int, help='Minimum account confirmations needed to run Holder function',
-                default=1)
+ap.add_argument('--require', '-r', type=int, help='Minimum account confirmations needed to run Holder function')
 ap.add_argument('--escrow', '-e', type=str, help="Escrow account for ICO's")
 ap.add_argument('--wallet', '-w', type=str, help="Deploy account")
 ap.add_argument('--password', '-p', help='Ask input password to unlock account', action='store_true')
