@@ -4,12 +4,10 @@
 .vscode/
 node_modules
 ico-api/addresses.csv
-simulation/airdrop.csv
-simulation/whitelisted.csv
+simulation/*.csv
 simulation/blchain_mainnet/
 simulation/blchain_rinkeby/
 __pycache__
-deploy_info.csv
 build
 venv
 coverage/
