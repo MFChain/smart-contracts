@@ -194,7 +194,13 @@ def add_buyers():
 def add_airdropers():
     return add_addresses('addAirdrop')
 
+'''
+Request example:
+curl -i -H "Content-Type: application/json" -X POST -d '{"address":"0x8ba5724dDFB81273Af2ce66FfdBade166009E753"}' http://localhost:8181/api/v1/to_checksum_addr/
 
+Response example:
+{"address":"0x8ba5724dDFB81273Af2ce66FfdBade166009E753"}
+'''
 @app.route('/api/v1/to_checksum_addr/', methods=['POST'])
 def to_checksum_address():
     if not request.json or not 'address' in request.json:
