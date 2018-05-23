@@ -28,9 +28,10 @@ def login_and_form_required(fn):
         username = session.get('username')
         token = session.get('login_token')
         if (not username or not token or admins[username][1] != token
-           or not request.form):
+                or not request.form):
             abort(404)
         return fn()
+
     wrapper.__name__ = fn.__name__
     return wrapper
 
@@ -57,24 +58,24 @@ with open('../simulation/deploy_info.csv', 'r') as deploy_info:
     controller_address = get_csv_file_row(
         deploy_info,
         CSV_ROWS['controller']
-        )[1]
+    )[1]
     token_address = get_csv_file_row(deploy_info, 0)[1]
 
 compiled_source = compile_files(["../contracts/ICO_controller.sol"])
 controller_interface = compiled_source[
     '../contracts/ICO_controller.sol:ICO_controller'
-    ]
+]
 stage_interface = compiled_source[
     '../contracts/ICO_crowdsale.sol:WhitelistedCrowdsale'
-    ]
+]
 token_interface = compiled_source[
     '../contracts/MFC_coin.sol:MFC_Token'
-    ]
+]
 
 controller_contract = web3.eth.contract(
     abi=controller_interface['abi'],
     bytecode=controller_interface['bin']
-    )
+)
 controller_instance = controller_contract(controller_address)
 
 token_contract = web3.eth.contract(
@@ -85,7 +86,7 @@ token_instance = token_contract(token_address)
 stage_contract = web3.eth.contract(
     abi=stage_interface['abi'],
     bytecode=stage_interface['bin']
-    )
+)
 
 
 def get_stage(address):
@@ -94,10 +95,10 @@ def get_stage(address):
 
 def add_addresses(method_name):
     addresses = get_addresses(request)
-    for i in range(ceil(len(addresses)/MAX_ADDRESSES_IN_TX)):
+    for i in range(ceil(len(addresses) / MAX_ADDRESSES_IN_TX)):
         method = getattr(controller_instance.functions, method_name)
         tx_hash = method(
-            addresses[MAX_ADDRESSES_IN_TX*i:MAX_ADDRESSES_IN_TX*(i+1)]
+            addresses[MAX_ADDRESSES_IN_TX * i:MAX_ADDRESSES_IN_TX * (i + 1)]
         ).transact(tx)
         tx_receipt = wait_for_tx(tx_hash, web3)
         if tx_receipt['status'] != 1:
@@ -108,7 +109,7 @@ def add_addresses(method_name):
 @app.route('/api/v1/stage_info/', methods=['GET'])
 def stage_info():
     private_offer_address = controller_instance.functions.privateOffer(
-        ).call(tx)
+    ).call(tx)
     maxSold = 27200
     weiRaised = 0
     currentSold = 0
@@ -123,7 +124,7 @@ def stage_info():
             stage = get_stage(presale_address)
             weiRaised += stage.functions.weiRaised().call(tx)
             crowdsale_address = controller_instance.functions.crowdsale(
-                ).call(tx)
+            ).call(tx)
             if int(crowdsale_address, 16):
                 stage = get_stage(crowdsale_address)
                 weiRaised += stage.functions.weiRaised().call(tx)
@@ -135,13 +136,13 @@ def stage_info():
     if stage and not stage.functions.hasEnded().call(tx):
         stage_end_time = stage.functions.endTime().call(tx)
     if weiRaised:
-        currentSold = weiRaised/10 ** 18
+        currentSold = weiRaised / 10 ** 18
     return jsonify({
         'stage_name': last_stage_name,
         'stage_end_time': stage_end_time,
         'max_sold': maxSold,
         'current_sold': currentSold
-        })
+    })
 
 
 @app.route('/api/v1/wallet_info/', methods=['GET'])
@@ -152,12 +153,12 @@ def wallet_info():
     return jsonify({
         'token_balance': token_instance.functions.balanceOf(
             wallet_address
-            ).call(tx),
+        ).call(tx),
         'balance': web3.eth.getBalance(wallet_address),
         'whitelisted': controller_instance.functions.isAddressWhitelisted(
             wallet_address
-            ).call(tx)
-        })
+        ).call(tx)
+    })
 
 
 @app.route('/api/v1/login/', methods=['POST'])
@@ -192,6 +193,23 @@ def add_buyers():
 @login_and_form_required
 def add_airdropers():
     return add_addresses('addAirdrop')
+
+'''
+Request example:
+curl -i -H "Content-Type: application/json" -X POST -d '{"address":"0x8ba5724dDFB81273Af2ce66FfdBade166009E753"}' http://localhost:8181/api/v1/to_checksum_addr/
+
+Response example:
+{"address":"0x8ba5724dDFB81273Af2ce66FfdBade166009E753"}
+'''
+@app.route('/api/v1/to_checksum_addr/', methods=['POST'])
+def to_checksum_address():
+    if not request.json or not 'address' in request.json:
+        abort(400)
+    try:
+        address = web3.toChecksumAddress(request.json['address'])
+        return jsonify({'address': address}), 200
+    except ValueError:
+        return jsonify({'error': 'It is not an address'}), 400
 
 
 if __name__ == "__main__":
